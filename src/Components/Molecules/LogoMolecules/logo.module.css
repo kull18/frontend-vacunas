@@ -1,0 +1,124 @@
+#vacuna{
+    animation: vacuna ease-in-out forwards;
+    animation-duration: 1.7s;
+    animation-iteration-count: 1;
+}
+
+#cold{
+    animation: cold ease-in-out forwards;
+    animation-delay: 1s;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    opacity: 0;
+}
+
+#temperature{
+    animation: temperature ease-in-out forwards;
+    animation-delay: 1s;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    opacity: 0;
+}
+
+#firstCircule {
+    animation: firstCircule 1.5s ease-in-out forwards;
+    animation-delay: 1.6s;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    opacity: 0;
+}
+
+#secondCircule {
+    animation: secondCircule 1.5s ease-in-out forwards;
+    animation-delay: 1.6s;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    opacity: 0;
+}
+
+#thirdCircule{
+    animation: thirdCircule 1.5s ease-in-out forwards;
+    animation-delay: 1.7s;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    opacity: 0;
+}
+
+@keyframes firstCircule {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(11vh, -10vh) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(9vh, -12.8vh) scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes secondCircule {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(11vh, -11vh) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(10vh, -14vh) scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes thirdCircule {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(11vh, -8vh) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(12vh, -6vh) scale(1.2);
+        opacity: 1;
+    }
+}
+
+
+@keyframes temperature{
+    from{
+        transform: translateX(0);
+        opacity: 0;
+    }
+    to{
+        transform: translate(8vh, 8vh) scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes cold {
+    from{
+        transform: translateX(0);
+        opacity:0;
+    }
+    to{
+       transform: translate(-6vh, -6vh) scale(1.2);
+       opacity: 1;
+    }
+}
+
+@keyframes vacuna {
+    from{
+        opacity: 0;
+        transform: scale(1);
+    }
+    to{
+        opacity: 1;
+        transform: scale(1.3);
+    }
+}
