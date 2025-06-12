@@ -1,12 +1,13 @@
 import FormLogin from "../../../Components/Molecules/LoginMolecules/formLogin";
 import LogoVaccine from "../../../Components/Molecules/LogoMolecules/logoVaccine";
+import FormRegister from "../../Molecules/RegisterMolecules/formRegister";
 import style from "../../Organism/LoginOrganism/loginOrg.module.css"
 import { useState } from "react";
 
 function LoginOrg() {
     
     const [showLogin, setShowLogin] = useState(false);
-
+    const [btnRegister, setBtnRegister] = useState(false)
     return ( 
         <>
             <div id={style.fondo} className="">
@@ -38,7 +39,10 @@ function LoginOrg() {
                 </div>
                     
                 <div id={showLogin ? style.show : style.login}>
-                                <FormLogin />
+                        <FormLogin onClick={() =>setBtnRegister(true)}/>
+                </div>
+                <div id={btnRegister ? style.showRegister : style.register}>
+                    <FormRegister></FormRegister>
                 </div>
             </div>
         </>

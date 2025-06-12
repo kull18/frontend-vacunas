@@ -1,7 +1,7 @@
 #fondo{
     height: 100vh;
     width: 100%;
-    background-image: url("../../../assets/fondoLogin.png");
+    background-image: url("../../../../../../../src/assets/fondoLogin.png");
     background-size: cover;
     overflow: hidden;
     position: relative;
@@ -181,6 +181,15 @@
     to {
         transform: rotate(180deg) translateY(120%); /* Posición final: visible */
     }
+}
+
+#register {
+    transition: transform 0.8s ease-in-out;
+    transform: translateY(0); /* Estado inicial */
+}
+
+#showRegister {
+    transform: translateY(-100vh); /* Se mueve fuera de la pantalla */
 }
 
 /*------------------------LOGIN RESPONSIVE-----------------------------*/

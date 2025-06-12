@@ -1,7 +1,7 @@
 import style from "./../LoginMolecules/formLogin.module.css"
 import clipboard from "../../../../../../assets/clipboard.png"
 import inyection from "../../../../../../assets/injection.png"
-function FormLogin() {
+function FormLogin({ onClick }: { onClick: () => void }) {
 
     async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Evita que la página se recargue al enviar el formulario
@@ -32,7 +32,7 @@ function FormLogin() {
                 id={style.font}>ENTRAR</button>
                 <div className="flex mt-4 text-[#0000004d]">
                 <p>Aun no tienes cuenta? </p>
-                <p className="text-[#2F5CE5] ml-1 cursor-pointer">Registrate</p>
+                <p className="text-[#2F5CE5] ml-1 cursor-pointer" onClick={onClick}>Registrate</p>
                 </div>
         </form>
                 <div className="absolute w-28 h-28 rounded-md bg-[#d9d9d955] z-10" id={style.squared}></div>
