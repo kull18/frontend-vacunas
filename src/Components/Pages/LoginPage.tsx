@@ -1,4 +1,4 @@
-import LoginOrg from "../Organism/LoginOrganism/loginOrg";
+import LoginOrg from "../Organism/LoginOrganism/login";
 
 function LoginPage() {
     return ( 
