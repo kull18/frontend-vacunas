@@ -1,6 +1,6 @@
 import style from "./../LoginMolecules/formLogin.module.css"
-import clipboard from "../../../assets/clipboard.png"
-import inyection from "../../../assets/injection.png"
+import clipboard from "../../../../../../assets/clipboard.png"
+import inyection from "../../../../../../assets/injection.png"
 function FormLogin() {
 
     async function login(e: React.FormEvent<HTMLFormElement>) {

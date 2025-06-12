@@ -1,5 +1,5 @@
 import './App.css'
-import LoginPage from './Components/Pages/LoginPage'
+import LoginPage from './features/Users/presentation/Components/Pages/LoginPage'
 function App() {
   return (
     <>
