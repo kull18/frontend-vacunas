@@ -1,9 +1,12 @@
-import FormLogin from "../../Molecules/LoginMolecules/formLogin";
-import LogoVaccine from "../../Molecules/LogoMolecules/logoVaccine";
-import style from "../LoginOrganism/loginOrg.module.css"
+import FormLogin from "../../../Components/Molecules/LoginMolecules/formLogin";
+import LogoVaccine from "../../../Components/Molecules/LogoMolecules/logoVaccine";
+import style from "../../Organism/LoginOrganism/loginOrg.module.css"
 import { useState } from "react";
+
 function LoginOrg() {
+    
     const [showLogin, setShowLogin] = useState(false);
+
     return ( 
         <>
             <div id={style.fondo} className="">
