@@ -1,13 +1,28 @@
 import FormLogin from "../../../Components/Molecules/LoginMolecules/formLogin";
 import LogoVaccine from "../../../Components/Molecules/LogoMolecules/logoVaccine";
-import FormRegister from "../../Molecules/RegisterMolecules/formRegister";
 import style from "../../Organism/LoginOrganism/loginOrg.module.css"
+import styled from "../../Molecules/LoginMolecules/formLogin.module.css"
+import clipboard from "../../../../../../assets/clipboard.png"
+import inyection from "../../../../../../assets/injection.png"
 import { useState } from "react";
+import FormRegister from "../../Molecules/RegisterMolecules/formRegister";
 
 function LoginOrg() {
     
     const [showLogin, setShowLogin] = useState(false);
-    const [btnRegister, setBtnRegister] = useState(false)
+    const [showRegister, setShowRegister] = useState(false);
+
+
+const switchToLogin = () => {
+        setShowRegister(false);
+        setShowLogin(true);
+    };
+
+    const switchToRegister = () => {
+        setShowLogin(false);
+        setShowRegister(true);
+    };
+    
     return ( 
         <>
             <div id={style.fondo} className="">
@@ -37,13 +52,33 @@ function LoginOrg() {
 
                         </div>
                 </div>
+                
+                        <div className="bg-white w-full h-full absolute right-0 flex justify-center items-center" id={style.login}>
+                            <img src={inyection} alt="" className="w-24 absolute opacity-10" id={styled.inyection}/>
+                            <div className="absolute w-60 h-60 rounded-full bg-[#d9d9d955] z-10" id={styled.circle}></div>
+                            <div className="absolute w-16 h-16 rounded-full bg-[#d9d9d955] z-10" id={styled.circleSecond}></div>
+                            <div className="absolute w-7 h-7 rounded-full bg-[#d9d9d955] z-10" id={styled.circleThirty}></div>
+
+                            
+                                        <div className="flex flex-col">
+                                            {showRegister ? (
+                                                <div id={`${style.formContainer} ${showRegister ? style.fadeIn : style.fadeOut}`}>
+                                                    <FormRegister onClick={switchToLogin} />
+                                                </div>
+                                            ) : (
+                                                <div id={`${style.formContainer} ${showLogin ? style.fadeIn : style.fadeOut}`}>
+                                                    <FormLogin onClick={switchToRegister} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                            
+                            <div className="absolute w-28 h-28 rounded-md bg-[#d9d9d955] z-10" id={styled.squared}></div>
+                            <img src={clipboard} alt="" className="w-24 absolute opacity-10" id={styled.clipboard}/>
+
+                        </div>
                     
-                <div id={showLogin ? style.show : style.login}>
-                        <FormLogin onClick={() =>setBtnRegister(true)}/>
-                </div>
-                <div id={btnRegister ? style.showRegister : style.register}>
-                    <FormRegister></FormRegister>
-                </div>
+                
             </div>
         </>
     );

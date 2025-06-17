@@ -107,7 +107,6 @@
 }
 
 #login {
-    position: absolute;
     right: 0;
     top: 0;
     width: 50%;
@@ -120,9 +119,13 @@
 @keyframes login {
     from {
         transform: translateY(100%);
+        border-start-start-radius: 0vh;
+        border-end-start-radius: 0vh;
     }
     to {
         transform: translateY(0);
+        border-start-start-radius: 7vh;
+        border-end-start-radius: 7vh;
     }
 }
 
@@ -183,24 +186,17 @@
     }
 }
 
-#register {
-    transition: transform 0.8s ease-in-out;
-    transform: translateY(0); /* Estado inicial */
-}
-
-#showRegister {
-    transform: translateY(-100vh); /* Se mueve fuera de la pantalla */
-}
-
 /*------------------------LOGIN RESPONSIVE-----------------------------*/
+
 @media (max-width: 800px) {
     #login {
+        border-top-left-radius: 7vh; /* Ajuste de bordes */
+        border-top-right-radius: 7vh;
         position: relative; /* Cambia a `relative` para evitar problemas de posicionamiento */
         width: 100vw; /* Ocupará toda la pantalla en móvil */
-        height: 50vh; /* Ajusta la mitad vertical */
+        height: 77vh; /* Ajusta la mitad vertical */
         display: flex;
-        justify-content: center; /* Centra horizontalmente */
-        align-items: center; /* Centra verticalmente */
+
         animation: formResponsive 1.3s ease-in-out forwards;
         animation-delay: 3.7s;
     }
@@ -212,7 +208,7 @@
         opacity: 0;
     }
     to {
-        transform: translateY(-130%);
+        transform: translateY(-100%);
         opacity: 1;
     }
 }
