@@ -1,11 +1,14 @@
 import style from "./../LoginMolecules/formLogin.module.css"
-import clipboard from "../../../../../../assets/clipboard.png"
-import inyection from "../../../../../../assets/injection.png"
+import { useNavigate } from "react-router-dom";
 function FormLogin({ onClick }: { onClick: () => void }) {
-
+    const navigate = useNavigate();
     async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Evita que la página se recargue al enviar el formulario
         console.log("Formulario enviado correctamente!");
+    }
+
+    const goHome = ()=>{
+        navigate("/historial-vacunacion/paciente")
     }
 
     return ( 
@@ -25,7 +28,7 @@ function FormLogin({ onClick }: { onClick: () => void }) {
 
                 <button className="bg-[#9CD5F4] rounded-3xl mt-7 px-16 py-3 
                 text-[#747d95] cursor-pointer hover:bg-[#93cae7] duration-75" 
-                id={style.font}>ENTRAR</button>
+                id={style.font} onClick={goHome}>ENTRAR</button>
                 <div className="flex mt-4 text-[#0000004d]">
                 <p>Aun no tienes cuenta? </p>
                 <p className="text-[#2F5CE5] ml-1 cursor-pointer" onClick={onClick}>Registrate</p>

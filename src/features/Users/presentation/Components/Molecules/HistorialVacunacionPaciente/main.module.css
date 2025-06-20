@@ -1,0 +1,35 @@
+@media (max-width:800px)and (max-width: 1200px){
+    section{
+    margin-left: 1vh;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    row-gap: calc(var(--spacing)*3);
+    margin-top: calc(var(--spacing)*5);
+    }
+
+    #card {
+    width: calc(var(--spacing) *44);
+    height: 15.4vh;
+    border-radius: var(--radius-2xl);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--spacing)*3);
+    }
+
+    /*TABLA*/
+}
+
+#text{
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+#card{
+-webkit-box-shadow: 0px 0px 13px -8px rgba(66, 68, 90, 1);
+-moz-box-shadow: 0px 0px 13px -8px rgba(66, 68, 90, 1);
+box-shadow: 0px 0px 13px -8px rgba(66, 68, 90, 1);
+}
+
