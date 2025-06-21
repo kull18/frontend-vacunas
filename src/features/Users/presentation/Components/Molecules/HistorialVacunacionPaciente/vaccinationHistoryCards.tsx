@@ -7,12 +7,12 @@ function VaccinationHistoryCards() {
     return ( 
         <>
         <div className="mt-10">
-            <p className="text-2xl text-[#00000081] ml-2 sm:ml-7">Historial de vacunación</p>
+            <p className="text-2xl text-[#00000081] ml-2 sm:ml-7" id={style.title1}>Historial de vacunación</p>
         </div>
 
         <section className="flex ml-6 gap-4 mt-6" id={style.section}>
             <div className="w-[40vh] h-[15vh] bg-white rounded-2xl 
-            flex justify-center items-center gap-10" id={style.card}> 
+            flex justify-center items-center gap-10" id={style.card1}> 
                     <div className="">
                         <p className="text-4xl text-[#3f3c3cc5] sm:text-[4.3vh]" id={style.text}>10</p>
                         <p className="text-[1.6vh] text-[#0000009e] sm:text-[2.4vh]">Vacunas aplicadas</p>
@@ -23,7 +23,7 @@ function VaccinationHistoryCards() {
             </div>
 
             <div className="w-[40vh] h-[15vh] bg-white rounded-2xl 
-            flex justify-center items-center gap-10" id={style.card}>
+            flex justify-center items-center gap-10" id={style.card2}>
                     <div className="space-y-2">
                         <p className="text-4xl text-[#3f3c3cc5] sm:text-[4.3vh]" id={style.text}>3</p>
                         <p className="text-[1.6vh] text-[#0000009e] sm:text-[2.4vh]">Proxima dosis(dias)</p>
@@ -34,7 +34,7 @@ function VaccinationHistoryCards() {
             </div>
 
             <div className="w-[40vh] h-[15vh] bg-white rounded-2xl 
-            flex justify-center items-center gap-10" id={style.card}>
+            flex justify-center items-center gap-10" id={style.card3}>
                     <div className="space-y-2">
                         <p className="text-[2.5vh] text-[#3f3c3cc5] sm:text-[3.8vh]" id={style.text}>Vaxigrip...</p>
                         <p className="text-[1.6vh] text-[#0000009e] sm:text-[2.4vh]">Ultima dosis</p>
@@ -45,7 +45,7 @@ function VaccinationHistoryCards() {
             </div>
 
             <div className="w-[40vh] h-[15vh] bg-white rounded-2xl 
-            flex justify-center items-center gap-10" id={style.card}>
+            flex justify-center items-center gap-10" id={style.card4}>
                     <div className="space-y-2">
                         <p className="text-[2.2vh] text-[#3f3c3cc5] sm:text-[3.7vh]" id={style.text}>17/06/2025</p>
                         <p className="text-[1.6vh] text-[#0000009e] sm:text-[2.4vh]">Fecha actual</p>

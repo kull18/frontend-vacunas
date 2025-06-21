@@ -59,7 +59,7 @@ useEffect(() => {
     return ( 
         <>
 
-            <aside className="bg-[#A2D9FF] h-full w-[44vh] min-h-screen" id={style.aside}>
+            <aside className="bg-[#A2D9FF] h-full w-[36vh] min-h-screen" id={style.aside}>
                 <div id={style.boxSectionLogo} className="flex">
                     <div className="h-20 w-full bg-[#71B8E8] flex 
                         items-center justify-between gap-3

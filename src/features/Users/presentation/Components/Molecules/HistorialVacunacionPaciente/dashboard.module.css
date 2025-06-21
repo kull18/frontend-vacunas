@@ -83,23 +83,3 @@ input{
   font-style: normal;
 }
 
-#aside {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 44vh;
-  min-height: 100vh;
-  background-color: #A2D9FF;
-  z-index: 50;
-  transition: transform 0.4s ease-in-out;
-}
-
-/* Animación de entrada */
-#slideIn {
-  transform: translateX(0%);
-}
-
-/* Animación de salida */
-#slideOut {
-  transform: translateX(-100%);
-}

@@ -5,13 +5,14 @@ import pendingVaccine from "../../../../../../assets/pendingVaccine.png"
 function ResumenVaccination() {
     return ( 
         <>
-        <main>
+        <main className="">
             <div className="mt-10">
-                <p className="text-2xl text-[#00000081]">Resumen de vacunación</p>
+                <p className="text-2xl text-[#00000081]" id={style.title3}>Resumen de vacunación</p>
             </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[16vh]">
+        <div className="flex gap-4 mt-4">
+        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col 
+        justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[16vh]" id={style.littleCard1}>
             <div className="flex flex-col gap-2">
                 <p className="text-gray-600 text-sm">Última vacuna</p>
                 <div className="flex items-center gap-2">
@@ -22,7 +23,8 @@ function ResumenVaccination() {
             <p className="text-[#43AAF4] text-sm font-semibold cursor-pointer mt-2">Ver detalles</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[16vh]">
+        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col 
+        justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[16vh]" id={style.littleCard2}>
             <div className="flex flex-col gap-2">
                 <p className="text-gray-600 text-sm">Próxima</p>
                 <div className="flex items-center gap-2">
@@ -32,8 +34,11 @@ function ResumenVaccination() {
             </div>
             <p className="text-[#43AAF4] text-sm font-semibold cursor-pointer mt-2">Agregar recordatorio</p>
         </div>
+    </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[15vh]">
+    <div className="">
+        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col 
+        justify-between w-full sm:w-[32vh] sm:flex-1 sm:h-[16vh]" id={style.littleCard3}>
             <div className="flex flex-col gap-2">
                 <p className="text-gray-600 text-sm">Vacunas pendientes</p>
                 <div className="flex items-center gap-2">

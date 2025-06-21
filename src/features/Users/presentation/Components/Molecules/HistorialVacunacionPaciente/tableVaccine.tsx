@@ -5,10 +5,10 @@ function TableVaccine() {
         <>
         <main>
         <div className="mt-10">
-            <p className="text-2xl text-[#00000081]">Historial completo</p>
+            <p className="text-2xl text-[#00000081]" id={style.title2}>Historial completo</p>
         </div>
 
-        <div className="overflow-x-auto w-full mt-6">
+        <div className="overflow-x-auto w-full mt-6" id={style.tablet}>
             <table className="w-full border border-gray-300">
             <thead className="bg-[#F4F4F4]">
                 <tr className="border-b border-gray-300">

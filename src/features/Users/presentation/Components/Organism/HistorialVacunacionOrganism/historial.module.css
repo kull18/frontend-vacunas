@@ -1,0 +1,36 @@
+@media (max-width: 800px) {
+  #dashboard,
+  #article {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+
+#dashboard {
+    animation: dashboard 0.8s ease-in-out 0.5s forwards;
+    transform: translateX(-36vh);
+}
+
+@keyframes dashboard {
+    from {
+        transform: translateX(-35vh);
+    }
+    to {
+        transform: translateX(0.01vh);
+    }
+}
+
+#article{
+    animation: article 0.8s ease-in-out 0.5s forwards;
+    transform: translateX(-36vh);
+}
+
+@keyframes article {
+    from {
+        transform: translateX(-36vh);
+    }
+    to {
+        transform: translateX(0.01vh);
+    }
+}
