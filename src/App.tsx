@@ -11,8 +11,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginPage />} />
 
-                <Route path="/historial-vacunacion" element={<HistorialVacunacionPaciente />}>
-                    <Route path="paciente" element={<MainHistorialVacunationPage />} />
+                <Route path="/dashboard" element={<HistorialVacunacionPaciente />}>
+                    <Route path="Historial-vacunacion/paciente" element={<MainHistorialVacunationPage />} />
                     <Route path="estado-salud" element={<HeatlStatusPage />} />
                 </Route>
             </Routes>
