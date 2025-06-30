@@ -1,9 +1,11 @@
 import logo from "../../../../../../assets/logo.png"
 import historyVaccineLogo from "../../../../../../assets/historialVacunacionLogo.png"
 import estateSalud from "../../../../../../assets/miEstadoSaludLogo.png"
-import digitalToken from "../../../../../../assets/fichaDigitalLogo.png"
 import logout from "../../../../../../assets/LogoutLogo.png"
-import ListDashboard from "./listDashboard";
+import inventory from "../../../../../../assets/inventoryLogo.png"
+import vaccineInventory from "../../../../../../assets/vacunaInventario.png"
+import graph from "../../../../../../assets/graph.png"
+import ListDashboard from "./listDashboard"
 import style from "../../Molecules/HistorialVacunacionPaciente/dashboard.module.css"
 import userLogo from "../../../../../../assets/userLogo.png"
 import menu from "../../../../../../assets/menuLogo.png"
@@ -22,13 +24,20 @@ function DashBoard() {
 
     const navigate = useNavigate();
     const navigateHistoryPatient = () => {
-  navigate("/dashboard/Historial-vacunacion/paciente");
-};
+    navigate("/dashboard/Historial-vacunacion/paciente");
+    };
 
-const navigateStatePatient = () => {
-  navigate("/dashboard/estado-salud");
-};
+    const navigateStatePatient = () => {
+    navigate("/dashboard/estado-salud");
+    };
 
+    const tableAnalysis = () => {
+    navigate("/dashboard/tabla-pacientes-registrados/enfermero");
+    };
+
+type Rol = "paciente" | "enfermero"; // Simulación del tipo esperado
+
+const rol = "enfermero" as Rol; // Aquí haces la prueba
 
 
     const navigateLogin = () =>{
@@ -81,37 +90,81 @@ useEffect(() => {
                     </div>
                 </div>
 
-                {showMenu || isDesktop ?
-            <div id={showMenu ? style.show : style.hide} ref={menuRef}>
-                <ListDashboard
-                image={historyVaccineLogo}
-                text="Historial de vacunación"
-                onClick={() => {
-                    navigateHistoryPatient();
-                    setSelectedSection("Historial de vacunación");
-                }}
-                selected={selectedSection === "Historial de vacunación"}/>
 
-            <ListDashboard
-                image={estateSalud}
-                text="Mi estado de salud"
-                onClick={() => {
-                    navigateStatePatient();
-                    setSelectedSection("Mi estado de salud");
-                }}
-                selected={selectedSection === "Mi estado de salud"}/>
+            
+                {/* Sección para paciente */}
+          {rol === "paciente" && (showMenu || isDesktop) && (
+      <div id={showMenu ? style.show : style.hide} ref={menuRef}>
+        <ListDashboard
+          image={historyVaccineLogo}
+          text="Historial de vacunación"
+          onClick={() => {
+            navigateHistoryPatient();
+            setSelectedSection("Historial de vacunación");
+          }}
+          selected={selectedSection === "Historial de vacunación"}
+        />
 
-            <ListDashboard
-                image={logout}
-                text="Cerrar sesión"
-                onClick={navigateLogin}
-                selected={false}/>
+        <ListDashboard
+          image={estateSalud}
+          text="Mi estado de salud"
+          onClick={() => {
+            navigateStatePatient();
+            setSelectedSection("Mi estado de salud");
+          }}
+          selected={selectedSection === "Mi estado de salud"}
+        />
 
-            </div>
-                :
-                <>
-                </>
-            }
+        <ListDashboard
+          image={logout}
+          text="Cerrar sesión"
+          onClick={navigateLogin}
+          selected={false}
+        />
+      </div>
+    )}
+
+    {/* Sección para enfermero */}
+    {rol === "enfermero" && (showMenu || isDesktop) && (
+      <div id={showMenu ? style.show : style.hide} ref={menuRef}>
+        <ListDashboard
+          image={inventory}
+          text="Tabla de analisis"
+          onClick={() => {
+            setSelectedSection("Tabla de analisis");
+          }}
+          selected={selectedSection === "Tabla de analisis"}
+        />
+
+        <ListDashboard
+          image={vaccineInventory}
+          text="Gestión de vacunas"
+          onClick={() => {
+            navigateHistoryPatient();
+            setSelectedSection("Gestión de vacunas");
+          }}
+          selected={selectedSection === "Gestión de vacunas"}
+        />
+
+        <ListDashboard
+          image={graph}
+          text="Reporte y analisis"
+          onClick={() => {
+            navigateHistoryPatient();
+            setSelectedSection("Reporte y analisis");
+          }}
+          selected={selectedSection === "Reporte y analisis"}
+        />
+
+        <ListDashboard
+          image={logout}
+          text="Cerrar sesión"
+          onClick={navigateLogin}
+          selected={false}
+        />
+      </div>
+    )}
+            
             </aside>
             <div className="block sm:hidden">
                 <InputSeach></InputSeach>
