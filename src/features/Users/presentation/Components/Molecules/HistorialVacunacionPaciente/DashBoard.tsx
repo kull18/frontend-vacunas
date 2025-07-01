@@ -37,7 +37,7 @@ function DashBoard() {
 
 type Rol = "paciente" | "enfermero"; // Simulación del tipo esperado
 
-const rol = "enfermero" as Rol; // Aquí haces la prueba
+const rol = "paciente" as Rol; // Aquí haces la prueba
 
 
     const navigateLogin = () =>{
