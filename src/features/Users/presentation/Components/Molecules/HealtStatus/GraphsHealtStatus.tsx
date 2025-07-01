@@ -1,10 +1,14 @@
 import BarChartHealtStatus from "./BarChartHealtStatus";
 import LineChartHealtStatus from "./LineChartHealtStatus";
 import style from "../HealtStatus/Healt.module.css"
+import { useWebSocket } from "../../../../../../shared/HumidityProvider";
+
 function GraphsHealtStatus() {
+    const { messages } = useWebSocket();
+
     const glucoseData = {
         labels: ["Semana 1", "Semana 2", "Semana 3", "Semana 4"],
-        values: [95, 100, 98, 92],
+        values: messages,
     };
 
     const symptomsData = {
