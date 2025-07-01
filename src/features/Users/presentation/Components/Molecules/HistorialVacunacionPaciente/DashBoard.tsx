@@ -21,17 +21,15 @@ function DashBoard() {
     }
 
     const navigate = useNavigate();
-    const navigateHistoryPatient = () =>{
-    navigate("/historial-vacunacion/paciente");
-    };
+    const navigateHistoryPatient = () => {
+  navigate("/dashboard/Historial-vacunacion/paciente");
+};
 
-    const navigateStatePatient = () =>{
-        navigate("/historial-vacunacion/estado-salud");
-    };
+const navigateStatePatient = () => {
+  navigate("/dashboard/estado-salud");
+};
 
-    const navigateFilePatient = () =>{
-        navigate("/ficha/paciente")
-    }
+
 
     const navigateLogin = () =>{
         navigate("/")

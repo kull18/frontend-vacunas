@@ -8,7 +8,7 @@ function FormLogin({ onClick }: { onClick: () => void }) {
     }
 
     const goHome = ()=>{
-        navigate("/historial-vacunacion/paciente")
+        navigate("/dashboard/historial-vacunacion/paciente")
     }
 
     return ( 
