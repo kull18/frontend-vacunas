@@ -148,16 +148,6 @@ useEffect(() => {
         />
 
         <ListDashboard
-          image={graph}
-          text="Reporte y analisis"
-          onClick={() => {
-            navigateHistoryPatient();
-            setSelectedSection("Reporte y analisis");
-          }}
-          selected={selectedSection === "Reporte y analisis"}
-        />
-
-        <ListDashboard
           image={logout}
           text="Cerrar sesión"
           onClick={navigateLogin}

@@ -70,8 +70,8 @@ const GraphHumidity: React.FC<GraphHumidityProps> = ({
 
   return (
     <>
-      <div className="w-full sm:w-[110vh]" id={style.grafica}>
-        <div className="mt-10 ml-10">
+      <div className="w-full sm:w-[145vh]" id={style.grafica}>
+        <div className="ml-10">
           <p className="text-2xl text-[#00000081]" id={style.title2}>
             Humedad de hielera
           </p>

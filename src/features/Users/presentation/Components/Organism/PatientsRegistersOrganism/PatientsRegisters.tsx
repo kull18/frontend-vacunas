@@ -26,9 +26,14 @@ function PatientsRegisters() {
     return (
         <>
             <TablePatientsRegister></TablePatientsRegister>
-            <div className="flex-none mt-3 gap-6 sm:flex">
-            <GraphTemperature labels={labels} temperatures={temperatures}></GraphTemperature>
-            <InventoryCards></InventoryCards>
+            <div className="flex-none mt-3 sm:flex sm:flex-col">
+                <div className="flex gap-10 sm:flex">
+                <InventoryCards></InventoryCards>
+                <GraphTemperatureCooler labels={labels} temperatures={marcas}></GraphTemperatureCooler>
+                </div>
+                <div className="flex ml-6 mt-5">
+                <GraphHumidity labels={labelsH} humidity={valuesH}></GraphHumidity>
+                </div>
             </div>
         </>
     );

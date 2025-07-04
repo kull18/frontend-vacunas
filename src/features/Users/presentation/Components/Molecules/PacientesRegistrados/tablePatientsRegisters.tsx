@@ -25,7 +25,7 @@ function TablePatientsRegister() {
                 <td className="px-6 py-3">10</td>
                 <td className="px-6 py-3">10:30 AM</td>
                 <td className="px-6 py-3">Positivo</td>
-                <td className="px-6 py-3">POSIGAY</td>
+                <td className="px-6 py-3">INFLUENZA</td>
                 <td className="px-6 py-3">
                     <button className="bg-red-500 text-white px-4 py-2 rounded-2xl cursor-pointer hover:bg-red-400 duration-200">Negar vacuna</button>
                 </td>
@@ -35,7 +35,7 @@ function TablePatientsRegister() {
                 <td className="px-6 py-3">4</td>
                 <td className="px-6 py-3">01:34 PM</td>
                 <td className="px-6 py-3">Positivo</td>
-                <td className="px-6 py-3">ANTIHETERO</td>
+                <td className="px-6 py-3">COVID</td>
                 <td className="px-6 py-3">
                     <button className="bg-red-500 text-white px-4 py-2 rounded-2xl cursor-pointer hover:bg-red-400 duration-200">Negar vacuna</button>
                 </td>
