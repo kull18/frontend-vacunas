@@ -33,11 +33,12 @@ function DashBoard() {
 
     const tableAnalysis = () => {
     navigate("/dashboard/tabla-pacientes-registrados/enfermero");
+    setSelectedSection("Tabla de analisis");
     };
 
 type Rol = "paciente" | "enfermero"; // Simulación del tipo esperado
 
-const rol = "paciente" as Rol; // Aquí haces la prueba
+const rol = "enfermero" as Rol; // Aquí haces la prueba
 
 
     const navigateLogin = () =>{
@@ -65,8 +66,8 @@ useEffect(() => {
     const isDesktop = window.innerWidth >= 768;
     return ( 
         <>
-
             <aside className="bg-[#A2D9FF] h-full w-[36vh] min-h-screen" id={style.aside}>
+              <div className="">
                 <div id={style.boxSectionLogo} className="flex">
                     <div className="h-20 w-full bg-[#71B8E8] flex 
                         items-center justify-between gap-3
@@ -131,7 +132,7 @@ useEffect(() => {
           image={inventory}
           text="Tabla de analisis"
           onClick={() => {
-            setSelectedSection("Tabla de analisis");
+            tableAnalysis();
           }}
           selected={selectedSection === "Tabla de analisis"}
         />
@@ -164,12 +165,11 @@ useEffect(() => {
         />
       </div>
     )}
-            
+    </div>
             </aside>
             <div className="block sm:hidden">
                 <InputSeach></InputSeach>
             </div>
-        
         </>
     );
 }

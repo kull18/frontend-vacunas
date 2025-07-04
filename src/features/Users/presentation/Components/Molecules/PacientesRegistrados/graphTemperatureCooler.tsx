@@ -24,7 +24,7 @@ type GraphTemperatureProps = {
   temperatures: number[];
 };
 
-const GraphTemperature: React.FC<GraphTemperatureProps> = ({
+const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
   labels,
   temperatures,
 }) => {
@@ -78,4 +78,4 @@ const GraphTemperature: React.FC<GraphTemperatureProps> = ({
   );
 };
 
-export default GraphTemperature;
+export default GraphTemperatureCooler;

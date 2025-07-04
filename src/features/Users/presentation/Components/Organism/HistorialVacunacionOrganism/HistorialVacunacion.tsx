@@ -9,12 +9,12 @@ function HistorialVacunacion() {
             <div id={style.dashboard}>
             <DashBoard></DashBoard>
             </div>
-                <article className="w-full" id={style.article}>
+                <article className="w-full " id={style.article}>
                     <div className="hidden sm:block">
                         <InputSeach></InputSeach>
                     </div>
 
-                    <div>  {/* RENDERIZAR*/}
+                    <div className="">  {/* RENDERIZAR*/}
                         <Outlet></Outlet>
                     </div>
                 </article>

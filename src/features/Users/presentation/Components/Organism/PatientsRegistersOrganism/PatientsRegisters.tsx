@@ -1,4 +1,4 @@
-import GraphTemperature from "../../Molecules/PacientesRegistrados/graphTemperature";
+import GraphTemperatureCooler from "../../Molecules/PacientesRegistrados/graphTemperatureCooler";
 import InventoryCards from "../../Molecules/PacientesRegistrados/InventoryCards";
 import TablePatientsRegister from "../../Molecules/PacientesRegistrados/tablePatientsRegisters";
 
@@ -9,7 +9,7 @@ function PatientsRegisters() {
         <>
             <TablePatientsRegister></TablePatientsRegister>
             <div className="flex-none mt-3 gap-6 sm:flex">
-            <GraphTemperature labels={labels} temperatures={temperatures}></GraphTemperature>
+            <GraphTemperatureCooler labels={labels} temperatures={temperatures}></GraphTemperatureCooler>
             <InventoryCards></InventoryCards>
             </div>
         </>
