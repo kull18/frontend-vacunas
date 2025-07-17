@@ -49,6 +49,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const data: WebSocketData = JSON.parse(event.data);
         if (data.temperature) setTemperatureData(data.temperature);
         if (data.humidity) setHumidityData(data.humidity);
+        console.log(data.humidity)
       } catch (error) {
         console.error("Error al parsear el mensaje WebSocket:", error);
       }

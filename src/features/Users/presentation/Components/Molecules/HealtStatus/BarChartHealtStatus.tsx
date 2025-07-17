@@ -30,7 +30,7 @@ const BarChartHealtStatus: React.FC<BarChartProps> = ({ labels, dataValues }) =>
     labels: labels, // Ejemplo: ["Dolor", "Fatiga", "Náuseas"]
     datasets: [
       {
-        label: "Intensidad (1-10)",
+        label: "Cantidad de alcohol consumido",
         data: dataValues, // Ejemplo: [3, 5, 2]
         backgroundColor: [
           "rgba(255, 99, 132, 0.7)",
@@ -55,7 +55,7 @@ const BarChartHealtStatus: React.FC<BarChartProps> = ({ labels, dataValues }) =>
       },
       title: {
         display: true,
-        text: "Síntomas Reportados",
+        text: "Alcoholemia",
       },
     },
     scales: {

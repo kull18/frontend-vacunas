@@ -4,12 +4,14 @@ import celcius from "../../../../../../assets/celciusIcon.png"
 function InventoryCards() {
     return ( 
         <>
-        <section className="mt-8 ml-14">
-            <div className="ml-0 sm:flex sm:justify-center">
-                <p className="text-2xl text-[#00000081]" id={style.title3}>Alerta de inventario</p>
+        <section className="mt-8 ml-14" id={style.cards}>
+
+            <div className="flex flex-col gap-y-6">
+            <div className="ml-0 sm:flex ">
+                <p className="text-xl text-[#00000081] sm:text-2xl" 
+                id={style.title3}>Alerta de inventario</p>
             </div>
 
-            <div className="mt-8 flex flex-col gap-y-10">
             <div className="w-[45vh] h-[15vh] bg-white rounded-2xl 
             flex justify-center items-center gap-10" id={style.card2}>
                     <div className="space-y-2">

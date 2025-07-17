@@ -22,18 +22,9 @@ function GraphsHealtStatus() {
   return (
     <>
       <div className="mt-10">
-        <p className="text-2xl text-[#00000081] ml-7">Evolución de mi salud</p>
+        <p className="text-2xl text-[#00000081] ml-7" id={style.titleEvolution}>Evolución de mi salud</p>
       </div>
       <div className="flex sm:flex-row flex-wrap">
-        <div
-          className="w-[50vh] h-[40vh] sm:w-[80vh] sm:h-[40vh]"
-          id={style.lineChart}
-        >
-          <LineChartHealtStatus
-            labels={glucoseData.labels}
-            dataValues={glucoseData.values}
-          />
-        </div>
 
         <div
           className="w-[50vh] h-[40vh] sm:w-[80vh] sm:h-[40vh]"

@@ -4,17 +4,21 @@ import alerta from "../../../../../../assets/alertaIcon.png"
 import file from "../../../../../../assets/file.png"
 import print from "../../../../../../assets/print.png"
 import ActionsFast from "./ActionsFast"
+import styled from "../../Molecules/HealtStatus/Healt.module.css"
 function HealtTips() {
     return ( 
         <>
         <div className="mt-10">
-            <p className="text-2xl text-[#00000081] ml-7">Consejos de salud</p>
+            <p className="text-2xl text-[#00000081] ml-7" id={styled.titleConsejo}>Consejos de salud</p>
         </div>
 
 <div className="flex-none sm:flex">
     <div className="flex flex-wrap gap-5 px-7 mt-6">
             {/* Card Hidratación */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] sm:max-w-[260px]">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border 
+            border-gray-200 transition-all duration-300 hover:shadow-lg 
+            hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] 
+            sm:max-w-[260px]" id={styled.consejo1}>
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                     <div className="flex items-center gap-2">
@@ -28,7 +32,10 @@ function HealtTips() {
             </div>
 
             {/* Card Próxima vacuna */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] sm:max-w-[260px]">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border 
+            border-gray-200 transition-all duration-300 hover:shadow-lg 
+            hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] 
+            sm:max-w-[260px]" id={styled.consejo2}>
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
                     <div className="flex items-center gap-2">
@@ -42,7 +49,10 @@ function HealtTips() {
             </div>
 
             {/* Card Alerta */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] sm:max-w-[260px]">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border 
+            border-gray-200 transition-all duration-300 hover:shadow-lg 
+            hover:-translate-y-1 flex-1 min-w-[280px] sm:min-w-[140px] 
+            sm:max-w-[260px]" id={styled.consejo3}>
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     <div className="flex items-center gap-2">

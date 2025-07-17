@@ -32,7 +32,11 @@
 -moz-box-shadow: 0px 0px 13px -8px rgba(66, 68, 90, 1);
 box-shadow: 0px 0px 13px -8px rgba(66, 68, 90, 1);
 }
-
+#card{
+box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
+-webkit-box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
+-moz-box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
+}
 #card1{
   animation: zoomBounce 0.4s ease-in-out 0.3s forwards;
   opacity: 0;

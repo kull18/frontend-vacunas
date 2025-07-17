@@ -1,4 +1,3 @@
-// src/components/GraphTemperature.tsx
 import {
   Chart as ChartJS,
   LineElement,
@@ -8,15 +7,19 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import style from "../../Molecules/PacientesRegistrados/patients.module.css"
+import zoomPlugin from 'chartjs-plugin-zoom';
+import style from "../../Molecules/PacientesRegistrados/patients.module.css";
+import styled from "../../Molecules/Transporter/transporter.module.css"
 ChartJS.register(
   LineElement,
   CategoryScale,
   LinearScale,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  zoomPlugin
 );
 
 type GraphTemperatureProps = {
@@ -42,11 +45,26 @@ const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'line'> = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top',
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x',
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: 'x',
+        },
       },
     },
     scales: {
@@ -66,15 +84,17 @@ const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
     },
   };
 
-    return (
-    <>  
+  return (
     <div className="w-full sm:w-[88vh]" id={style.grafica}>
-        <div className="mt-7 ml-10">
-            <p className="text-2xl text-[#00000081]" id={style.title2}>Temperatura de hielera</p>
-        </div>
-        <Line data={data} options={options} />
+      <div className="mt-7 ml-10">
+        <p className="text-2xl text-[#00000081]" id={style.title2}>
+          Temperatura de hielera
+        </p>
+      </div>
+      <div id={styled.graficaLinea}>
+      <Line data={data} options={options} />
+      </div>
     </div>
-    </>
   );
 };
 

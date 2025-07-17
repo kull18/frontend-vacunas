@@ -5,7 +5,7 @@ function InputSeach() {
         <>
         <div className="flex items-center pl-8" id={style.inputSeach}>
             <img src={searchLogo} alt="searh" className="w-7 h-7"/>
-            <input type="text" id={style.input} placeholder="Buscar" className="w-full"/>
+            <input type="text" id={style.input} placeholder="Buscar" />
         </div>
         </>
     );

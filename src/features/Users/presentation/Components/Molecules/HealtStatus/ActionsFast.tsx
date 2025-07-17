@@ -1,9 +1,11 @@
 import file from "../../../../../../assets/file.png"
 import print from "../../../../../../assets/print.png"
+import styled from "../../Molecules/HealtStatus/Healt.module.css"
+
 function ActionsFast() {
     return ( 
         <>
-<div className="w-[340px] sm:w-[260px] bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+<div className="w-[340px] sm:w-[260px] bg-white rounded-2xl p-6 shadow-lg border border-gray-200" id={styled.acciones}>
             <h3 className="text-lg font-semibold text-[#0000008b] mb-6">Acciones rápidas</h3>
             
             <div className="flex flex-col gap-4">

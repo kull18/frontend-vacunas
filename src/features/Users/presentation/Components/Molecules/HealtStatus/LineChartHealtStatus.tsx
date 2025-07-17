@@ -32,7 +32,7 @@ const LineChartHealtStatus: React.FC<LineChartProps> = ({ labels, dataValues }) 
     labels: labels, // Ejemplo: ["Semana 1", "Semana 2", "Semana 3"]
     datasets: [
       {
-        label: "Nivel de Glucosa (mg/dL)",
+        label: "Temperatura",
         data: dataValues, // Ejemplo: [90, 95, 100]
         borderColor: "#4bc0c0",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
@@ -50,7 +50,7 @@ const LineChartHealtStatus: React.FC<LineChartProps> = ({ labels, dataValues }) 
       },
       title: {
         display: true,
-        text: "Evolución de Glucosa",
+        text: "Temperatura vs Tiempo",
       },
     },
     scales: {

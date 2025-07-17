@@ -1,39 +1,39 @@
-import GraphTemperatureCooler from "../../Molecules/PacientesRegistrados/graphTemperatureCooler";
-import InventoryCards from "../../Molecules/PacientesRegistrados/InventoryCards";
+import PatientAgeHistogram from "../../Molecules/PacientesRegistrados/PatientAgeHistogram";
+import PatientBarGraph from "../../Molecules/PacientesRegistrados/PatientBarGraph";
+import PatientDonaPatients from "../../Molecules/PacientesRegistrados/PatientDonaPatients";
 import TablePatientsRegister from "../../Molecules/PacientesRegistrados/tablePatientsRegisters";
-import { useWebSocket } from "../../../../../../shared/HumidityProvider";
-import GraphHumidity from "../../Molecules/PacientesRegistrados/GraphHumidity";
 
 function PatientsRegisters() {
-    const { temperatureData, humidityData } = useWebSocket();
-
-    const labels = temperatureData?.intervalos || [];
-    const marcas = temperatureData?.marcas || [];
-
-    const temperature = {
-        labels: labels,
-        values: marcas,
+    const data = {
+        labels: ['Pfizer', 'Moderna', 'AstraZeneca', 'Sinovac', 'Sputnik V', 'Johnson & Johnson'],
+        dataValues: [250, 180, 100, 80, 60, 40],
     };
 
-    const labelsH = humidityData?.intervalos || [];
-    const valuesH = humidityData?.intervalos || []
+    type AgeGroupData = {
+  label: string;
+  count: number;
+};
 
+const ageGroups: AgeGroupData[] = [
+  { label: '0–18', count: 5 },
+  { label: '19–30', count: 12 },
+  { label: '31–50', count: 18 },
+  { label: '51+', count: 7 },
+];
 
-    const humidity = {
-        labels: labelsH,
-        values: valuesH
-    }
     return (
         <>
             <TablePatientsRegister></TablePatientsRegister>
-            <div className="flex-none mt-3 sm:flex sm:flex-col">
-                <div className="flex gap-10 sm:flex">
-                <InventoryCards></InventoryCards>
-                <GraphTemperatureCooler labels={labels} temperatures={marcas}></GraphTemperatureCooler>
+            <div className="flex flex-col sm:flex-row gap-14 ml-3">
+                <div className="ml-2 mt-8 sm:ml-10 sm:mt-10">
+                    <PatientBarGraph labels={data.labels} dataValues={data.dataValues}></PatientBarGraph>
                 </div>
-                <div className="flex ml-6 mt-5">
-                <GraphHumidity labels={labelsH} humidity={valuesH}></GraphHumidity>
+                <div className="mt-10">
+                    <PatientDonaPatients positive={50} negative={24}></PatientDonaPatients>
                 </div>
+            </div>
+                <div className="ml-1 mt-8 sm:ml-12">
+                    <PatientAgeHistogram data={ageGroups}></PatientAgeHistogram>
             </div>
         </>
     );
