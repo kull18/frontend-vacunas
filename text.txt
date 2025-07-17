@@ -1,0 +1,43 @@
+npm install chart.js react-chartjs-2
+npm install --save-dev @types/chart.js
+
+PDF
+npm install jspdf
+
+
+ {
+      id: 1,
+      tipoVacuna: "Respiratoria",
+      vacuna: "SARS-CoV-2",
+      dosisAplicadas: 2,
+    },
+    {
+      id: 2,
+      tipoVacuna: "Gripe",
+      vacuna: "Influenza Quadrivalente",
+      dosisAplicadas: 1,
+    },
+    {
+      id: 3,
+      tipoVacuna: "Hepatitis",
+      vacuna: "Hepatitis B Recombinante",
+      dosisAplicadas: 3,
+    },
+    {
+      id: 4,
+      tipoVacuna: "Tétanos",
+      vacuna: "Tdap",
+      dosisAplicadas: 1,
+    },
+    {
+      id: 5,
+      tipoVacuna: "Neumocócica",
+      vacuna: "PCV13",
+      dosisAplicadas: 1,
+    },
+    {
+      id: 6,
+      tipoVacuna: "Respiratoria",
+      vacuna: "SARS-CoV-2 Variante XBB",
+      dosisAplicadas: 4,
+    }

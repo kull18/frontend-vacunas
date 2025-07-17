@@ -1,0 +1,21 @@
+#graficaLinea{
+  animation: grafica 0.4s ease-in-out 1.3s forwards;
+  opacity: 0;
+}
+
+#graficaLinea2{
+  animation: grafica 0.4s ease-in-out 1.5s forwards;
+  opacity: 0;
+}
+
+@keyframes grafica {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
