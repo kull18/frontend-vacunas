@@ -3,8 +3,13 @@ import edit from "../../../../../../assets/editIcon.png";
 import deleteIcon from "../../../../../../assets/deletedIcon.png";
 import { useState, useRef } from "react";
 import { useModalVaccines } from "./ModalVaccineContext";
+import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
+import { useDeleteVaccine } from "../../../../User/Presentation/Hooks/useDeleteVaccine";
 function TableVaccines() {
   const { abrirModal } = useModalVaccines();
+
+  const { vaccines, loading } = useGetVaccines()
+
   const [pacientes, setPacientes] = useState([
     {
       id: 1,
@@ -46,6 +51,18 @@ function TableVaccines() {
   ]);
 
   const tableContainerRef = useRef(null);
+
+    const handleDelete = async (id: number) => {
+    if (window.confirm("¿Estás seguro de eliminar esta vacuna?")) {
+      try {
+        const { remove } = useDeleteVaccine()
+        await remove(id)
+      } catch (error) {
+        alert("Error al eliminar la vacuna");
+        console.error(error);
+      }
+    }
+  };
 
   return (
     <>
@@ -90,18 +107,18 @@ function TableVaccines() {
           >
             <table className="w-full">
               <tbody>
-                {pacientes.map((paciente) => (
-                  <tr key={paciente.id} className="flex border-b border-gray-300">
-                    <td className="px-6 py-3  flex-1 min-w-[200px]">{paciente.tipoVacuna}</td>
-                    <td className="px-6 py-3  flex-1 min-w-[200px]">{paciente.vacuna}</td>
-                    <td className="px-6 py-3  flex-1 min-w-[200px]">{paciente.dosisAplicadas}</td>
+                {vaccines.map((vacuna, index) => (
+                  <tr key={index} className="flex border-b border-gray-300">
+                    <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
+                    <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
+                    <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
                     <td className="px-6 py-3  flex-1 min-w-[200px]">
                       <div className="flex gap-2">
                         <button className="bg-[#F5C661] text-white px-2 py-1 rounded-lg flex items-center">
                           <img src={edit} alt="Editar" className="w-4 h-4 mr-1" />
                           Editar
                         </button>
-                        <button className="bg-[#F82C2C] text-white px-2 py-1 rounded-lg flex items-center">
+                        <button onClick={() => {handleDelete(vacuna.idVaccines)}} className="bg-[#F82C2C] text-white px-2 py-1 rounded-lg flex items-center">
                           <img src={deleteIcon} alt="Eliminar" className="w-4 h-4 mr-1" />
                           Eliminar
                         </button>

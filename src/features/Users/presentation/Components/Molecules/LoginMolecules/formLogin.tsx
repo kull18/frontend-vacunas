@@ -4,9 +4,11 @@ import type { UserLogin } from "../../../../User/Domain/User";
 import { useLoginUser } from "../../../../User/Presentation/Hooks/useLoginUsers";
 import { useState } from "react";
 import { userAuth } from "../../../../User/Presentation/Hooks/AuthUser";
+import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
 function FormLogin() {
     const navigate = useNavigate();
     const { setUser } = userAuth();
+    const { setToken  } = useAuth()
 
     async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Evita que la página se recargue al enviar el formulario
@@ -32,6 +34,7 @@ function FormLogin() {
 
         const role = body.role.toLowerCase();
         setUser(body)
+        setToken(token)
         // 🔀 Redirección según el rol
         switch (role) {
             case "enfermero":
