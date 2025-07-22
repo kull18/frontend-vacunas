@@ -4,56 +4,38 @@ import time from "../../../../../../assets/reloj.png"
 import enfermeros from "../../../../../../assets/enfermeros.png"
 import vacunas from "../../../../../../assets/vacunas.png"
 import ubicacion from "../../../../../../assets/ubication.png"
+import location from "../../../../../../assets/location.png"
 import { useNavigate } from "react-router-dom"
 function CardsBrigades() {
   const navigate = useNavigate();
-    const brigadas = [
+ const brigadas = [
   {
     nombreBrigada: "Brigada Norte",
-    fecha: "2025-07-15",
-    horarioInicio: "08:00",
-    horarioFin: "16:00",
     lugar: "Centro de Salud La Esperanza",
-    cantidadEnfermeros: 5,
-    cantidadVacunas: 320,
+    referenciaLugar: "Ubicado en la zona norte de la ciudad, cerca del parque central.",
   },
   {
     nombreBrigada: "Brigada Rural Oriente",
-    fecha: "2025-07-16",
-    horarioInicio: "09:00",
-    horarioFin: "15:00",
     lugar: "Unidad Médica El Zapote",
-    cantidadEnfermeros: 3,
-    cantidadVacunas: 180,
+    referenciaLugar: "Instalaciones médicas en la comunidad rural de El Zapote.",
   },
   {
     nombreBrigada: "Brigada Escolar Sur",
-    fecha: "2025-07-17",
-    horarioInicio: "07:30",
-    horarioFin: "14:00",
     lugar: "Escuela Primaria Benito Juárez",
-    cantidadEnfermeros: 4,
-    cantidadVacunas: 240,
+    referenciaLugar: "Escuela ubicada al sur de la ciudad, junto al campo deportivo.",
   },
   {
     nombreBrigada: "Brigada Urbana Centro",
-    fecha: "2025-07-18",
-    horarioInicio: "10:00",
-    horarioFin: "17:00",
     lugar: "Hospital Comunitario Central",
-    cantidadEnfermeros: 6,
-    cantidadVacunas: 400,
+    referenciaLugar: "Hospital en el centro de la ciudad, frente a la plaza principal.",
   },
   {
     nombreBrigada: "Brigada Móvil Regional",
-    fecha: "2025-07-19",
-    horarioInicio: "08:30",
-    horarioFin: "13:30",
     lugar: "Plaza Municipal Santa Rosa",
-    cantidadEnfermeros: 2,
-    cantidadVacunas: 150,
+    referenciaLugar: "Plaza pública en Santa Rosa, punto de reunión comunitaria.",
   }
 ];
+
 
 const addBrigade = ()=>{
     navigate("/dashboard/registro-brigadas/administrador")
@@ -87,24 +69,12 @@ const addBrigade = ()=>{
       {/* Datos con íconos */}
       <div className="space-y-2 text-sm text-gray-700">
         <div className="flex items-center gap-2">
-          <img src={calender} alt="calendar" className="w-4 h-4" />
-          <span>{brigada.fecha}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={time} alt="clock" className="w-4 h-4" />
-          <span>{brigada.horarioInicio} - {brigada.horarioFin}</span>
-        </div>
-        <div className="flex items-center gap-2">
           <img src={ubicacion} alt="location" className="w-4 h-4" />
           <span>{brigada.lugar}</span>
         </div>
         <div className="flex items-center gap-2">
-          <img src={enfermeros} alt="nurses" className="w-4 h-4" />
-          <span>{brigada.cantidadEnfermeros} enfermeros</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={vacunas} alt="vaccines" className="w-4 h-4" />
-          <span>{brigada.cantidadVacunas} vacunas</span>
+          <img src={location} alt="nurses" className="w-4 h-4 opacity-35" />
+          <span>{brigada.referenciaLugar}</span>
         </div>
       </div>
 

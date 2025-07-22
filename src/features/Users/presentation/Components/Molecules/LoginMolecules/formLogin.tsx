@@ -1,15 +1,58 @@
 import style from "./../LoginMolecules/formLogin.module.css"
 import { useNavigate } from "react-router-dom";
-function FormLogin({ onClick }: { onClick: () => void }) {
+import type { UserLogin } from "../../../../User/Domain/User";
+import { useLoginUser } from "../../../../User/Presentation/Hooks/useLoginUsers";
+import { useState } from "react";
+import { userAuth } from "../../../../User/Presentation/Hooks/AuthUser";
+function FormLogin() {
     const navigate = useNavigate();
+    const { setUser } = userAuth();
+
     async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Evita que la página se recargue al enviar el formulario
         console.log("Formulario enviado correctamente!");
     }
 
-    const goHome = ()=>{
-        navigate("/dashboard/historial-vacunacion/paciente")
+
+    const { loginUser, loading, error } = useLoginUser();
+    const [formData, setFormData] = useState<UserLogin>({
+        username: "",
+        password: "",
+    })
+
+    const registerUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        alert("proceso")
+         try {
+        const { token, body } = await loginUser(formData);
+
+       if (!body.role) {
+                throw new Error("La respuesta del servidor no incluye el rol");
+            }
+
+        const role = body.role.toLowerCase();
+        setUser(body)
+        // 🔀 Redirección según el rol
+        switch (role) {
+            case "enfermero":
+                console.log("ROLE", role)
+                navigate("/dashboard/tabla-pacientes-registrados/enfermero");
+                break;
+            case "paciente":
+                navigate("/dashboard/Historial-vacunacion/paciente");
+                break;
+            case "admin":
+                navigate("/dashboard/brigadas/administrador");
+                break;
+            default:
+                alert("Rol no reconocido. Redirección cancelada.");
+                break;
+        }
+    } catch (err) {
+        console.error("Error en login:", err);
+        alert("Error al iniciar sesión. Verifica tus credenciales.");
     }
+    };
 
     return ( 
         <>
@@ -23,24 +66,28 @@ function FormLogin({ onClick }: { onClick: () => void }) {
                     type="text"
                     className="border border-gray-300 rounded-md px-3 py-2 text-sm
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-                    placeholder="Correo"
+                    placeholder="Nombre de usuario"
+                    value={formData.username}
+                    onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, username: e.target.value }))
+                    }
                     />
 
             <input
                     id="lugar"
-                    type="text"
+                    type="password"
                     className="border border-gray-300 rounded-md px-3 py-2 text-sm mt-6
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
                     placeholder="Contraseña"
+                    value={formData.password}
+                    onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, password: e.target.value }))
+                    }
                     />
 
                 <button className="bg-[#9CD5F4] rounded-3xl mt-7 px-16 py-3 
                 text-[#747d95] cursor-pointer hover:bg-[#93cae7] duration-75" 
-                id={style.font} onClick={goHome}>ENTRAR</button>
-                <div className="flex mt-4 text-[#0000004d]">
-                <p>Aun no tienes cuenta? </p>
-                <p className="text-[#2F5CE5] ml-1 cursor-pointer" onClick={onClick}>Registrate</p>
-                </div>
+                id={style.font} onClick={registerUser}>ENTRAR</button>
         </form>
 
         </>

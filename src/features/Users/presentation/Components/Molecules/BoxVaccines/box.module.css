@@ -11,13 +11,11 @@ box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
 -moz-box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
 }
 
-/* brigades.module.css */
-
 #containerGrid {
   display: grid;
-  gap: 1.9rem;
-  padding: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 #card {
@@ -31,18 +29,17 @@ box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
   overflow: hidden; /* Esto es clave para cortar el círculo */
 }
 
+
 #card::before {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
-  width: 100px;
-  height: 100px;
-  background-color: #d6cdcb;
-  border-radius: 50%;
-  transform: translate(50%, -50%); /* Solo muestra 1/4 del círculo */
-  pointer-events: none; /* Hace que no afecte al cursor ni eventos */
-  z-index: 10;
+  left: 0;
+  height: 16px; /* puedes ajustar el grosor */
+  width: 100%;
+  background-color: #5ebcff; /* azul fuerte */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 

@@ -6,20 +6,24 @@ import inventory from "../../../../../../assets/inventoryLogo.png"
 import vaccineInventory from "../../../../../../assets/vacunaInventario.png"
 import cooler from "../../../../../../assets/coolerIcon.png"
 import brigada from "../../../../../../assets/brigada.png"
+import groups from "../../../../../../assets/groups.png"
+import box from "../../../../../../assets/box.png"
 import ListDashboard from "./listDashboard"
 import style from "../../Molecules/HistorialVacunacionPaciente/dashboard.module.css"
 import userLogo from "../../../../../../assets/userLogo.png"
 import menu from "../../../../../../assets/menuLogo.png"
-import user from "./../../../../../../assets/userLogo.png"
+import userImg from "./../../../../../../assets/userLogo.png"
 import { useState, useEffect, useRef } from "react";
 import InputSeach from "../../Atoms/InputSeach"
 import { useNavigate } from "react-router-dom"
+import { userAuth } from "../../../../User/Presentation/Hooks/AuthUser"
 function DashBoard() {
     const [showMenu, setShowMenu] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLImageElement>(null); 
     const [selectedSection, setSelectedSection] = useState("Historial de vacunación");
-
+    const {user} = userAuth();
+    const {setUser} = userAuth();
     const showOptions = () =>{
         setShowMenu(!showMenu)
     }
@@ -52,14 +56,24 @@ function DashBoard() {
       navigate("/dashboard/brigadas/administrador")
       setSelectedSection("Brigada de vacunacion");
     }
+
+    const gruposPersonas = () =>{
+      navigate("/dashboard/grupos/administrador")
+      setSelectedSection("Grupos");
+    }
     
-type Rol = "paciente" | "enfermero" | "admin"; // Simulación del tipo esperado
+    const cajaVacunas = () =>{
+      navigate("/dashboard/cajas-vacunas/administrador")
+      setSelectedSection("caja");
+    }
 
-const rol = "paciente" as Rol; // Aquí haces la prueba
 
+const rolUser = user.role;
+console.log("role del Context:", rolUser)
 
     const navigateLogin = () =>{
         navigate("/")
+        setUser(null)
     }
 
 useEffect(() => {
@@ -111,7 +125,7 @@ useEffect(() => {
 
             
                 {/* Sección para paciente */}
-          {rol === "paciente" && (showMenu || isDesktop) && (
+          {rolUser === "paciente" && (showMenu || isDesktop) && (
       <div id={showMenu ? style.show : style.hide} ref={menuRef}>
         <ListDashboard
           image={historyVaccineLogo}
@@ -143,7 +157,7 @@ useEffect(() => {
     )}
 
     {/* Sección para enfermero */}
-    {rol === "enfermero" && (showMenu || isDesktop) && (
+    {rolUser === "enfermero" && (showMenu || isDesktop) && (
       <div id={showMenu ? style.show : style.hide} ref={menuRef}>
         <ListDashboard
           image={inventory}
@@ -182,12 +196,26 @@ useEffect(() => {
       </div>
     )}
 
-    {rol === "admin" && (showMenu || isDesktop) &&(
+    {rolUser === "admin" && (showMenu || isDesktop) &&(
       <div>
       <ListDashboard
           image={brigada}
           text="Brigada de vacunacion"
           onClick={brigadaVacunacion}
+          selected={false}
+        />
+
+      <ListDashboard
+          image={groups}
+          text="Grupos"
+          onClick={gruposPersonas}
+          selected={false}
+        />
+
+        <ListDashboard
+          image={box}
+          text="caja"
+          onClick={cajaVacunas}
           selected={false}
         />
 
@@ -202,8 +230,8 @@ useEffect(() => {
     )}
     </div>
     <div className="flex ml-4 mt-80 text-[#40536da7] font-medium gap-2 hidden sm:block sm:flex">
-      <img src={user} alt="" className="w-6 h-6"/>
-      <p>Usuario: Davity</p>
+      <img src={userImg} alt="" className="w-6 h-6"/>
+      <p>Usuario: {user.username}</p>
     </div>
             </aside>
             <div className="block sm:hidden">
