@@ -1,17 +1,17 @@
 import { useModal } from "./ModalContext";
 import x from "../../../../../../assets/x.png"
 import { useState } from "react";
+import { useGetUser } from "../../../../User/Presentation/Hooks/useGetUsers";
+import type { User } from "../../../../User/Domain/User";
 function ModalPacientes() {
     const [enviarFicha, setEnviarFicha] = useState(false);
     const {cerrarModal} = useModal()
+    const { users } = useGetUser()
 
+    const filterUsers = users.filter((user: User) => user.role === "enfermero")
     const sendInformation = () => {
-  if (enviarFicha) {
-    alert("Agregando y enviando ficha al paciente");
-  } else {
-    alert("Agregando paciente");
+
   }
-};
 
     return ( 
         <>
@@ -29,7 +29,7 @@ function ModalPacientes() {
         </div>
 
         <div className="flex gap-4 py-2">
-        <div className="flex flex-col w-[30vh] sm:w-[60vh]">
+        <div className="flex flex-col w-[10vh] sm:w-[35vh]">
             <label htmlFor="nombre" className="text-sm text-gray-800 mb-1 ml-5">
             Nombre del paciente
             </label>
@@ -43,28 +43,28 @@ function ModalPacientes() {
 
         </div>
 
-        <div className="flex flex-col w-[12vh]">
-            <label htmlFor="edad" className="text-sm text-gray-700 mb-1 ml-5">
-            Edad
+        <div className="flex flex-col w-[35vh]">
+            <label htmlFor="apellido" className="text-sm text-gray-700 mb-1 ml-5">
+            Apellido
             </label>
             <input
-            id="edad"
-            type="number"
+            id="apellido"
+            type="text"
             className="border border-gray-300 rounded px-2 py-1 w-full text-sm focus:outline-none
                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-            placeholder="25"
+            placeholder="Ej.Montoya"
             />
         </div>
         </div>
 
 
         <div className="flex gap-9 mt-3">
-            <div className="flex flex-col w-[40vh]">
-            <label htmlFor="nombre" className="text-sm text-gray-800 mb-1 ml-5">
-            Hora de registro
+            <div className="flex flex-col w-[35vh]">
+            <label htmlFor="folio" className="text-sm text-gray-800 mb-1 ml-5">
+            Folio
             </label>
             <input
-        id="nombre"
+        id="fol"
         type="text"
         className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
@@ -72,57 +72,63 @@ function ModalPacientes() {
         />
 
         </div>
-            <div className="flex flex-col w-[32vh]">
+            <div className="flex flex-col w-[35vh]">
             <label htmlFor="vacuna" className="text-sm text-gray-700 mb-1">
-                Vacuna aplicada
+                Enfermor que lo atendio
             </label>
             <select
                 id="vacuna"
                 className="border border-gray-300 rounded px-2 h-13 py-1 w-full text-sm focus:outline-none
                 focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150 bg-white"
             >
-                <option value="">Selecciona vacuna</option>
-                <option value="influenza">Influenza Quadrivalente</option>
-                <option value="sars">SARS-CoV-2 Variante XBB</option>
-                <option value="hepatitis">Hepatitis B Recombinante</option>
-                <option value="pcv13">PCV13</option>
-                <option value="tdap">Tdap</option>
+                <option value="">Selecciona un enfermero</option>                
+{filterUsers && filterUsers.map((user: User) => (
+  <option key={user.idUser} value={user.idUser}>
+    {user.name} {user.lastname}
+  </option>
+))}
+
             </select>
             </div>
         </div>
 
         <div className="flex gap-9 mt-3">
-            <div className="flex flex-col w-[40vh]">
+            <div className="flex flex-col w-[35vh]">
             <label htmlFor="nombre" className="text-sm text-gray-800 mb-1 ml-5">
             Resultado de alcoholemia
             </label>
-            <select
-                id="resultado"
-                className="border border-gray-300 rounded px-2 h-13 py-1 w-full ml-5 text-sm focus:outline-none
-                focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150 bg-white"
-            >
-                <option value="positivo">Selecciona el resultado de alcoholemia</option>
-                <option value="positivo">Positivo</option>
-                <option value="negativo">Negativo</option>
-            </select>
-
+                   <input
+        id="alcoholBreat"
+        type="number"
+        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
+                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
+        placeholder="Ej. Lucía"
+        />       
         </div>
-            <div className="flex flex-col w-[32vh]">
-            <label htmlFor="vacuna" className="text-sm text-gray-700 mb-1">
-                Dosi aplicada
+            <div className="flex flex-col w-[35vh]">
+            <label htmlFor="alcoholBreat" className="text-sm text-gray-700 mb-1">
+                Aliento alcholico
             </label>
-            <select
-                id="vacuna"
-                className="border border-gray-300 rounded px-2 h-13 py-1 w-full text-sm focus:outline-none
-                focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150 bg-white"
-            >
-                <option value="">1</option>
-                <option value="influenza">2</option>
-                <option value="sars">3</option>
-                <option value="hepatitis">4</option>
-                <option value="pcv13">5</option>
-                <option value="tdap">6</option>
-            </select>
+             <input
+        id="alcoholBreat"
+        type="number"
+        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
+                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
+        placeholder="Ej. Lucía"
+        />           
+            </div>
+
+        <div className="flex flex-col w-[35vh]">
+            <label htmlFor="alcoholBreat" className="text-sm text-gray-700 mb-1">
+                Aliento alcholico
+            </label>
+             <input
+        id="alcoholBreat"
+        type="number"
+        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
+                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
+        placeholder="Ej. Lucía"
+        />           
             </div>
         </div>
 

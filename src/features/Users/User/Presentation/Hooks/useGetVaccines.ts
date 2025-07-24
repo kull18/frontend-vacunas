@@ -1,24 +1,27 @@
-// src/Presentation/hooks/useGetVaccines.ts
 import { useEffect, useState } from "react";
-import { GetVaccinesUseCase } from "../../Application/GetVaccinesUseCase";
-import type { Vaccine } from "../../Domain/Vaccine";
+import type { Vaccine } from "../../Domain/Vaccine"; // Ajusta según tu estructura
+import { VaccineRepository } from "../../Domain/VaccineRepository";
 
-export function useGetVaccines() {
+export const useGetVaccines = (token: string | null) => {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(true);
-  const useCase = new GetVaccinesUseCase();
+
+  const getVaccines = async () => {
+    if (!token) return;
+    try {
+      const repo = new VaccineRepository();
+      const data = await repo.getVaccines(token);
+      setVaccines(data);
+    } catch (error) {
+      console.error("Error en getVaccines:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await useCase.execute();
-        console.log("set data", data)
-        setVaccines(data);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    getVaccines();
+  }, [token]);
 
-  return { vaccines, loading };
-}
+  return { vaccines, loading, refetch: getVaccines };
+};

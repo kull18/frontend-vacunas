@@ -5,61 +5,30 @@ import { useState, useRef } from "react";
 import { useModalVaccines } from "./ModalVaccineContext";
 import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
 import { useDeleteVaccine } from "../../../../User/Presentation/Hooks/useDeleteVaccine";
+import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
 function TableVaccines() {
   const { abrirModal } = useModalVaccines();
+  const { token } = useAuth()
 
-  const { vaccines, loading } = useGetVaccines()
+  const { vaccines, loading } = useGetVaccines(token)
+  console.log("vaccines", vaccines)
+    const { remove } = useDeleteVaccine()  
 
-  const [pacientes, setPacientes] = useState([
-    {
-      id: 1,
-      tipoVacuna: "Respiratoria",
-      vacuna: "SARS-CoV-2",
-      dosisAplicadas: 2,
-    },
-    {
-      id: 2,
-      tipoVacuna: "Gripe",
-      vacuna: "Influenza Quadrivalente",
-      dosisAplicadas: 1,
-    },
-    {
-      id: 3,
-      tipoVacuna: "Hepatitis",
-      vacuna: "Hepatitis B Recombinante",
-      dosisAplicadas: 3,
-    },
-    {
-      id: 4,
-      tipoVacuna: "Tétanos",
-      vacuna: "Tdap",
-      dosisAplicadas: 1,
-    },
-    {
-      id: 5,
-      tipoVacuna: "Neumocócica",
-      vacuna: "PCV13",
-      dosisAplicadas: 1,
-    },
-    {
-      id: 6,
-      tipoVacuna: "Respiratoria",
-      vacuna: "SARS-CoV-2 Variante XBB",
-      dosisAplicadas: 4,
-    }
-    // Puedes agregar o quitar pacientes para probar el comportamiento
-  ]);
 
   const tableContainerRef = useRef(null);
 
     const handleDelete = async (id: number) => {
+      console.log("id",id)
     if (window.confirm("¿Estás seguro de eliminar esta vacuna?")) {
       try {
-        const { remove } = useDeleteVaccine()
-        await remove(id)
+
+        const response =await remove(id)
+
       } catch (error) {
         alert("Error al eliminar la vacuna");
         console.error(error);
+      }finally {
+        console.log("se ha eliminado")
       }
     }
   };
@@ -78,7 +47,7 @@ function TableVaccines() {
           ref={tableContainerRef}
           className="border border-gray-300 rounded-lg overflow-x-auto w-[50vh] ml-10 mt-5 sm:w-[150vh] sm:overflow-hidden"
           style={{
-            height: pacientes.length > 4 ? "250px" : "auto",
+            height: vaccines.length > 4 ? "250px" : "auto",
             display: "flex",
             flexDirection: "column"
           }}
@@ -89,9 +58,7 @@ function TableVaccines() {
             <table className="w-full">
               <thead className="bg-[#F4F4F4] overflow-auto w-32">
                 <tr className="flex">
-                  <th className="px-6 py-2 text-left flex-1 min-w-[200px]">Tipo de vacuna</th>
                   <th className="px-6 py-2 text-left flex-1 min-w-[200px]">Vacuna</th>
-                  <th className="px-6 py-2 text-left flex-1 min-w-[200px]">Dosis aplicadas</th>
                   <th className="px-6 py-2 text-left flex-1 min-w-[200px]">Acciones</th>
                 </tr>
               </thead>
@@ -101,7 +68,7 @@ function TableVaccines() {
           {/* Cuerpo con scroll condicional */}
           <div
             style={{
-              overflowY: pacientes.length > 4 ? "auto" : "visible",
+              overflowY: vaccines.length > 4 ? "auto" : "visible",
               flexGrow: 1
             }}
           >
@@ -109,8 +76,6 @@ function TableVaccines() {
               <tbody>
                 {vaccines.map((vacuna, index) => (
                   <tr key={index} className="flex border-b border-gray-300">
-                    <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
-                    <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
                     <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
                     <td className="px-6 py-3  flex-1 min-w-[200px]">
                       <div className="flex gap-2">
@@ -149,7 +114,7 @@ function TableVaccines() {
             w-full sm:w-auto" 
             onClick={abrirModal}
             id={style.button}>
-              Agregar nuevo paciente
+              Agregar nueva vacuna
             </button>
           </div>
         </div>
