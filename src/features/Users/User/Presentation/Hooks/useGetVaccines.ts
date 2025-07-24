@@ -28,3 +28,4 @@ export const useGetVaccines = () => {
 
   return { vaccines, loading, refetch: getVaccines };
 };
+

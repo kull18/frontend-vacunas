@@ -1,29 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import style from "../../Molecules/RegistroBrigadasVacunacion/brigades.module.css"
+import { useGetGroup } from "../../../../Group/Presentation/Hooks/useGetGroups";
 function CardGroups() {
     const navigate = useNavigate();
-    const grupos = [
-  {
-    nameGroup: "Grupo A - Promotores de Salud",
-    date: "2025-07-12",
-  },
-  {
-    nameGroup: "Grupo B - Voluntarios Rurales",
-    date: "2025-07-13",
-  },
-  {
-    nameGroup: "Grupo C - Estudiantes de Enfermería",
-    date: "2025-07-14",
-  },
-  {
-    nameGroup: "Grupo D - Personal Médico Urbano",
-    date: "2025-07-15",
-  },
-  {
-    nameGroup: "Grupo E - Brigada Juvenil",
-    date: "2025-07-16",
-  }
-];
+    const { group, loadingGroup, errorGroup } = useGetGroup();
+
 
 const addBrigade = ()=>{
     navigate("/dashboard/grupo/registrar/administrador")
@@ -45,17 +26,17 @@ const addBrigade = ()=>{
             </div>
 
             <main id={style.containerGrid} className="mt-5">
-  {grupos.map((brigada, index) => (
+  {group.map((group, index) => (
     <div key={index} id={style.card}>
       {/* Bolita superior decorativa */}
 
       {/* Título */}
-      <p className="text-lg font-semibold text-gray-800 mb-3 z-20">{brigada.nameGroup}</p>
+      <p className="text-lg font-semibold text-gray-800 mb-3 z-20">{group.nameGroup}</p>
 
       {/* Datos con íconos */}
       <div className="space-y-2 text-sm text-gray-700">
         <div className="flex items-center gap-2">
-          <span>{brigada.nameGroup}</span>
+          <span>{group.dateGroup}</span>
         </div>
       </div>
 

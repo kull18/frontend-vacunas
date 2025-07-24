@@ -1,24 +1,12 @@
-// src/Application/Vaccine/CreateVaccineUseCase.ts
 import type { Vaccine } from "../Domain/Vaccine";
 import { VaccineRepository } from "../Domain/VaccineRepository";
+import { useAuth } from "../Presentation/Hooks/AuthProvider";
 
-export class CreateVaccineUseCase {
-    private vaccineRepository: VaccineRepository
+export class GetVaccinesUseCase {
+  private vaccineRepository = new VaccineRepository();
 
-    constructor() {
-        this.vaccineRepository = new VaccineRepository()
-    }
+  async execute(token: string | null): Promise<Vaccine[]> {
 
-    async execute(newVaccine: Vaccine, token: string | null): Promise<Vaccine> {
-        if (!token) {
-            throw new Error("Authentication token is required");
-        }
-
-        try {
-            return await this.vaccineRepository.createVaccine(newVaccine, token);
-        } catch (error) {
-            console.error("Error creating vaccine:", error);
-            throw error;
-        }
-    }
+    return await this.vaccineRepository.getVaccines(token);
+  }
 }
