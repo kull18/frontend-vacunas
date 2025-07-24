@@ -5,8 +5,8 @@ import { useAuth } from "../Presentation/Hooks/AuthProvider";
 export class GetVaccinesUseCase {
   private vaccineRepository: VaccineRepository;
 
-  constructor(token: string | null) {
-    this.vaccineRepository = new VaccineRepository(token);
+  constructor() {
+    this.vaccineRepository = new VaccineRepository();
   }
 
   async execute(token: string | null): Promise<Vaccine[]> {

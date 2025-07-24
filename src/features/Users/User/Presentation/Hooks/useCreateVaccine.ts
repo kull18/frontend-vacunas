@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CreateVaccineUseCase } from "../../Application/CreateVaccine";
+import { CreateVaccinesUseCase } from "../../Application/CreateVaccine";
 import type { Vaccine } from "../../Domain/Vaccine";
 import { useAuth } from "./AuthProvider";
 
@@ -14,7 +14,7 @@ export function useCreateVaccine() {
         setLoading(true);
         setError(null);
         try {
-            const useCase = new CreateVaccineUseCase();
+            const useCase = new CreateVaccinesUseCase();
             const result = await useCase.execute(newVaccine, token);
             console.log("result", result)
             setCreatedVaccine(result);
