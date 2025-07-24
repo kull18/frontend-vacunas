@@ -6,13 +6,17 @@ import { useModalVaccines } from "./ModalVaccineContext";
 import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
 import { useDeleteVaccine } from "../../../../User/Presentation/Hooks/useDeleteVaccine";
 import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
+import { useUpdateVaccine } from "../../../../User/Presentation/Hooks/useUpdateVaccine";
 function TableVaccines() {
   const { abrirModal } = useModalVaccines();
   const { token } = useAuth()
 
-  const { vaccines, loading } = useGetVaccines(token)
+  const { vaccines, loading } = useGetVaccines()
   console.log("vaccines", vaccines)
     const { remove } = useDeleteVaccine()  
+const [modalOpen, setModalOpen] = useState(false);
+const [selectedVaccine, setSelectedVaccine] = useState<{ id: number; name: string } | null>(null);
+const { update } = useUpdateVaccine(); // Tu hook para actualizar
 
 
   const tableContainerRef = useRef(null);
@@ -32,6 +36,20 @@ function TableVaccines() {
       }
     }
   };
+
+  const handleEditClick = (vaccine: { idVaccines: number; nameVaccine: string }) => {
+  setSelectedVaccine({ id: vaccine.idVaccines, name: vaccine.nameVaccine });
+  setModalOpen(true);
+};
+
+const handleUpdate = async (newName: string) => {
+  if (selectedVaccine) {
+    await update(selectedVaccine.id, { nameVaccine: newName });
+    setModalOpen(false);
+    // Aquí deberías recargar la lista o actualizar el estado local
+  }
+};
+
 
   return (
     <>
@@ -79,10 +97,15 @@ function TableVaccines() {
                     <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
                     <td className="px-6 py-3  flex-1 min-w-[200px]">
                       <div className="flex gap-2">
-                        <button className="bg-[#F5C661] text-white px-2 py-1 rounded-lg flex items-center">
-                          <img src={edit} alt="Editar" className="w-4 h-4 mr-1" />
-                          Editar
-                        </button>
+<button
+  className="bg-[#F5C661] text-white px-2 py-1 rounded-lg flex items-center"
+  onClick={() => handleEditClick(vacuna)}
+>
+  <img src={edit} alt="Editar" className="w-4 h-4 mr-1" />
+  Editar
+</button>
+
+
                         <button onClick={() => {handleDelete(vacuna.idVaccines)}} className="bg-[#F82C2C] text-white px-2 py-1 rounded-lg flex items-center">
                           <img src={deleteIcon} alt="Eliminar" className="w-4 h-4 mr-1" />
                           Eliminar

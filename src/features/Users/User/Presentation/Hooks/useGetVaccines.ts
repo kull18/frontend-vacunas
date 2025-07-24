@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import type { Vaccine } from "../../Domain/Vaccine"; // Ajusta según tu estructura
 import { VaccineRepository } from "../../Domain/VaccineRepository";
+import { useAuth } from "./AuthProvider";
 
-export const useGetVaccines = (token: string | null) => {
+export const useGetVaccines = () => {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(true);
 
+
+  const { token } = useAuth()
+  console.log("token", token)
   const getVaccines = async () => {
-    if (!token) return;
     try {
       const repo = new VaccineRepository();
       const data = await repo.getVaccines(token);

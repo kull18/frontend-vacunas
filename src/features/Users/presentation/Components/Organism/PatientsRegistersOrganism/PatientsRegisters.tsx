@@ -36,9 +36,6 @@ function PatientsRegisters() {
           <PatientDonaPatients data={dataAlcohol} />
         </div>
       </div>
-      <div className="ml-1 mt-8 sm:ml-12">
-        <PatientAgeHistogram data={ageGroups} />
-      </div>
     </>
   );
 }

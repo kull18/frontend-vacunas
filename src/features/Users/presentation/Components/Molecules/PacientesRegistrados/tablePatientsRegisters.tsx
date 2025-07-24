@@ -11,8 +11,7 @@ function TablePatientsRegister() {
 
 
   const tableContainerRef = useRef(null);
-  const setModal = () => {
-  }
+ 
 
   return (
     <>
@@ -41,14 +40,16 @@ function TablePatientsRegister() {
           {/* Cabecera */}
           <div className="flex-shrink-0 overflow-x-auto sm:overflow-auto">
             <table className="w-full" id={style.table}>
-              <thead className="bg-[#F4F4F4]">
-                <tr className="flex">
-                  <th className="px-6 py-3 text-left w-[250px]">Nombre completo</th>
-                  <th className="px-6 py-3 text-left w-[250px]">Folio</th>
-                  <th className="px-4 py-3 text-left w-[120px]">Temperatura Corporal</th>
-                  <th className="px-4 py-3 text-left w-[80px]">Aliento alcholico</th>
-                </tr>
-              </thead>
+<thead className="bg-[#F4F4F4]">
+  <tr className="flex">
+    <th className="px-6 py-3 text-left w-[250px]">Nombre completo</th>
+    <th className="px-6 py-3 text-left w-[80px]">Folio</th>
+    <th className="px-4 py-3 text-left w-[100px]">Temperatura Corporal</th>
+    <th className="px-4 py-3 text-left w-[120px]">Aliento alcohólico</th>
+    <th className="px-4 py-3 text-left w-[80px]">Vacunado</th> {/* <-- Añadido este encabezado */}
+  </tr>
+</thead>
+
             </table>
           </div>
 
@@ -60,20 +61,18 @@ function TablePatientsRegister() {
             }}
           >
             <table className="w-full" id={style.table}>
-              <tbody>
-                {userCivils.map((v, index) => (
-                  <tr key={index} className="flex border-b border-gray-300">
-                    <td className="px-6 py-3 w-[250px] truncate">{v.name} {v.lastname}</td>
-                    <td className="px-4 py-3 w-[80px]">{v.fol}</td>
-                    <td className="px-4 py-3 w-[100px]">{v.corporalTemperature}</td>
-                    <td className="px-6 py-3 w-[120px] truncate">{v.alcoholBreat}</td>
-<td className="px-4 py-3 w-[80px]">
-  {v.isVaccinated === true ? "Positivo" : "Negativo"}
-</td>
+<tbody>
+  {userCivils.map((v, index) => (
+    <tr key={index} className="flex border-b border-gray-300">
+      <td className="px-6 py-3 w-[250px] truncate">{v.name} {v.lastname}</td>
+      <td className="px-6 py-3 w-[80px]">{v.fol}</td>
+      <td className="px-4 py-3 w-[100px]">{v.corporalTemperature}</td>
+      <td className="px-4 py-3 w-[120px] truncate">{v.alcoholBreat}</td>
+      <td className="px-4 py-3 w-[80px]">{v.isVaccinated === 1 ? "Sí" : "No"}</td>
+    </tr>
+  ))}
+</tbody>
 
-                  </tr>
-                ))}
-              </tbody>
             </table>
           </div>
         </div>

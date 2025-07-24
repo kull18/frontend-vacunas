@@ -3,7 +3,7 @@ export interface UserCivil {
   fol: string;
   corporalTemperature: number;
   alcoholBreat: number; 
-  isVaccinated: boolean; 
+  isVaccinated: number; 
   UserMedicVaccined: number | null; 
   name: string;
   lastname: string;

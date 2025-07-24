@@ -47,7 +47,7 @@ export class VaccineRepository {
       }
 
       const data = await response.json();
-      return data.vaccines ?? data;
+      return data;
     } catch (error) {
       console.error("Error en getVaccines:", error);
       throw error;
