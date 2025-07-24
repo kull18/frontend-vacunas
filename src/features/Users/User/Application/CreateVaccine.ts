@@ -1,19 +1,12 @@
-import type { VaccineName } from "../Domain/Vaccine";
+import type { Vaccine } from "../Domain/Vaccine";
 import { VaccineRepository } from "../Domain/VaccineRepository";
+import { useAuth } from "../Presentation/Hooks/AuthProvider";
 
-export class CreateVaccineUseCase {
-  private readonly vaccineRepository: VaccineRepository;
+export class GetVaccinesUseCase {
+  private vaccineRepository = new VaccineRepository();
 
-  constructor(token: string | null) {
-    this.vaccineRepository = new VaccineRepository(token);
-  }
+  async execute(token: string | null): Promise<Vaccine[]> {
 
-  async execute(newVaccine: VaccineName): Promise<VaccineName> {
-    try {
-      return await this.vaccineRepository.createVaccine(newVaccine);
-    } catch (error) {
-      console.error("Error al crear vacuna:", error);
-      throw error;
-    }
+    return await this.vaccineRepository.getVaccines(token);
   }
 }

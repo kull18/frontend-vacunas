@@ -1,19 +1,28 @@
 // src/Presentation/hooks/useDeleteVaccine.ts
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DeleteVaccineUseCase } from "../../Application/DeleteVaccineUseCase";
+import { useAuth } from "./AuthProvider";
 
 export function useDeleteVaccine() {
   const [loading, setLoading] = useState(false);
-  const useCase = new DeleteVaccineUseCase();
+  const { token } = useAuth()
 
-  const remove = async (id: number) => {
+  const remove = (id: number) => {
     setLoading(true);
-    try {
-      return await useCase.execute(id);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  return { remove, loading };
+
+      const deleVaccine = async(id: number) => {
+        try {
+          const uc = new DeleteVaccineUseCase()
+          return uc.execute(id, token)
+        }catch(error) {
+          console.log("error to delete vaccine in hook", error)
+        }finally {}
+      }
+
+      deleVaccine(id)
+ 
+
+    } 
+    return { remove, loading };
 }

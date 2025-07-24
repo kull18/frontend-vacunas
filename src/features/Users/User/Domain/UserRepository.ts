@@ -10,7 +10,8 @@ export class UserRepository{
                 throw Error("No se pudo obtener los usuarios")
             }
             const data = await response.json();
-            return data.users;
+            console.log("data",data)
+            return data;
         }catch (error){
             console.error("Error fetch users", error)
             throw error;

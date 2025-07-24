@@ -4,7 +4,7 @@ import x from "../../../../../../assets/x.png";
 import { useCreateVaccine } from "../../../../User/Presentation/Hooks/useCreateVaccine";
 import type { Vaccine } from "../../../../User/Domain/Vaccine";
 
-function ModalVaccines() {
+function ModalVaccinesUpdate() {
   const { cerrarModal } = useModalVaccines();
   const { createVaccine } = useCreateVaccine();
   const [tipoVacuna, setTipoVacuna] = useState("");
@@ -80,4 +80,4 @@ return (
   );
 }
 
-export default ModalVaccines;
+export default ModalVaccinesUpdate;

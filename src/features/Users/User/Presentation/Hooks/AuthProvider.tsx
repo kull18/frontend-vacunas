@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 
 interface AuthContextType {
@@ -12,11 +12,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(null);
 
+  // Leer el token de localStorage al cargar
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setTokenState(storedToken);
+    }
+  }, []);
+
   const setToken = (newToken: string) => {
+    localStorage.setItem("token", newToken);
     setTokenState(newToken);
   };
 
   const clearToken = () => {
+    localStorage.removeItem("token");
     setTokenState(null);
   };
 

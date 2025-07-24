@@ -3,68 +3,15 @@ import style from "../PacientesRegistrados/patients.module.css";
 import edit from "../../../../../../assets/editIcon.png";
 import deleteIcon from "../../../../../../assets/deletedIcon.png";
 import {useModal} from "../../Molecules/PacientesRegistrados/ModalContext"
+import { useGetUserCivils } from "../../../../User/Presentation/Hooks/useGetUserCivils";
 function TablePatientsRegister() {
   const { abrirModal } = useModal();
-  const [vacunas, setVacunas] = useState([
-    {
-      id: 1,
-      nombre: "Lucía Ramírez Torres",
-      edad: 32,
-      horaRegistro: "08:15",
-      resultado: "Negativo",
-      vacunaAplicada: "Influenza Quadrivalente",
-      dosis: 1,
-    },
-    {
-      id: 2,
-      nombre: "Marcos Téllez Guzmán",
-      edad: 45,
-      horaRegistro: "09:00",
-      resultado: "Positivo",
-      vacunaAplicada: "SARS-CoV-2 Variante XBB",
-      dosis: 2,
-    },
-    {
-      id: 3,
-      nombre: "Daniela López Ortega",
-      edad: 27,
-      horaRegistro: "10:45",
-      resultado: "Negativo",
-      vacunaAplicada: "Hepatitis B Recombinante",
-      dosis: 1,
-    },
-    {
-      id: 4,
-      nombre: "Sebastián Mendoza Ríos",
-      edad: 61,
-      horaRegistro: "11:30",
-      resultado: "Positivo",
-      vacunaAplicada: "PCV13",
-      dosis: 1,
-    },
-    {
-      id: 5,
-      nombre: "Isabela Cruz Ruiz",
-      edad: 39,
-      horaRegistro: "12:10",
-      resultado: "Negativo",
-      vacunaAplicada: "Tdap",
-      dosis: 1,
-    },
-    {
-      id: 6,
-      nombre: "Fernando Salgado Ponce",
-      edad: 54,
-      horaRegistro: "13:05",
-      resultado: "Positivo",
-      vacunaAplicada: "Influenza Quadrivalente",
-      dosis: 2,
-    },
-  ]);
+  const { userCivils } = useGetUserCivils()
+
+
 
   const tableContainerRef = useRef(null);
-  const setModal = () => {
-  }
+ 
 
   return (
     <>
@@ -84,7 +31,7 @@ function TablePatientsRegister() {
           className="border border-gray-300 rounded-lg overflow-x-auto w-[90vw] mt-8
           ml-12 sm:w-[150vh] sm:overflow-x-hidden"
           style={{
-            height: vacunas.length > 4 ? "250px" : "auto",
+            height: userCivils.length > 4 ? "250px" : "auto",
             display: "flex",
             flexDirection: "column",
           }}
@@ -93,51 +40,39 @@ function TablePatientsRegister() {
           {/* Cabecera */}
           <div className="flex-shrink-0 overflow-x-auto sm:overflow-auto">
             <table className="w-full" id={style.table}>
-              <thead className="bg-[#F4F4F4]">
-                <tr className="flex">
-                  <th className="px-6 py-3 text-left w-[250px]">Paciente</th>
-                  <th className="px-4 py-3 text-left w-[80px]">Edad</th>
-                  <th className="px-4 py-3 text-left w-[100px]">Hora</th>
-                  <th className="px-6 py-3 text-left w-[150px]">Resultado</th>
-                  <th className="px-6 py-3 text-left w-[220px]">Vacuna</th>
-                  <th className="px-4 py-3 text-left w-[80px]">Dosis</th>
-                  <th className="px-6 py-3 text-left w-[200px]">Acciones</th>
-                </tr>
-              </thead>
+<thead className="bg-[#F4F4F4]">
+  <tr className="flex">
+    <th className="px-6 py-3 text-left w-[250px]">Nombre completo</th>
+    <th className="px-6 py-3 text-left w-[80px]">Folio</th>
+    <th className="px-4 py-3 text-left w-[100px]">Temperatura Corporal</th>
+    <th className="px-4 py-3 text-left w-[120px]">Aliento alcohólico</th>
+    <th className="px-4 py-3 text-left w-[80px]">Vacunado</th> {/* <-- Añadido este encabezado */}
+  </tr>
+</thead>
+
             </table>
           </div>
 
           {/* Cuerpo */}
           <div
             style={{
-              overflowY: vacunas.length > 4 ? "auto" : "visible",
+              overflowY: userCivils.length > 4 ? "auto" : "visible",
               flexGrow: 1,
             }}
           >
             <table className="w-full" id={style.table}>
-              <tbody>
-                {vacunas.map((v) => (
-                  <tr key={v.id} className="flex border-b border-gray-300">
-                    <td className="px-6 py-3 w-[250px] truncate">{v.nombre}</td>
-                    <td className="px-4 py-3 w-[80px]">{v.edad}</td>
-                    <td className="px-4 py-3 w-[100px]">{v.horaRegistro}</td>
-                    <td className={`px-6 py-3 w-[150px] ${
-                      v.resultado === "Positivo" ? "text-red-500" : "text-green-500"
-                    }`}>
-                      {v.resultado}
-                    </td>
-                    <td className="px-6 py-3 w-[220px] truncate">{v.vacunaAplicada}</td>
-                    <td className="px-4 py-3 w-[80px]">{v.dosis}</td>
-                    <td className="px-6 py-3 w-[200px]">
-                      <div className="flex gap-2">
-                        <button className="bg-[#F82C2C] text-white px-4 py-1 rounded-lg hover:bg-[#F82C2C]/90 duration-200 flex items-center gap-1 text-sm">
-                          Negar vacuna
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+<tbody>
+  {userCivils.map((v, index) => (
+    <tr key={index} className="flex border-b border-gray-300">
+      <td className="px-6 py-3 w-[250px] truncate">{v.name} {v.lastname}</td>
+      <td className="px-6 py-3 w-[80px]">{v.fol}</td>
+      <td className="px-4 py-3 w-[100px]">{v.corporalTemperature}</td>
+      <td className="px-4 py-3 w-[120px] truncate">{v.alcoholBreat}</td>
+      <td className="px-4 py-3 w-[80px]">{v.isVaccinated === 1 ? "Sí" : "No"}</td>
+    </tr>
+  ))}
+</tbody>
+
             </table>
           </div>
         </div>
@@ -168,7 +103,7 @@ function TablePatientsRegister() {
             className="text-[#000000a7] font-bold text-sm sm:text-base text-center sm:text-right"
             id={style.paciente}
           >
-            Total: 6 pacientes
+            Total: {userCivils.length} pacientes
           </p>
         </div>
     </>

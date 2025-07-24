@@ -1,34 +1,31 @@
-// src/Presentation/hooks/useGetVaccines.ts
 import { useEffect, useState } from "react";
-import { GetVaccinesUseCase } from "../../Application/GetVaccinesUseCase";
-import type { Vaccine } from "../../Domain/Vaccine";
+import type { Vaccine } from "../../Domain/Vaccine"; // Ajusta según tu estructura
+import { VaccineRepository } from "../../Domain/VaccineRepository";
+import { useAuth } from "./AuthProvider";
 
-export function useGetVaccines() {
+export const useGetVaccines = () => {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const token = localStorage.getItem('authToken');
-  const useCase = new GetVaccinesUseCase(token);
+
+
+  const { token } = useAuth()
+  console.log("token", token)
+  const getVaccines = async () => {
+    try {
+      const repo = new VaccineRepository();
+      const data = await repo.getVaccines(token);
+      setVaccines(data);
+    } catch (error) {
+      console.error("Error en getVaccines:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchVaccines = async () => {
-      try {
-        setLoading(true);
-        const data = await useCase.execute();
-        console.log("Fetched vaccines data:", data); // Debug log
-        setVaccines(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching vaccines:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch vaccines");
-        setVaccines([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    getVaccines();
+  }, [token]);
 
-    fetchVaccines();
-  }, []);
+  return { vaccines, loading, refetch: getVaccines };
+};
 
-  return { vaccines, loading, error };
-}
