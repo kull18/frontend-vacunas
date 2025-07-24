@@ -8,6 +8,7 @@ import cooler from "../../../../../../assets/coolerIcon.png"
 import brigada from "../../../../../../assets/brigada.png"
 import groups from "../../../../../../assets/groups.png"
 import box from "../../../../../../assets/box.png"
+import enfermero from "../../../../../../assets/enfermero.png"
 import ListDashboard from "./listDashboard"
 import style from "../../Molecules/HistorialVacunacionPaciente/dashboard.module.css"
 import userLogo from "../../../../../../assets/userLogo.png"
@@ -67,6 +68,10 @@ function DashBoard() {
       setSelectedSection("caja");
     }
 
+    const gestionEnfermeros = () =>{
+      navigate("/dashboard/enfermeros/gestion/administrador")
+      setSelectedSection("Gestiión de enfermeros");
+    }
 
 const rolUser = user.role;
 console.log("role del Context:", rolUser)
@@ -196,27 +201,34 @@ useEffect(() => {
       </div>
     )}
 
-    {rolUser === "admin" && (showMenu || isDesktop) &&(
+    {rolUser === "director" && (showMenu || isDesktop) &&(
       <div>
       <ListDashboard
           image={brigada}
           text="Brigada de vacunacion"
           onClick={brigadaVacunacion}
-          selected={false}
+          selected={selectedSection === "Brigada de vacunacion"}
         />
 
       <ListDashboard
           image={groups}
           text="Grupos"
           onClick={gruposPersonas}
-          selected={false}
+          selected={selectedSection === "Grupos"}
         />
 
         <ListDashboard
           image={box}
-          text="caja"
+          text="Cajas de vacuna"
           onClick={cajaVacunas}
-          selected={false}
+          selected={selectedSection === "Cajas de vacuna"}
+        />
+
+        <ListDashboard
+          image={enfermero}
+          text="Gestiión de enfermeros"
+          onClick={gestionEnfermeros}
+          selected={selectedSection === "Gestiión de enfermeros"}
         />
 
         <ListDashboard

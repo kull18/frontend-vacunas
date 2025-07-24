@@ -1,21 +1,12 @@
-import { AuthProvider, useAuth } from "../Presentation/Hooks/AuthProvider";
-
-export interface Vaccine {
-  idVaccines: number;
-  nameVaccine: string;
-}
+import type { Vaccine, VaccineName } from "./Vaccine";
 
 export class VaccineRepository {
-  private baseUrl = "http://127.0.0.1:8000/api/vaccine";
+  private readonly baseUrl: string = "http://127.0.0.1:8000/api/vaccine";
   private token: string | null;
 
-  constructor() {
-    // Obtener el token del contexto de autenticación (useAuth)
-    // Esto requiere que el repositorio sea instanciado dentro de un componente React
-    const { token } = useAuth();
+  constructor(token: string | null) {
     this.token = token;
   }
-
 
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = {
@@ -26,40 +17,44 @@ export class VaccineRepository {
       headers["Authorization"] = `Bearer ${this.token}`;
     }
     
-    console.log("headers", headers)
     return headers;
   }
 
-  async getVaccines(): Promise<Vaccine[]> {
-    try {
-      const response = await fetch(this.baseUrl, {
-        headers: this.getHeaders()
-      });
+// src/Domain/VaccineRepository.ts
+async getVaccines(): Promise<Vaccine[]> {
+  try {
+    console.log("Sending request to:", this.baseUrl);
+    console.log("Using headers:", this.getHeaders());
+    
+    const response = await fetch(this.baseUrl, {
+      headers: this.getHeaders(),
+      credentials: 'include' // Si usas cookies
+    });
 
-      if (!response.ok) {
-        throw new Error("No se pudieron obtener las vacunas");
-      }
-
-      const data = await response.json();
-      return data.vaccines ?? data;
-    } catch (error) {
-      console.error("Error al obtener vacunas:", error);
-      throw error;
+    console.log("Response status:", response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Error details:", errorData);
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log("Received data:", data);
+    return data;
+  } catch (error) {
+    console.error("Full error details:", error);
+    throw new Error(`Failed to fetch vaccines: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
 
-async createVaccine(newVaccine: Vaccine): Promise<Vaccine> {
+  async createVaccine(newVaccine: VaccineName): Promise<Vaccine> {
     try {
-      const headers = this.getHeaders();
-      console.log("Headers:", headers); // Verifica que el token esté incluido
-
       const response = await fetch(this.baseUrl, {
         method: "POST",
-        headers,
+        headers: this.getHeaders(),
         body: JSON.stringify(newVaccine),
       });
-
-      console.log("response", response)
 
       if (response.status === 403) {
         throw new Error("Forbidden: Check permissions or token validity");
@@ -67,7 +62,6 @@ async createVaccine(newVaccine: Vaccine): Promise<Vaccine> {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("API Error:", errorData);
         throw new Error(errorData.message || "Failed to create vaccine");
       }
 
@@ -77,6 +71,7 @@ async createVaccine(newVaccine: Vaccine): Promise<Vaccine> {
       throw error;
     }
   }
+
   async updateVaccine(id: number, updatedData: Partial<Vaccine>): Promise<Vaccine> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
@@ -89,8 +84,7 @@ async createVaccine(newVaccine: Vaccine): Promise<Vaccine> {
         throw new Error("No se pudo actualizar la vacuna");
       }
 
-      const data = await response.json();
-      return data.vaccine ?? data;
+      return await response.json();
     } catch (error) {
       console.error("Error al actualizar vacuna:", error);
       throw error;

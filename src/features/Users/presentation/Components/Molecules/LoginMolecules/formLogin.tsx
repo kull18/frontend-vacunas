@@ -35,6 +35,7 @@ function FormLogin() {
         const role = body.role.toLowerCase();
         setUser(body)
         setToken(token)
+        localStorage.setItem("TokenU", token)
         // 🔀 Redirección según el rol
         switch (role) {
             case "enfermero":
@@ -44,7 +45,7 @@ function FormLogin() {
             case "paciente":
                 navigate("/dashboard/Historial-vacunacion/paciente");
                 break;
-            case "admin":
+            case "director":
                 navigate("/dashboard/brigadas/administrador");
                 break;
             default:

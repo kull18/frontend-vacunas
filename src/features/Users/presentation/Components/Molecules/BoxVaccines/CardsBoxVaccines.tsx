@@ -1,31 +1,12 @@
 import style from "../../Molecules/BoxVaccines/box.module.css"
 import vaccine from "../../../../../../assets/vacunas.png"
 import { useModalBrigadesVaccine } from "../RegistroBrigadasVacunacion/ModalBrigadesVaccineContext"
+import { useModalVaccinesPrincipal } from "../GestionVacunas/ModalVaccinesPrincipalContext"
+import { useGetBox } from "../../../../BoxVaccine/Presentation/Hooks/useGetBoxVaccine"
 function CardsBoxVaccines() {
   const {abrirModalVaccine} = useModalBrigadesVaccine()
-  
-    const box = [
-  {
-    nameBox: "Brigada Norte",
-    quantitiesVaccines: 120
-  },
-  {
-    nameBox: "Brigada Rural Oriente",
-    quantitiesVaccines: 95
-  },
-  {
-    nameBox: "Brigada Escolar Sur",
-    quantitiesVaccines: 150
-  },
-  {
-    nameBox: "Brigada Urbana Centro",
-    quantitiesVaccines: 180
-  },
-  {
-    nameBox: "Brigada Móvil Regional",
-    quantitiesVaccines: 75
-  }
-];
+  const {abrirModal} = useModalVaccinesPrincipal()
+  const {box, loadingBox, errorBox} = useGetBox();
 
     return ( 
         <>
@@ -34,12 +15,19 @@ function CardsBoxVaccines() {
                     Cajas de vacunas
                 </p>
 
+            <div className="gap-5 flex">
+            <button
+                onClick={abrirModal}
+                className="bg-[#74b76d] text-white py-3 px-5 sm:px-7 rounded hover:bg-[#1677ff99] transition cursor-pointer w-full sm:w-auto">
+                Agregar vacuna
+            </button>
+
             <button
                 onClick={abrirModalVaccine}
-                className="bg-[#5ebcff] text-white py-3 px-5 sm:px-7 rounded hover:bg-[#1677ff99] transition cursor-pointer w-full sm:w-auto"
-            >
+                className="bg-[#5ebcff] text-white py-3 px-5 sm:px-7 rounded hover:bg-[#1677ff99] transition cursor-pointer w-full sm:w-auto">
                 Agregar caja
             </button>
+            </div>
         </div>
 
         <main id={style.containerGrid} className="mt-1">
@@ -48,13 +36,15 @@ function CardsBoxVaccines() {
       {/* Bolita superior decorativa */}
 
       {/* Título */}
-      <p className="text-lg font-semibold text-gray-800 mb-3 mt-3">{boxs.nameBox}</p>
 
       {/* Datos con íconos */}
-      <div className="space-y-2 text-sm text-gray-700">
+      <div className="space-y-2 text-sm text-gray-800 mt-3">
         <div className="flex items-center gap-2">
           <img src={vaccine} alt="location" className="w-4 h-4" />
-          <span>{boxs.quantitiesVaccines}</span>
+          <div className="flex gap-2">
+          <p>Cantidad de vacunas: </p>
+            <p className="font-bold">{boxs.amountVaccines}</p>
+          </div>
         </div>
       </div>
 

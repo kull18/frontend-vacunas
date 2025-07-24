@@ -11,16 +11,18 @@ import { ModalProvider } from './features/Users/presentation/Components/Molecule
 import { ModalVaccineProvider } from './features/Users/presentation/Components/Molecules/GestionVacunas/ModalVaccineContext';
 import { ModalBrigadesContext } from './features/Users/presentation/Components/Molecules/RegistroBrigadasVacunacion/ModalBrigadesContext';
 import { ModalBrigadesVaccineContext } from './features/Users/presentation/Components/Molecules/RegistroBrigadasVacunacion/ModalBrigadesVaccineContext';
-import RegisterBrigatesVacunation from './features/Users/presentation/Components/Pages/RegisterBrigadesVacunationPage';
+import { ModalVaccinePrincipalProvider } from './features/Users/presentation/Components/Molecules/GestionVacunas/ModalVaccinesPrincipalContext';
 import BrigatesVacunationPage from './features/Users/presentation/Components/Pages/BrigadesVacunationPage';
 import GroupsVacunationPage from './features/Users/presentation/Components/Pages/GroupsVacunationPage';
 import FormRegisterBrigade from './features/Users/presentation/Components/Pages/RegisterBrigadesPage';
 import RegisterGroupPage from './features/Users/presentation/Components/Pages/RegisterGroupPage';
 import BoxVaccinePage from './features/Users/presentation/Components/Pages/BoxVaccinesPage';
 import { ModalBoxsProvider } from './features/Users/presentation/Components/Molecules/GroupsBrigades/ModalBoxVaccinesContext';
+import RegisterNursesPage from './features/Users/presentation/Components/Pages/RegisterNursesPage';
 function App() {
   return (
     <>
+    <ModalVaccinePrincipalProvider>
     <ModalBoxsProvider>
     <ModalBrigadesVaccineContext>
     <ModalBrigadesContext>
@@ -40,7 +42,7 @@ function App() {
                     <Route path="grupos/administrador" element={<GroupsVacunationPage></GroupsVacunationPage>}/>
                     <Route path="grupo/registrar/administrador" element={<RegisterGroupPage></RegisterGroupPage>}/>
                     <Route path="cajas-vacunas/administrador" element={<BoxVaccinePage></BoxVaccinePage>}/>
-
+                    <Route path="enfermeros/gestion/administrador" element={<RegisterNursesPage></RegisterNursesPage>}/>
                 </Route>
             </Routes>
         </Router>
@@ -49,6 +51,7 @@ function App() {
       </ModalBrigadesContext>
       </ModalBrigadesVaccineContext>
       </ModalBoxsProvider>
+      </ModalVaccinePrincipalProvider>
     </>
   )
 }

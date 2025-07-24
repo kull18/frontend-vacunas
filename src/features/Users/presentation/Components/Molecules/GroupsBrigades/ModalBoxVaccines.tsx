@@ -1,9 +1,10 @@
 import add from "../../../../../../assets/add.png"
 import x from "../../../../../../assets/x.png"
 import { useModalBoxs } from "./ModalBoxVaccinesContext"
+import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
 function ModalBoxVaccunes() {
-    
     const {cerrarModal} = useModalBoxs();
+    const { vaccines, loading } = useGetVaccines();
     const boxs = [
   {
     id: 1,
