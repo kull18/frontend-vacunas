@@ -2,6 +2,7 @@ import { data } from "react-router-dom";
 import TableVaccines from "../../Molecules/GestionVacunas/tableVaccines";
 import VaccineBarChart from "../../Molecules/GestionVacunas/VaccineBarChart";
 import VaccineInventoryBarChart from "../../Molecules/GestionVacunas/VaccineInventoryBarChart";
+import GaussJordanMatrixChart from "../../Molecules/GausGraph/GaussJordanMatrixChart";
 
 function TableVaccinesRegister() {
     const data= [
