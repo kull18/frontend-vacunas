@@ -6,8 +6,9 @@ import vacunas from "../../../../../../assets/vacunas.png"
 import ubicacion from "../../../../../../assets/ubication.png"
 import location from "../../../../../../assets/location.png"
 import { useNavigate } from "react-router-dom"
+import { useModalBrigades } from "../RegistroBrigadasVacunacion/ModalBrigadesContext"
 function CardsBrigades() {
-  const navigate = useNavigate();
+  const {abrirModal} = useModalBrigades()
  const brigadas = [
   {
     nombreBrigada: "Brigada Norte",
@@ -37,10 +38,6 @@ function CardsBrigades() {
 ];
 
 
-const addBrigade = ()=>{
-    navigate("/dashboard/registro-brigadas/administrador")
-}
-
     return ( 
         <>
         <div className="mt-10 mx-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -49,7 +46,7 @@ const addBrigade = ()=>{
   </p>
 
   <button
-    onClick={addBrigade}
+    onClick={abrirModal}
     className="bg-[#089ea1] text-white py-3 px-5 sm:px-7 rounded hover:bg-[#0dbfbe] transition cursor-pointer w-full sm:w-auto"
   >
     Agregar brigada

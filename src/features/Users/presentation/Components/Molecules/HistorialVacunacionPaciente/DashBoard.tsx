@@ -79,6 +79,7 @@ console.log("role del Context:", rolUser)
     const navigateLogin = () =>{
         navigate("/")
         setUser(null)
+        localStorage.removeItem("token")
     }
 
 useEffect(() => {

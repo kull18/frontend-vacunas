@@ -1,12 +1,67 @@
 import style from "../../Molecules/BoxVaccines/box.module.css"
 import vaccine from "../../../../../../assets/vacunas.png"
+import Swal from "sweetalert2"
+import { useState } from "react"
 import { useModalBrigadesVaccine } from "../RegistroBrigadasVacunacion/ModalBrigadesVaccineContext"
 import { useModalVaccinesPrincipal } from "../GestionVacunas/ModalVaccinesPrincipalContext"
 import { useGetBox } from "../../../../BoxVaccine/Presentation/Hooks/useGetBoxVaccine"
+import { BoxRepository } from "../../../../BoxVaccine/Domain/BoxVaccineRepository"
+import { useDeleteUser } from "../../../../User/Presentation/Hooks/useDeleteUser"
+import { useDeleteBox } from "../../../../BoxVaccine/Presentation/Hooks/useDeleteBox"
 function CardsBoxVaccines() {
   const {abrirModalVaccine} = useModalBrigadesVaccine()
   const {abrirModal} = useModalVaccinesPrincipal()
-  const {box, loadingBox, errorBox} = useGetBox();
+  const {box, loadingBox, errorBox, refetch} = useGetBox();
+  const { deleteBox, loading, error, success } = useDeleteBox(new BoxRepository());
+  const [token] = useState(localStorage.getItem('token') || '');
+
+  const handleDelete = async (idBox: number) => {
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de autenticación',
+        text: 'No hay token de autenticación',
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esta acción!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const deleted = await deleteBox(idBox, token);
+        
+        if (deleted) {
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Eliminado!',
+            text: 'La caja ha sido eliminada correctamente',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          refetch();
+        } else {
+          throw new Error('No se pudo eliminar la caja');
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al eliminar la caja',
+        });
+      }
+    }
+  };
 
     return ( 
         <>
@@ -53,7 +108,8 @@ function CardsBoxVaccines() {
   <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#c3d0b363] text-[#00000089] rounded-md text-sm hover:bg-yellow-200 transition w-full sm:w-auto">
     <i className="fas fa-edit"></i> Editar
   </button>
-  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#d7757555] text-[#00000089] rounded-md text-sm hover:bg-rose-300 transition w-full sm:w-auto">
+  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#d7757555] text-[#00000089] rounded-md text-sm hover:bg-rose-300 transition w-full sm:w-auto cursor-pointer"
+  onClick={() => handleDelete(boxs.idVaccineBox)}>
     <i className="fas fa-trash-alt"></i> Eliminar
   </button>
 </div>

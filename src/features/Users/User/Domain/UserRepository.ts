@@ -1,5 +1,6 @@
 import { data } from "react-router-dom";
 import type { User, UserLogin } from "./User";
+import type { Group } from "../../Group/Domain/Group";
 import { useNavigate } from "react-router-dom";
 export class UserRepository{
     async getUser():Promise<User[]>{
@@ -21,12 +22,72 @@ export class UserRepository{
         }
     }
 
+// src/Domain/UserRepository.ts
+async getUserByRol(): Promise<User[]> {
+  try {
+    console.log("[UserRepository] Obteniendo usuarios...");
+
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Token no encontrado en localStorage");
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    // Obtener usuarios
+    const usersResponse = await fetch("http://127.0.0.1:8000/api/leadersAndNurse", {
+      headers
+    });
+
+    if (!usersResponse.ok) {
+      console.error("[UserRepository] Error en respuesta de usuarios:", usersResponse.status);
+      throw new Error("Error al obtener usuarios");
+    }
+
+    const users: User[] = await usersResponse.json();
+    console.log("[UserRepository] Usuarios recibidos:", users);
+
+    // Obtener grupos
+    console.log("[UserRepository] Obteniendo grupos...");
+    const groupsResponse = await fetch("http://127.0.0.1:8000/api/groups", {
+      headers
+    });
+
+    if (!groupsResponse.ok) {
+      console.error("[UserRepository] Error en respuesta de grupos:", groupsResponse.status);
+      throw new Error("Error al obtener grupos");
+    }
+
+    const groups: Group[] = await groupsResponse.json();
+    console.log("[UserRepository] Grupos recibidos:", groups);
+
+    // Asociar usuarios con sus grupos
+    const usersWithGroups = users.map(user => {
+      const group = groups.find(g => g.idGroup === user.groupIdGroup);
+      return {
+        ...user,
+        groupName: group ? group.nameGroup : 'Sin grupo'
+      };
+    });
+
+    console.log("[UserRepository] Usuarios con grupos:", usersWithGroups);
+    return usersWithGroups;
+
+  } catch (error) {
+    console.error("[UserRepository] Error completo:", error);
+    throw error;
+  }
+}
+
+
     async createUser(newUser: User): Promise<User> {
+        const token = localStorage.getItem("token");
         try {
             const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(newUser)
             });
@@ -109,9 +170,14 @@ async loginUser(credentials: { username: string; password: string }): Promise<{ 
     }
 
      async deleteUser(id: number): Promise<boolean> {
+        const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`api/${id}`, {
-                method: "DELETE"
+            const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
             });
 
             if (!response.ok) {

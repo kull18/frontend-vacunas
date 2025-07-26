@@ -1,4 +1,5 @@
 import type { AlcoholData } from "./DataAlcoholemia";
+import type { VaccineName } from "./Vaccine";
 
 export interface Vaccine {
   idVaccines: number;
@@ -6,7 +7,7 @@ export interface Vaccine {
 }
 
 export class VaccineRepository {
-  private baseUrl = `${import.meta.env.VITE_URL_API}/vaccine`;
+  private baseUrl = "http://127.0.0.1:8000/api/vaccine";
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;
@@ -36,6 +37,10 @@ export class VaccineRepository {
         method: "GET",
         headers: this.getHeaders(token),
       });
+
+      if (response.status === 401) {
+        throw new Error("Token inválido o expirado");
+      }
 
       if (response.status === 401) {
         throw new Error("No autorizado: Token inválido o faltante");
@@ -71,31 +76,35 @@ export class VaccineRepository {
       throw error
     }
   }
-
-  async createVaccine(newVaccine: Vaccine, token: string | null): Promise<Vaccine> {
-    try {
-      const response = await fetch(this.baseUrl, {
-        method: "POST",
-        headers: this.getHeaders(token),
-        body: JSON.stringify(newVaccine),
-      });
-
-      if (response.status === 401) {
-        throw new Error("No autorizado: Token inválido o expirado");
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Error al crear la vacuna");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error en createVaccine:", error);
-      throw error;
+// En VaccineRepository.ts
+async createVaccine(newVaccine: { nameVaccine: string }, token: string | null): Promise<VaccineName> {
+  try {
+    const formattedToken = this.formatToken(token);
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    
+    if (formattedToken) {
+      headers["Authorization"] = formattedToken;
     }
-  }
 
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ nameVaccine: newVaccine.nameVaccine }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Error al crear la vacuna");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en createVaccine:", error);
+    throw error;
+  }
+}
   async updateVaccine(id: number, updatedData: Partial<Vaccine>, token: string | null): Promise<Vaccine> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
@@ -124,6 +133,7 @@ export class VaccineRepository {
         headers: this.getHeaders(token),
       });
 
+      console.log("Status del delete", response.status)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "No se pudo eliminar la vacuna");

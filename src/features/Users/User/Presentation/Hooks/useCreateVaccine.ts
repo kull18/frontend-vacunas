@@ -3,27 +3,27 @@ import { CreateVaccinesUseCase } from "../../Application/CreateVaccine";
 import type { Vaccine } from "../../Domain/Vaccine";
 import { useAuth } from "./AuthProvider";
 
+// En useCreateVaccine.ts
 export function useCreateVaccine() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-    const [createdVaccine, setCreatedVaccine] = useState<Vaccine | null>(null);
-    const { token } = useAuth()
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
-    const createVaccine = async (newVaccine: Vaccine) => {
-        
-        setLoading(true);
-        setError(null);
-        try {
-            const useCase = new CreateVaccinesUseCase();
-            const result = await useCase.execute(newVaccine, token);
-            console.log("result", result)
-            setCreatedVaccine(result);
-        } catch (err) {
-            setError(err as Error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const createVaccine = async (vaccineData: { nameVaccine: string }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const useCase = new CreateVaccinesUseCase();
+      const result = await useCase.execute(vaccineData, token);
+      return result;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error desconocido";
+      setError(message);
+      throw err; // Re-lanzar el error para que pueda ser capturado por el componente
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return { createVaccine, loading, error, createdVaccine };
+  return { createVaccine, loading, error };
 }

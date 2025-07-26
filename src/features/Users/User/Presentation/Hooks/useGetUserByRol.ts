@@ -1,44 +1,51 @@
+// src/Presentation/Hooks/useGetUserRole.ts
 import { useEffect, useState } from "react";
 import type { User } from "../../Domain/User";
-import { GetUserUseCase } from "../../Application/GetUserUseCase"; // asegúrate de tener este caso de uso
+import { GetUserRoleCase } from "../../Application/GetUserByRolUseCase";
 
-interface PropsGetUserRol {
-  usersRol: User[];
-  loadingRol: boolean;
-  errorRol: unknown | null;
+interface UserRoleHookResult {
+  users: User[];
+  loadingRole: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
 }
 
-export const useGetUserRole = (): PropsGetUserRol => {
-  const [usersRol, setUsersRol] = useState<User[]>([]);
-  const [loadingRol, setLoadingRol] = useState(false);
-  const [errorRol, setErrorRol] = useState<unknown | null>(null);
+// src/Presentation/Hooks/useGetUserRole.ts
+export const useGetUserRole = (): UserRoleHookResult => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingRole, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchUsers = async () => {
+    console.log("[useGetUserRole] Iniciando obtención de usuarios...");
+    try {
+      setLoading(true);
+      setError(null);
+      const uc = new GetUserRoleCase();
+      const usersData = await uc.execute();
+      console.log("[useGetUserRole] Datos recibidos:", usersData);
+      setUsers(usersData);
+    } catch (err) {
+      console.error("[useGetUserRole] Error al obtener usuarios:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      console.log("[useGetUserRole] Finalizada obtención de usuarios");
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoadingRol(true);
-      try {
-        const uc = new GetUserUseCase();
-        const users = await uc.execute();
-        console.log("Usuarios con roles:", users);
-        // Filtrar solo roles "enfermero" y "lider"
-        const filtered = users.filter((user) =>
-          ["enfermero", "lider"].includes(user.role?.toLowerCase())
-        );
-
-        setUsersRol(filtered);
-      } catch (error) {
-        setErrorRol(error);
-      } finally {
-        setLoadingRol(false);
-      }
-    };
-
+    console.log("[useGetUserRole] Efecto montado, obteniendo usuarios...");
     fetchUsers();
   }, []);
 
-  return {
-    usersRol,
-    loadingRol,
-    errorRol,
+  return { 
+    users, 
+    loadingRole, 
+    error, 
+    refetch: () => {
+      console.log("[useGetUserRole] Refetch manual solicitado");
+      return fetchUsers();
+    } 
   };
 };

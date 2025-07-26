@@ -7,6 +7,7 @@ import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccin
 import { useState } from "react";
 import { useCreateBox } from "../../../../BoxVaccine/Presentation/Hooks/useCreateBoxVaccine";
 import { useCreateBoxAmount } from "../../../../BoxVaccine/Presentation/Hooks/useCreateBoxAmountVaccine";
+import Swal from "sweetalert2";
 function ModalBrigadesVaccine() {
   const { cerrarModal } = useModalBrigadesVaccine();
   const { vaccines, loading } = useGetVaccines();
@@ -27,33 +28,29 @@ function ModalBrigadesVaccine() {
 
 const CreateVaccinesBox = async () => {
   if (selectedVaccines.length === 0) {
-    alert("Debes seleccionar al menos una vacuna");
+    Swal.fire("Debes seleccionar al menos una vacuna");
     return;
   }
 
   try {
-    // 1. Primero enviamos la cantidad de vacunas
     const amountData = {
       amountVaccines: selectedVaccines.length
     };
 
-    // Suponiendo que tienes un hook useCreateBoxAmount para esto
     const createdAmount = await createBoxAmount(amountData);
 
-    // 2. Luego enviamos los IDs de las vacunas
     if (createdAmount) {
       const boxData = {
-        idVaccineBox: 0, // El backend asigna el ID
+        idVaccineBox: 0,
         idVaccines: selectedVaccines.map(v => v.id)
       };
 
       await createBox(boxData);
     }
-    
-    // Limpiar selección después de crear
     setSelectedVaccines([]);
     cerrarModal();
-    alert("Caja de vacunas creada exitosamente!");
+    window.location.reload();
+    Swal.fire("Caja de vacunas creada exitosamente!");
     
   } catch (error) {
     console.error("Error al crear caja de vacunas:", error);
