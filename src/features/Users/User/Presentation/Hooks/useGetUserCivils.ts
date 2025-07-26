@@ -25,5 +25,5 @@ export const useGetUserCivils = () => {
     fetchUserCivils();
   }, [token]);
 
-  return { userCivils, loading, error };
+  return { userCivils, setUserCivils ,loading, error };
 };

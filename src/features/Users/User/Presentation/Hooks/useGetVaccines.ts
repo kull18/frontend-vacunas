@@ -26,6 +26,6 @@ export const useGetVaccines = () => {
     getVaccines();
   }, [token]);
 
-  return { vaccines, loading, refetch: getVaccines };
+  return { vaccines, setVaccines, loading, refetch: getVaccines };
 };
 

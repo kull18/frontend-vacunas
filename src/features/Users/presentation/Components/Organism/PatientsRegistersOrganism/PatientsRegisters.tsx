@@ -1,39 +1,39 @@
-import { useGetAlcohol } from "../../../../User/Presentation/Hooks/useGetAlcoholemia";
-import PatientAgeHistogram from "../../Molecules/PacientesRegistrados/PatientAgeHistogram";
+import { useVaccineData } from "../../../../../../shared/VaccineDataProvider";
+import { useAlcoholData } from "../../../../../../shared/AlcoholDataProvider"; // Asegúrate que este hook exista
 import PatientBarGraph from "../../Molecules/PacientesRegistrados/PatientBarGraph";
 import PatientDonaPatients from "../../Molecules/PacientesRegistrados/PatientDonaPatients";
 import TablePatientsRegister from "../../Molecules/PacientesRegistrados/tablePatientsRegisters";
 
 function PatientsRegisters() {
-  const { data: dataAlcohol = [] } = useGetAlcohol();
+  const vaccineResponseData = useVaccineData();
 
-  const data = {
-    labels: ['Pfizer', 'Moderna', 'AstraZeneca', 'Sinovac', 'Sputnik V', 'Johnson & Johnson'],
-    dataValues: [250, 180, 100, 80, 60, 40],
-  };
+  console.log("data vaccine", vaccineResponseData)
+  const alcoholData = useAlcoholData();
 
-  type AgeGroupData = {
-    label: string;
-    count: number;
-  };
+  console.log("data alcohol", alcoholData)
 
-  const ageGroups: AgeGroupData[] = [
-    { label: '0–18', count: 5 },
-    { label: '19–30', count: 12 },
-    { label: '31–50', count: 18 },
-    { label: '51+', count: 7 },
-  ];
+  const stillLoading = !vaccineResponseData && !alcoholData;
+
+  if (stillLoading) {
+    return <div>Cargando datos...</div>;
+  }
+
+  const labels = vaccineResponseData?.vaccinations.map((v) => v.vaccine.name) || [];
+  const dataValues = labels.map((name) => vaccineResponseData?.vaccineCounts?.[name] ?? 0);
 
   return (
     <>
       <TablePatientsRegister />
       <div className="flex flex-col sm:flex-row gap-14 ml-3">
         <div className="ml-2 mt-8 sm:ml-10 sm:mt-10">
-          <PatientBarGraph labels={data.labels} dataValues={data.dataValues} />
+            <PatientBarGraph labels={labels} dataValues={dataValues} />   
         </div>
         <div className="mt-10">
-          {/* 🔁 Le pasamos los datos con probabilidad directamente */}
-          <PatientDonaPatients data={dataAlcohol} />
+          {alcoholData && alcoholData.length > 0 ? (
+            <PatientDonaPatients data={alcoholData} />
+          ) : (
+            <div>No hay datos de alcohol aún</div>
+          )}
         </div>
       </div>
     </>

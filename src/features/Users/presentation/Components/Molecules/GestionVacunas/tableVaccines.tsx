@@ -1,24 +1,22 @@
 import style from "../../Molecules/GestionVacunas/vaccines.module.css";
 import edit from "../../../../../../assets/editIcon.png";
 import deleteIcon from "../../../../../../assets/deletedIcon.png";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useModalVaccines } from "./ModalVaccineContext";
 import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
 import { useDeleteVaccine } from "../../../../User/Presentation/Hooks/useDeleteVaccine";
 import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
 import { useUpdateVaccine } from "../../../../User/Presentation/Hooks/useUpdateVaccine";
+import type { Vaccine } from "../../../../User/Domain/Vaccine";
 function TableVaccines() {
   const { abrirModal } = useModalVaccines();
   const { token } = useAuth()
-
-  const { vaccines, loading } = useGetVaccines()
+  const { vaccines, setVaccines,  loading } = useGetVaccines()
   console.log("vaccines", vaccines)
     const { remove } = useDeleteVaccine()  
 const [modalOpen, setModalOpen] = useState(false);
 const [selectedVaccine, setSelectedVaccine] = useState<{ id: number; name: string } | null>(null);
-const { update } = useUpdateVaccine(); // Tu hook para actualizar
-
-
+  const { vaccines: newVaccineGet } = useGetVaccines()
   const tableContainerRef = useRef(null);
 
     const handleDelete = async (id: number) => {
@@ -37,18 +35,25 @@ const { update } = useUpdateVaccine(); // Tu hook para actualizar
     }
   };
 
+  const seachVaccine = (vaccineName: string) => {
+    try {
+      if(vaccineName.length == 0) {
+
+        setVaccines(newVaccineGet)
+      }
+      const filtredData = vaccines.filter((vaccine: Vaccine) => vaccine.nameVaccine === vaccineName)
+      console.log("filtred", filtredData)
+
+      if(filtredData.length > 0) setVaccines(filtredData)
+    }catch(error) {
+      throw error
+    }
+  }
+
   const handleEditClick = (vaccine: { idVaccines: number; nameVaccine: string }) => {
   setSelectedVaccine({ id: vaccine.idVaccines, name: vaccine.nameVaccine });
   setModalOpen(true);
-};
-
-const handleUpdate = async (newName: string) => {
-  if (selectedVaccine) {
-    await update(selectedVaccine.id, { nameVaccine: newName });
-    setModalOpen(false);
-    // Aquí deberías recargar la lista o actualizar el estado local
-  }
-};
+}
 
 
   return (
@@ -126,11 +131,8 @@ const handleUpdate = async (newName: string) => {
                 type="text"
                 placeholder="Buscar paciente"
                 className="max-h-10 w-full sm:w-[50vh] px-3 py-2 border border-gray-300 text-gray-500 text-sm rounded-l-md focus:outline-none"
+                onChange={(e) => {seachVaccine(e.target.value)}}
               />
-              <button className="h-10 px-4 bg-[#1677FF] text-white text-sm rounded-r-md cursor-pointer
-              hover:bg-[#1677ffd6] duration-200">
-                Buscar
-              </button>
             </div>
 
             <button className="bg-[#4CAF50] text-white px-4 py-2 rounded whitespace-nowrap cursor-pointer hover:bg-[#79cc7c] duration-200

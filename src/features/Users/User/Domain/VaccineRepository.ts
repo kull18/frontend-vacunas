@@ -54,7 +54,7 @@ export class VaccineRepository {
     }
   }
 
-  async getAlcoholemiaData(token: string | null): Promise<AlcoholData[]> {
+  async getAlcoholemiaData(): Promise<AlcoholData[]> {
     try {
       const response = await fetch(`http://localhost:8001/SensorCheck/alcoholemia`, {
         method: 'GET'

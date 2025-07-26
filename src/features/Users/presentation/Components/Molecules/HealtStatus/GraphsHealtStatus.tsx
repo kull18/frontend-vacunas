@@ -1,10 +1,10 @@
 import BarChartHealtStatus from "./BarChartHealtStatus";
 import LineChartHealtStatus from "./LineChartHealtStatus";
 import style from "../HealtStatus/Healt.module.css";
-import { useWebSocket } from "../../../../../../shared/HumidityProvider";
+import { useTemperature } from "../../../../../../shared/TemperatureProvider";
 
 function GraphsHealtStatus() {
-  const { temperatureData, humidityData } = useWebSocket();
+  const temperatureData = useTemperature();
 
   const labels = temperatureData?.intervalos || [];
   const marcas = temperatureData?.marcas || [];

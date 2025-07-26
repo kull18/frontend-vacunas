@@ -1,27 +1,21 @@
-import { useWebSocket } from "../../../../../../shared/HumidityProvider";
+import { useHumidity } from "../../../../../../shared/HumidityProvider";
+import { useTemperature } from "../../../../../../shared/TemperatureProvider";
 import GraphHumidity from "../../Molecules/Transporter/GraphHumidity";
 import GraphTemperatureCooler from "../../Molecules/Transporter/graphTemperatureCooler";
 import InventoryCards from "../../Molecules/Transporter/InventoryCards";
 import style from "../VaccineTrasnporterOrganism/transporter.module.css"
 function VaccineTrasnporter() {
-    const { temperatureData, humidityData } = useWebSocket();
+    const temperatureData = useTemperature()
+    const humidityData = useHumidity()
     
         const labels = temperatureData?.intervalos || [];
         const marcas = temperatureData?.marcas || [];
     
-        const temperature = {
-            labels: labels,
-            values: marcas,
-        };
     
         const labelsH = humidityData?.intervalos || [];
         const valuesH = humidityData?.marcas|| []
     
-    
-        const humidity = {
-            labels: labelsH,
-            values: valuesH
-        }
+  
     return ( 
         <>
        <div className="flex-none mt-3 sm:flex sm:flex-col">

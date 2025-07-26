@@ -33,8 +33,7 @@ function TableVaccinesRegister() {
     return ( 
         <>
             <TableVaccines></TableVaccines>
-            <div className="flex flex-col sm:flex-row items-center mt-10 gap-5 ml-0 sm:ml-10 pb-10">
-            <VaccineBarChart labels={labels} dataValues={dataValues}></VaccineBarChart>
+            <div className="flex justify-center items-center sm:flex-row items-center mt-10 gap-5 ml-0 sm:ml-10 pb-10">
             <VaccineInventoryBarChart labels={labelsInventory} dataValues={dataValuesInventory}></VaccineInventoryBarChart>
             </div>
         </>
