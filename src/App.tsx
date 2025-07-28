@@ -15,6 +15,8 @@ import FormRegisterBrigade from './features/Users/presentation/Components/Pages/
 import RegisterGroupPage from './features/Users/presentation/Components/Pages/RegisterGroupPage';
 import BoxVaccinePage from './features/Users/presentation/Components/Pages/BoxVaccinesPage';
 import RegisterNursesPage from './features/Users/presentation/Components/Pages/RegisterNursesPage';
+import CardsBrigadesById from './features/Users/presentation/Components/Molecules/BrigadasVacunacion/CardBrigadesById';
+import ProtectedRoute from './features/Users/ProtectedRoute';
 
 // Context Providers
 import { ModalProvider } from './features/Users/presentation/Components/Molecules/PacientesRegistrados/ModalContext';
@@ -25,43 +27,54 @@ import { ModalVaccinePrincipalProvider } from './features/Users/presentation/Com
 import { ModalBoxsProvider } from './features/Users/presentation/Components/Molecules/GroupsBrigades/ModalBoxVaccinesContext';
 import { TemperatureProvider } from './shared/TemperatureProvider';
 import { HumidityProvider } from './shared/HumidityProvider';
+import { AuthProvider } from './Context/AuthContext';
 
 function App() {
   return (
-    <TemperatureProvider>
-      <HumidityProvider>
-        <ModalVaccinePrincipalProvider>
-          <ModalBoxsProvider>
-            <ModalBrigadesVaccineContext>
-              <ModalBrigadesContext>
-                <ModalProvider>
-                  <ModalVaccineProvider>
-                    <Router>
-                      <Routes>
-                        <Route path="/" element={<LoginPage />} />
-                        <Route path="/dashboard" element={<HistorialVacunacionPaciente />}>
-                          <Route path="Historial-vacunacion/paciente" element={<MainHistorialVacunationPage />} />
-                          <Route path="estado-salud" element={<HeatlStatusPage />} />
-                          <Route path="tabla-pacientes-registrados/enfermero" element={<PatientsRegistersPage />} />
-                          <Route path="tabla-vacunas-registradas/enfermero" element={<VaccinesRegisterPage />} />
-                          <Route path="analisis-vacunas-transportacion/enfermero" element={<VaccineTrasnporterPage />} />
-                          <Route path="registro-brigadas/administrador" element={<FormRegisterBrigade />} />
-                          <Route path="brigadas/administrador" element={<BrigatesVacunationPage />} />
-                          <Route path="grupos/administrador" element={<GroupsVacunationPage />} />
-                          <Route path="grupo/registrar/administrador" element={<RegisterGroupPage />} />
-                          <Route path="cajas-vacunas/administrador" element={<BoxVaccinePage />} />
-                          <Route path="enfermeros/gestion/administrador" element={<RegisterNursesPage />} />
-                        </Route>
-                      </Routes>
-                    </Router>
-                  </ModalVaccineProvider>
-                </ModalProvider>
-              </ModalBrigadesContext>
-            </ModalBrigadesVaccineContext>
-          </ModalBoxsProvider>
-        </ModalVaccinePrincipalProvider>
-      </HumidityProvider>
-    </TemperatureProvider>
+    <AuthProvider>
+      <TemperatureProvider>
+        <HumidityProvider>
+          <ModalVaccinePrincipalProvider>
+            <ModalBoxsProvider>
+              <ModalBrigadesVaccineContext>
+                <ModalBrigadesContext>
+                  <ModalProvider>
+                    <ModalVaccineProvider>
+                      <Router>
+                        <Routes>
+                          <Route path="/" element={<LoginPage />} />
+                          <Route 
+                            path="/dashboard" 
+                            element={
+                              <ProtectedRoute>
+                                <HistorialVacunacionPaciente />
+                              </ProtectedRoute>
+                            }
+                          >
+                            <Route path="Historial-vacunacion/paciente" element={<MainHistorialVacunationPage />} />
+                            <Route path="estado-salud" element={<HeatlStatusPage />} />
+                            <Route path="tabla-pacientes-registrados/enfermero" element={<PatientsRegistersPage />} />
+                            <Route path="tabla-vacunas-registradas/enfermero" element={<VaccinesRegisterPage />} />
+                            <Route path="analisis-vacunas-transportacion/enfermero" element={<VaccineTrasnporterPage />} />
+                            <Route path="registro-brigadas/administrador" element={<FormRegisterBrigade />} />
+                            <Route path="brigadas/administrador" element={<BrigatesVacunationPage />} />
+                            <Route path="grupos/administrador" element={<GroupsVacunationPage />} />
+                            <Route path="grupo/registrar/administrador" element={<RegisterGroupPage />} />
+                            <Route path="cajas-vacunas/administrador" element={<BoxVaccinePage />} />
+                            <Route path="enfermeros/gestion/administrador" element={<RegisterNursesPage />} />
+                            <Route path="brigada-individual/administrador/:idBrigade" element={<CardsBrigadesById />} />
+                          </Route>
+                        </Routes>
+                      </Router>
+                    </ModalVaccineProvider>
+                  </ModalProvider>
+                </ModalBrigadesContext>
+              </ModalBrigadesVaccineContext>
+            </ModalBoxsProvider>
+          </ModalVaccinePrincipalProvider>
+        </HumidityProvider>
+      </TemperatureProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import type { AlcoholData } from "./DataAlcoholemia";
 import type { VaccineVaccineBox } from "./VaccineVaccineBox";
+import type { VaccineName } from "./Vaccine";
 
 export interface Vaccine {
   idVaccines: number;
@@ -7,7 +8,7 @@ export interface Vaccine {
 }
 
 export class VaccineRepository {
-  private baseUrl = `${import.meta.env.VITE_URL_API}/vaccine`;
+  private baseUrl = "http://127.0.0.1:8000/api/vaccine";
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;
@@ -39,7 +40,7 @@ export class VaccineRepository {
       });
 
       if (response.status === 401) {
-        throw new Error("No autorizado: Token inválido o faltante");
+        throw new Error("Token inválido o expirado");
       }
 
       if (!response.ok) {
@@ -59,45 +60,45 @@ export class VaccineRepository {
     try {
       const response = await fetch(`http://localhost:8001/SensorCheck/alcoholemia`, {
         method: 'GET'
-      })
+      });
 
-      if(!response.ok) {
-        throw new Error("error to get data alcoholemia")
+      if (!response.ok) {
+        throw new Error("Error al obtener datos de alcoholemia");
       }
 
-      const dataAlcoholemia = await response.json()
-
-      return dataAlcoholemia
-    }catch(error) {
-      throw error
+      const dataAlcoholemia = await response.json();
+      return dataAlcoholemia;
+    } catch (error) {
+      console.error("Error en getAlcoholemiaData:", error);
+      throw error;
     }
   }
 
-
   async getVaccineAmount(token: string | null): Promise<VaccineVaccineBox[]> {
     try {
-      const response = await fetch(`${this.baseUrl}s/vaccineBox`,  {
-        method: "GET", 
+      const response = await fetch(`${this.baseUrl}s/vaccineBox`, {
+        method: "GET",
         headers: this.getHeaders(token)
       });
 
       if (!response.ok) {
-        throw new Error("error to get data");
+        throw new Error("Error al obtener datos de vacunas en cajas");
       }
 
       const data: VaccineVaccineBox[] = await response.json();
       return data;
     } catch (error) {
+      console.error("Error en getVaccineAmount:", error);
       throw error;
     }
   }
 
-  async createVaccine(newVaccine: Vaccine, token: string | null): Promise<Vaccine> {
+  async createVaccine(newVaccine: { nameVaccine: string }, token: string | null): Promise<VaccineName> {
     try {
       const response = await fetch(this.baseUrl, {
         method: "POST",
         headers: this.getHeaders(token),
-        body: JSON.stringify(newVaccine),
+        body: JSON.stringify({ nameVaccine: newVaccine.nameVaccine }),
       });
 
       if (response.status === 401) {
@@ -144,6 +145,7 @@ export class VaccineRepository {
         headers: this.getHeaders(token),
       });
 
+      console.log("Status del delete", response.status);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "No se pudo eliminar la vacuna");

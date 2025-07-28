@@ -5,17 +5,28 @@ import { useAuth } from "./AuthProvider";
 
 export function useUpdateVaccine() {
   const [loading, setLoading] = useState(false);
-  const { token } = useAuth()
+  const [error, setError] = useState<Error | null>(null);
+  const { token } = useAuth();
   const useCase = new UpdateVaccineUseCase();
 
-  const update = async (id: number, data: Partial<Vaccine>) => {
+  const updateVaccine = async (id: number, data: Partial<Vaccine>): Promise<Vaccine> => {
     setLoading(true);
+    setError(null);
     try {
-      return await useCase.execute(id, data, token);
+      const result = await useCase.execute(id, data, token);
+      return result;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error al actualizar la vacuna'));
+      throw err; // Re-lanzamos el error para manejo adicional si es necesario
     } finally {
       setLoading(false);
     }
   };
 
-  return { update, loading };
+  return { 
+    updateVaccine, 
+    loading, 
+    error,
+    resetError: () => setError(null) // Función para resetear el error
+  };
 }

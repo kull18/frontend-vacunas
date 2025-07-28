@@ -1,12 +1,58 @@
 import style from "../../Molecules/BoxVaccines/box.module.css"
 import vaccine from "../../../../../../assets/vacunas.png"
+import Swal from "sweetalert2"
+import { useState } from "react"
 import { useModalBrigadesVaccine } from "../RegistroBrigadasVacunacion/ModalBrigadesVaccineContext"
 import { useModalVaccinesPrincipal } from "../GestionVacunas/ModalVaccinesPrincipalContext"
 import { useGetBox } from "../../../../BoxVaccine/Presentation/Hooks/useGetBoxVaccine"
+import { BoxRepository } from "../../../../BoxVaccine/Domain/BoxVaccineRepository"
+import { useDeleteUser } from "../../../../User/Presentation/Hooks/useDeleteUser"
+import { useDeleteBox } from "../../../../BoxVaccine/Presentation/Hooks/useDeleteBox"
 function CardsBoxVaccines() {
   const {abrirModalVaccine} = useModalBrigadesVaccine()
   const {abrirModal} = useModalVaccinesPrincipal()
-  const {box, loadingBox, errorBox} = useGetBox();
+  const {box, loadingBox, errorBox, refetch} = useGetBox();
+  const { deleteBox, loading, error, success } = useDeleteBox(new BoxRepository());
+  const [token] = useState(localStorage.getItem('token') || '');
+
+  const handleDelete = async (idBox: number) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás revertir esta acción!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const success = await deleteBox(idBox);
+        
+        if (success) {
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Eliminado!',
+            text: 'La caja ha sido eliminada correctamente',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          refetch(); // Actualizar la lista después de eliminar
+        } else {
+          throw new Error('No se pudo eliminar la caja');
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al eliminar la caja',
+        });
+      }
+    }
+  };
 
     return ( 
         <>
@@ -30,34 +76,51 @@ function CardsBoxVaccines() {
             </div>
         </div>
 
-        <main id={style.containerGrid} className="mt-1">
+       <main id={style.containerGrid} className="mt-1">
   {box.map((boxs, index) => (
     <div key={index} id={style.card}>
-      {/* Bolita superior decorativa */}
+      {/* Banda superior tipo caja médica */}
+      <div id={style.medicalStrip}></div>
+      
+      {/* Icono médico decorativo */}
+      <div id={style.medicalIcon}>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 7V12M12 12V17M12 12H7M12 12H17M5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20Z" stroke="currentColor" strokeWidth="1.5"/>
+        </svg>
+      </div>
 
-      {/* Título */}
-
-      {/* Datos con íconos */}
-      <div className="space-y-2 text-sm text-gray-800 mt-3">
-        <div className="flex items-center gap-2">
-          <img src={vaccine} alt="location" className="w-4 h-4" />
+      {/* Contenido principal */}
+      <div className="space-y-2 text-sm text-gray-800 mt-3 relative z-10">
+        <div className="flex items-center gap-2 bg-blue-50 p-2 rounded-lg">
+          <img src={vaccine} alt="vacunas" className="w-5 h-5" />
           <div className="flex gap-2">
-          <p>Cantidad de vacunas: </p>
-            <p className="font-bold">{boxs.amountVaccines}</p>
+            <p>Cantidad de vacunas: </p>
+            <p className="font-bold text-blue-600">{boxs.amountVaccines}</p>
           </div>
         </div>
       </div>
 
       {/* Botones */}
       <div className="mt-5 flex flex-col sm:flex-row justify-between gap-3">
-  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#c3d0b363] text-[#00000089] rounded-md text-sm hover:bg-yellow-200 transition w-full sm:w-auto">
-    <i className="fas fa-edit"></i> Editar
-  </button>
-  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#d7757555] text-[#00000089] rounded-md text-sm hover:bg-rose-300 transition w-full sm:w-auto">
-    <i className="fas fa-trash-alt"></i> Eliminar
-  </button>
-</div>
+        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 hover:from-amber-200 hover:to-amber-100 border border-amber-200 transition-all duration-300 shadow-sm hover:shadow-md w-full sm:w-auto rounded-xl cursor-pointer group">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span className="group-hover:font-medium">Editar</span>
+        </button>
 
+        <button 
+        onClick={() => handleDelete(boxs.idVaccineBox)}
+        className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 hover:from-rose-100 hover:to-rose-50 border border-rose-200 transition-all duration-300 shadow-sm hover:shadow-md w-full sm:w-auto rounded-xl cursor-pointer group">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span className="group-hover:font-medium">Eliminar</span>
+        </button>
+      </div>
+      
+      {/* Patrón de fondo médico sutil */}
+      <div id={style.medicalPattern}></div>
     </div>
   ))}
 </main>

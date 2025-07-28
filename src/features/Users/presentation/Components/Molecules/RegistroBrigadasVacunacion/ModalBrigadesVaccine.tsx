@@ -7,11 +7,12 @@ import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccin
 import { useState } from "react";
 import { useCreateBox } from "../../../../BoxVaccine/Presentation/Hooks/useCreateBoxVaccine";
 import { useCreateBoxAmount } from "../../../../BoxVaccine/Presentation/Hooks/useCreateBoxAmountVaccine";
+import Swal from "sweetalert2";
 function ModalBrigadesVaccine() {
   const { cerrarModal } = useModalBrigadesVaccine();
   const { vaccines, loading } = useGetVaccines();
   const [selectedVaccines, setSelectedVaccines] = useState<{ id: number; name: string }[]>([]);
-  const { createBox, loadingBox, error } = useCreateBox();
+  const { createBox, error } = useCreateBox();
   const { createBoxAmount, loadingBoxAmount } = useCreateBoxAmount();
 
 
@@ -26,42 +27,69 @@ function ModalBrigadesVaccine() {
   };
 
 const CreateVaccinesBox = async () => {
-  if (selectedVaccines.length === 0) {
-    alert("Debes seleccionar al menos una vacuna");
-    return;
-  }
-
   try {
-    // 1. Primero enviamos la cantidad de vacunas
-    const amountData = {
-      amountVaccines: selectedVaccines.length
+    // Validación básica
+    if (selectedVaccines.length === 0) {
+      throw new Error('Debes seleccionar al menos una vacuna');
+    }
+
+    // Preparar datos para la API
+    const vaccineBoxData = {
+      idVaccineBox: 0, // 0 indica que el backend debe asignar ID
+      amountVaccines: selectedVaccines.length,
+      vaccines: selectedVaccines.map(v => v.id)
     };
 
-    // Suponiendo que tienes un hook useCreateBoxAmount para esto
-    const createdAmount = await createBoxAmount(amountData);
+    console.log('Enviando datos al servidor:', vaccineBoxData);
 
-    // 2. Luego enviamos los IDs de las vacunas
-    if (createdAmount) {
-      const boxData = {
-        idVaccineBox: 0, // El backend asigna el ID
-        idVaccines: selectedVaccines.map(v => v.id)
-      };
+    // Llamada directa a la API (sin hooks intermedios)
+    const response = await fetch('http://127.0.0.1:8000/api/vaccineBox', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(vaccineBoxData)
+    });
 
-      await createBox(boxData);
+    console.log('Respuesta del servidor:', response);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error en la respuesta del servidor');
     }
-    
-    // Limpiar selección después de crear
+
+    const createdBox = await response.json();
+    console.log('Caja creada:', createdBox);
+
+    if (!createdBox || !createdBox.idVaccineBox) {
+      throw new Error('La caja no se creó correctamente');
+    }
+
+    // Éxito
+    await Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: `Caja #${createdBox.idVaccineBox} creada con ${selectedVaccines.length} vacunas`,
+      confirmButtonColor: '#3085d6',
+    });
+
+    // Limpiar y recargar
     setSelectedVaccines([]);
     cerrarModal();
-    alert("Caja de vacunas creada exitosamente!");
-    
+    window.location.reload();
+
   } catch (error) {
-    console.error("Error al crear caja de vacunas:", error);
-    alert("Error al crear caja de vacunas");
+    console.error('Error completo:', error);
+    
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Error al crear la caja de vacunas',
+      confirmButtonColor: '#d33',
+    });
   }
 };
-
-
   return (
     <>
       <div className="fixed inset-0 bg-[#0000002b] backdrop-blur-sm flex justify-center items-center">
@@ -139,9 +167,9 @@ const CreateVaccinesBox = async () => {
               <button
                 className="bg-[#1677FF] text-white py-3 px-4 rounded w-full hover:bg-[#1677ffcc] transition disabled:opacity-50"
                 onClick={CreateVaccinesBox}
-                disabled={loadingBox || selectedVaccines.length === 0}
+                disabled={selectedVaccines.length === 0}
               >
-                {loadingBox ? "Guardando..." : "Agregar"}
+                {"Agregar"}
               </button>
             </div>
         </div>

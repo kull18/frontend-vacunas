@@ -5,6 +5,7 @@ import { useLoginUser } from "../../../../User/Presentation/Hooks/useLoginUsers"
 import { useState } from "react";
 import { userAuth } from "../../../../User/Presentation/Hooks/AuthUser";
 import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
+import Swal from 'sweetalert2'
 function FormLogin() {
     const navigate = useNavigate();
     const { setUser } = userAuth();
@@ -24,7 +25,7 @@ function FormLogin() {
 
     const registerUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        alert("proceso")
+        Swal.fire("Bienvenido a Brigadas de vacunación");
          try {
         const { token, body } = await loginUser(formData);
 
@@ -35,7 +36,6 @@ function FormLogin() {
         const role = body.role.toLowerCase();
         setUser(body)
         setToken(token)
-        localStorage.setItem("TokenU", token)
         // 🔀 Redirección según el rol
         switch (role) {
             case "enfermero":

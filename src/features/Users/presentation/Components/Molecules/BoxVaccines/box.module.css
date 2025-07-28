@@ -19,14 +19,14 @@ box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
 }
 
 #card {
-  position: relative; /* Necesario para posicionar ::before dentro */
-  background-color: #f8f8f8;
-  border: 1px solid #ccc;
+  position: relative;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease-in-out;
-  overflow: hidden; /* Esto es clave para cortar el círculo */
+  padding: 1.5rem 1rem 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 153, 0.05), 0 2px 4px -1px rgba(0, 0, 153, 0.03);
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 
@@ -44,6 +44,44 @@ box-shadow: 0px 0px 41px -11px rgba(0,0,0,0.29);
 
 
 #card:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 153, 0.1), 0 4px 6px -2px rgba(0, 0, 153, 0.05);
+}
+
+#medicalStrip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: linear-gradient(90deg, #5ebcff 0%, #3a8fd9 100%);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Icono médico decorativo */
+#medicalIcon {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  color: #5ebcff;
+  opacity: 0.2;
+  z-index: 1;
+}
+
+/* Patrón de fondo médico */
+#medicalPattern {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(#5ebcff33 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.1;
+  z-index: 0;
+  pointer-events: none;
 }
 

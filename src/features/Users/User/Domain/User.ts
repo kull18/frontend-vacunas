@@ -3,9 +3,10 @@ export interface User {
     username: string,
     password: string
     role:string,
-    groupIdGroup: number,
+    groupIdGroup: number | null,
     name: string,
     lastname: string,
+    groupName?: string;
 }
 
 export interface UserLogin { 

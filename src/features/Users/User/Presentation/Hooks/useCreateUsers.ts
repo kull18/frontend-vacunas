@@ -6,13 +6,13 @@ interface PropsCreateUser {
     createUser: (newUser: User) => Promise<void>;
     createdUser: User | null;
     loading: boolean;
-    error: unknown | null;
+    errorCreate: unknown | null;
 }
 
 export const useCreateUser = (): PropsCreateUser => {
     const [createdUser, setCreatedUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<unknown | null>(null);
+    const [errorCreate, setError] = useState<unknown | null>(null);
 
     const createUser = async (newUser: User): Promise<void> => {
         setLoading(true);
@@ -33,6 +33,6 @@ export const useCreateUser = (): PropsCreateUser => {
         createUser,
         createdUser,
         loading,
-        error
+        errorCreate
     };
 };

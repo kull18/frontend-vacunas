@@ -1,62 +1,99 @@
 import type { Group } from "./Group";
+import Swal from "sweetalert2";
 
-export class GroupRepository{
-        async getGroup():Promise<Group[]>{
-            try{
-                const token = localStorage.getItem("TokenU");
-                console.log("CORRIENDO GROUPS")
-                const response = await fetch("http://127.0.0.1:8000/api/groups", {
-                method: "GET",
-                headers: {
+export class GroupRepository {
+    private async verifyToken(): Promise<string> {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            await Swal.fire({
+                title: 'Sesión expirada',
+                text: 'No hay sesión activa',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            window.location.href = "/";
+            throw new Error("NO_TOKEN");
+        }
+        return token;
+    }
+
+    private async handleResponse(response: Response): Promise<any> {
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            await Swal.fire({
+                title: 'Sesión expirada',
+                text: 'Tu sesión ha caducado',
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
+            window.location.href = "/";
+            throw new Error("SESSION_EXPIRED");
+        }
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || "Error en la petición");
+        }
+
+        return response.json();
+    }
+
+    async getGroup(): Promise<Group[]> {
+        const token = await this.verifyToken();
+        const response = await fetch("http://127.0.0.1:8000/api/groups", {
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` 
+            }
+        });
+        return this.handleResponse(response);
+    }
+
+    async createGroup(newGroup: Omit<Group, 'id'>): Promise<Group> {
+        const token = await this.verifyToken();
+        const response = await fetch("http://127.0.0.1:8000/api/groups", {
+            method: "POST",
+            headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
-                }
-            });
-    
-                if(!response.ok){
-                    throw Error("No se pudo obtener los grupos")
-                }
-                const data = await response.json();
-                return data;
-            }catch (error){
-                console.error("Error fetch groups", error)
-                throw error;
-                
-            } finally{
-                console.log("Fetch Completed")
+            },
+            body: JSON.stringify(newGroup)
+        });
+        return this.handleResponse(response);
+    }
+
+    async deleteGroup(id: number): Promise<boolean> {
+    try {
+        const token = await this.verifyToken();
+        const response = await fetch(`http://127.0.0.1:8000/api/groups/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-         async createGroup(newGroup: Omit<Group, 'id'>): Promise<Group> {
-        try {
-            const token = localStorage.getItem("TokenU");
-            console.log("Creando nuevo grupo...");
-            
-            const response = await fetch("http://127.0.0.1:8000/api/groups", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(newGroup)
-            });
+        return true;
+    } catch (error) {
+        console.error("Error deleting group:", error);
+        throw error;
+    }
+}
 
-            console.log("Status:", response.status);
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to create group");
-            }
-
-            const data = await response.json();
-            console.log("Grupo creado:", data);
-            return data;
-
-        } catch (error) {
-            console.error("Error al crear grupo:", error);
-            throw error;
-        } finally {
-            console.log("Operación de creación completada");
-        }
+    async updateGroup(id: number, updatedGroup: Partial<Group>): Promise<Group> {
+        const token = await this.verifyToken();
+        const response = await fetch(`http://127.0.0.1:8000/api/groups/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(updatedGroup)
+        });
+        return this.handleResponse(response);
     }
 }

@@ -1,11 +1,12 @@
 import { GetGroupUseCase } from "../../Application/GetGroupUseCase";
 import type { Group } from "../../Domain/Group";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface PropsGetGroup {
     group: Group[];
     loadingGroup: boolean;
     errorGroup: unknown | null;
+    refetch: () => Promise<void>; // Nueva propiedad
 }
 
 export const useGetGroup = (): PropsGetGroup => {
@@ -13,25 +14,29 @@ export const useGetGroup = (): PropsGetGroup => {
     const [loadingGroup, setLoading] = useState(false);
     const [errorGroup, setError] = useState<unknown | null>(null);
 
-    useEffect(() => {
+    // Moved fetch logic to a separate callback
+    const fetchGroups = useCallback(async () => {
         setLoading(true);
-        const fetchGroup = async () => {
-            try {
-                const uc = new GetGroupUseCase();
-                const data = await uc.execute();
-                setGroup(data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchGroup();
+        try {
+            const uc = new GetGroupUseCase();
+            const data = await uc.execute();
+            setGroup(data);
+            setError(null);
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchGroups();
+    }, [fetchGroups]);
 
     return {
         group,
         loadingGroup,
-        errorGroup
+        errorGroup,
+        refetch: fetchGroups // Exponemos la función de recarga
     };
 };
