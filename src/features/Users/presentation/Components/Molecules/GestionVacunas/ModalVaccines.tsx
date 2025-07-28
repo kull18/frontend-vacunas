@@ -1,90 +1,77 @@
+import { useState } from "react";
 import { useModalVaccines } from "./ModalVaccineContext";
-import x from "../../../../../../assets/x.png"
+import { useCreateVaccine } from "../../../../User/Presentation/Hooks/useCreateVaccine";
+import { useGetHospitals } from "../../../../User/Presentation/Hooks/useGetHospitals";
+import type { Vaccine } from "../../../../User/Domain/Vaccine";
+
 function ModalVaccines() {
-    const {cerrarModal} = useModalVaccines();
-    return ( 
-        <>
-            <div className="fixed inset-0 bg-[#0000002b] backdrop-blur-sm flex justify-center items-center">
-        <div className="bg-white w-[50vh] sm:w-[86vh] rounded-lg shadow-xl p-6 pl-5 border-2 border-[#c0c0c0]">
+  const { cerrarModal } = useModalVaccines();
+  const { createVaccine } = useCreateVaccine();
+  const { hospitals } = useGetHospitals();
 
-        <div className="flex justify-between items-center mb-4 pr-4 pt-3">
-        <p className="text-2xl font-semibold text-[#1f3445] ml-5">Agregar vacuna</p>
-        <img
-            src={x} 
-            alt="Cerrar"
-            className="w-4 cursor-pointer opacity-70 hover:opacity-40 transition-opacity"
-            onClick={cerrarModal}
-        />
+  const [tipoVacuna, setTipoVacuna] = useState("");
+  const [selectedHospital, setSelectedHospital] = useState<number | null>(null);
+
+  const handleAgregar = async () => {
+    if (tipoVacuna.trim() === "") {
+      alert("Por favor, ingresa el tipo de vacuna y selecciona un hospital.");
+      return;
+    }
+
+    const vaccine: Vaccine = {
+      idVaccines: 0,
+      nameVaccine: tipoVacuna,
+    };
+
+    try {
+      await createVaccine(vaccine);
+      cerrarModal();
+    } catch (error) {
+      alert("Error al agregar la vacuna");
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
+      <div className="bg-white w-[90%] max-w-md rounded-xl shadow-lg p-6 border border-gray-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Agregar vacuna</h2>
+          <button onClick={cerrarModal} className="text-gray-500 hover:text-gray-700 transition-colors" aria-label="Cerrar modal">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
         </div>
 
-        <div className="flex gap-4 py-2">
-        <div className="flex flex-col w-[30vh] sm:w-[60vh]">
-            <label htmlFor="nombre" className="text-sm text-gray-800 mb-1 ml-5">
-            Tipo de vacuna
-            </label>
-            <input
-        id="nombre"
-        type="text"
-        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-        placeholder="Ej. Covid-19"
-        />
-
-        </div>
-
-        <div className="flex flex-col w-[12vh]">
-            <label htmlFor="edad" className="text-sm text-gray-700 mb-1 ml-5">
-            Edad
-            </label>
-            <input
-            id="edad"
-            type="number"
-            className="border border-gray-300 rounded px-2 py-1 w-full text-sm focus:outline-none
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-            placeholder="25"
-            />
-        </div>
-        </div>
-
-
-        <div className="flex gap-5 mt-3">
-            <div className="flex flex-col w-[40vh]">
-            <label htmlFor="nombre" className="text-sm text-gray-800 mb-1 ml-5">
-            Dosis disponible
-            </label>
-            <input
-        id="nombre"
-        type="number"
-        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-        placeholder="Ej. 10"
-        />
-
-        </div>
-            <div className="flex flex-col w-[32vh]">
-            <label htmlFor="vacuna" className="text-sm text-gray-700 mb-1 ml-5">
-                Dosi aplicada
-            </label>
-            <input
-        id="nombre"
-        type="number"
-        className="border border-gray-300 rounded-md px-3 py-2 w-full text-sm 
-                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
-        placeholder="Ej. 10"
-        />
-            </div>
-        </div>
-
-        <div className="ml-5 mt-8 mr-4">
-        <button className="bg-[#1677FF] text-white py-2 px-4 rounded w-full hover:bg-[#1677ffcc] transition cursor-pointer">
-            Agregar
-        </button>
-
-        </div>
-    </div>
+        <div className="space-y-4">
+          {/* Tipo de vacuna */}
+          <label className="block text-sm font-medium text-gray-700">Tipo de vacuna</label>
+<div className="text-left w-full">
+  <input
+    type="text"
+    value={tipoVacuna}
+    onChange={(e) => setTipoVacuna(e.target.value)}
+    className="w-full rounded-md border border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2"
+    placeholder="Ej. Covid-19, Influenza, etc."
+  />
 </div>
-        </>
-    );
+
+
+
+          {/* Botón */}
+          <div className="pt-2">
+            <button
+              onClick={handleAgregar}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            >
+              Agregar vacuna
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default ModalVaccines;

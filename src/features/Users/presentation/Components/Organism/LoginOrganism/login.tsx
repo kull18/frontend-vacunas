@@ -11,16 +11,18 @@ function LoginOrg() {
     
     const [showLogin, setShowLogin] = useState(false);
     const [showRegister, setShowRegister] = useState(false);
-
+const [containerHeight, setContainerHeight] = useState("77vh");
 
 const switchToLogin = () => {
         setShowRegister(false);
         setShowLogin(true);
+        setContainerHeight("77vh");
     };
 
     const switchToRegister = () => {
         setShowLogin(false);
         setShowRegister(true);
+        setContainerHeight("88vh");
     };
     
     return ( 
@@ -53,13 +55,13 @@ const switchToLogin = () => {
                         </div>
                 </div>
                 
-                        <div className="bg-white w-full h-full absolute right-0 flex justify-center items-center" id={style.login}>
+                        <div className={`bg-white w-full h-full absolute right-0 flex justify-center items-center ${style.login} ${showRegister ? style.registerMode : ''}`}
+                            id={style.login}>
                             <img src={inyection} alt="" className="w-24 absolute opacity-10" id={styled.inyection}/>
                             <div className="absolute w-60 h-60 rounded-full bg-[#d9d9d955] z-10" id={styled.circle}></div>
                             <div className="absolute w-16 h-16 rounded-full bg-[#d9d9d955] z-10" id={styled.circleSecond}></div>
                             <div className="absolute w-7 h-7 rounded-full bg-[#d9d9d955] z-10" id={styled.circleThirty}></div>
 
-                            
                                         <div className="flex flex-col">
                                             {showRegister ? (
                                                 <div id={`${style.formContainer} ${showRegister ? style.fadeIn : style.fadeOut}`}>

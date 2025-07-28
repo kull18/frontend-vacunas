@@ -1,23 +1,5 @@
-// HumidityProvider
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-
-interface FrecuenciaData {
-  intervalos: string[];
-  marcas: number[];
-  fa: number[];
-  fr: number[];
-  fac: number[];
-}
-
-interface WebSocketData {
-  temperature?: FrecuenciaData;
-  humidity?: FrecuenciaData;
-}
-
-type WebSocketContextType = {
-  temperatureData: FrecuenciaData;
-  humidityData: FrecuenciaData;
-};
+import type { FrecuenciaData } from "../features/Users/User/Domain/FrecuenciaData";
 
 const initialFrecuenciaData: FrecuenciaData = {
   intervalos: [],
@@ -27,58 +9,78 @@ const initialFrecuenciaData: FrecuenciaData = {
   fac: [],
 };
 
-const WebSocketContext = createContext<WebSocketContextType>({
-  temperatureData: initialFrecuenciaData,
-  humidityData: initialFrecuenciaData,
-});
+const HumidityContext = createContext<FrecuenciaData | null>(null);
 
-export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [temperatureData, setTemperatureData] = useState<FrecuenciaData>(initialFrecuenciaData);
+export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [humidityData, setHumidityData] = useState<FrecuenciaData>(initialFrecuenciaData);
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectAttempts = useRef(0);
 
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws");
+  const maxReconnectAttempts = 10;
+
+  const connectWebSocket = () => {
+    ws.current = new WebSocket("ws://localhost:8080/ws/humidity-stats");
 
     ws.current.onopen = () => {
-      console.log("Conectado al WebSocket");
+      console.log("Conectado al WebSocket (Humidity)");
+      reconnectAttempts.current = 0;
     };
 
     ws.current.onmessage = (event) => {
       try {
-        const data: WebSocketData = JSON.parse(event.data);
-        if (data.temperature) setTemperatureData(data.temperature);
-        if (data.humidity) setHumidityData(data.humidity);
-        console.log(data.humidity)
+        const data = JSON.parse(event.data);
+        // Se asume que la data viene con clave 'humidity'
+        if (data && data.humidity) {
+          setHumidityData(data.humidity);
+          console.log("Humidity Data:", data.humidity);
+        } else {
+          console.warn("Mensaje WS humedad no contiene 'humidity':", data);
+        }
       } catch (error) {
-        console.error("Error al parsear el mensaje WebSocket:", error);
+        console.error("Error al parsear humedad:", error);
       }
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.error("WebSocket error (Humidity):", error);
     };
 
     ws.current.onclose = () => {
-      console.warn("WebSocket cerrado");
+      console.warn("WebSocket cerrado (Humidity)");
+
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
+        reconnectTimeout.current = window.setTimeout(() => {
+          reconnectAttempts.current++;
+          connectWebSocket();
+        }, timeout);
+      } else {
+        console.error("No se pudo reconectar después de varios intentos.");
+      }
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+      }
       ws.current?.close();
     };
   }, []);
 
-  return (
-    <WebSocketContext.Provider value={{ temperatureData, humidityData }}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  if (humidityData === null) {
+    return null; // O un loader si quieres
+  }
+
+  return <HumidityContext.Provider value={humidityData}>{children}</HumidityContext.Provider>;
 };
 
-export const useWebSocket = () => {
-  const context = useContext(WebSocketContext);
-  if (!context) {
-    throw new Error("useWebSocket debe usarse dentro de WebSocketProvider");
-  }
+export const useHumidity = () => {
+  const context = useContext(HumidityContext);
+  if (context === null) throw new Error("useHumidity debe usarse dentro de HumidityProvider");
   return context;
 };

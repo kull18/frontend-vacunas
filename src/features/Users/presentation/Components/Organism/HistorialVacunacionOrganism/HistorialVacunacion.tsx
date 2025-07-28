@@ -6,15 +6,21 @@ import ModalPacientes from "../../Molecules/PacientesRegistrados/ModalPacientes"
 import ModalVaccines from "../../Molecules/GestionVacunas/ModalVaccines";
 import ModalBrigades from "../../Molecules/RegistroBrigadasVacunacion/ModalBrigades";
 import ModalBrigadesVaccine from "../../Molecules/RegistroBrigadasVacunacion/ModalBrigadesVaccine";
+import ModalBoxVaccunes from "../../Molecules/GroupsBrigades/ModalBoxVaccines";
+import ModalVaccinePrincipal from "../../Molecules/GestionVacunas/ModalVaccinesPrincipal";
 import { useModal } from "../../Molecules/PacientesRegistrados/ModalContext";
 import { useModalVaccines } from "../../Molecules/GestionVacunas/ModalVaccineContext";
 import { useModalBrigades } from "../../Molecules/RegistroBrigadasVacunacion/ModalBrigadesContext";
 import { useModalBrigadesVaccine } from "../../Molecules/RegistroBrigadasVacunacion/ModalBrigadesVaccineContext";
+import { useModalBoxs } from "../../Molecules/GroupsBrigades/ModalBoxVaccinesContext";
+import { useModalVaccinesPrincipal } from "../../Molecules/GestionVacunas/ModalVaccinesPrincipalContext";
 function HistorialVacunacion() {
     const {mostrar}  = useModal();
     const {mostrarVaccine} = useModalVaccines();
     const {mostrarBrigades} = useModalBrigades();
     const {mostrarBrigadesVaccine} = useModalBrigadesVaccine();
+    const {mostrarBoxs} = useModalBoxs();
+    const {mostrarVaccinePrincipal} =useModalVaccinesPrincipal();
     return ( 
         <>
         <main className="flex-none sm:flex">
@@ -34,6 +40,8 @@ function HistorialVacunacion() {
                 {mostrarVaccine && <ModalVaccines></ModalVaccines>}
                 {mostrarBrigades && <ModalBrigades></ModalBrigades>}
                 {mostrarBrigadesVaccine && <ModalBrigadesVaccine></ModalBrigadesVaccine>}
+                {mostrarBoxs && <ModalBoxVaccunes></ModalBoxVaccunes>}
+                {mostrarVaccinePrincipal && <ModalVaccinePrincipal></ModalVaccinePrincipal>}
         </main>
         </>
     );

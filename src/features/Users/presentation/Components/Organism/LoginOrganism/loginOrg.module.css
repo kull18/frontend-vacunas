@@ -114,6 +114,7 @@
     transform: translateY(100%);
     animation: login 0.7s ease-in-out forwards;
     animation-delay: 4s;
+    transition: all 0.5s ease;
 }
 
 @keyframes login {
@@ -194,11 +195,15 @@
         border-top-right-radius: 7vh;
         position: relative; /* Cambia a `relative` para evitar problemas de posicionamiento */
         width: 100vw; /* Ocupará toda la pantalla en móvil */
-        height: 77vh; /* Ajusta la mitad vertical */
+        height: 77vh; /* Ajusta la mitad vertical 77 register-> 89*/
         display: flex;
 
         animation: formResponsive 1.3s ease-in-out forwards;
         animation-delay: 3.7s;
+    }
+
+    #login.registerMode {
+        height: 93vh !important; /* Altura para registro */
     }
 }
 
