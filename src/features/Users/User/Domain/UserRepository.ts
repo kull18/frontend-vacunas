@@ -1,9 +1,10 @@
-import { data } from "react-router-dom";
 import type { User, UserLogin } from "./User";
 import type { Group } from "../../Group/Domain/Group";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
 export class UserRepository {
+    private baseUrl = `${import.meta.env.VITE_URL_API_1}/api`;
+    
     private async verifyToken(): Promise<string> {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -13,7 +14,7 @@ export class UserRepository {
                 icon: 'warning',
                 confirmButtonText: 'Entendido'
             });
-            window.location.href = "/login"; // Redirige al login
+            window.location.href = "/login";
             throw new Error("NO_TOKEN");
         }
         return token;
@@ -28,7 +29,7 @@ export class UserRepository {
                 icon: 'error',
                 confirmButtonText: 'Entendido'
             });
-            window.location.href = "/login"; // Redirige al login
+            window.location.href = "/login";
             throw new Error("SESSION_EXPIRED");
         }
 
@@ -41,9 +42,9 @@ export class UserRepository {
     }
 
     async getUser(): Promise<User[]> {
-        const token = await this.verifyToken(); // Verifica el token primero
+        const token = await this.verifyToken();
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona", {
+            const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -56,21 +57,21 @@ export class UserRepository {
     }
 
     async getUserByRol(): Promise<User[]> {
-        const token = await this.verifyToken(); // Verifica el token primero
+        const token = await this.verifyToken();
         try {
             const headers = {
                 "Authorization": `Bearer ${token}`
             };
 
-            // Obtener usuarios
-            const usersResponse = await fetch("http://127.0.0.1:8000/api/leadersAndNurse", { headers });
+            // Get users
+            const usersResponse = await fetch(`${this.baseUrl}/leadersAndNurse`, { headers });
             const users: User[] = await this.handleResponse(usersResponse);
 
-            // Obtener grupos
-            const groupsResponse = await fetch("http://127.0.0.1:8000/api/groups", { headers });
+            // Get groups
+            const groupsResponse = await fetch(`${this.baseUrl}/groups`, { headers });
             const groups: Group[] = await this.handleResponse(groupsResponse);
 
-            // Asociar usuarios con sus grupos
+            // Associate users with their groups
             return users.map(user => ({
                 ...user,
                 groupName: groups.find(g => g.idGroup === user.groupIdGroup)?.nameGroup || 'Sin grupo'
@@ -83,9 +84,9 @@ export class UserRepository {
     }
 
     async createUser(newUser: User): Promise<User> {
-        const token = await this.verifyToken(); // Verifica el token primero
+        const token = await this.verifyToken();
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona", {
+            const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -102,7 +103,7 @@ export class UserRepository {
 
     async loginUser(credentials: { username: string; password: string }): Promise<{ token: string; body: User }> {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/login/userMedicPersona", {
+            const response = await fetch(`${this.baseUrl}/login/userMedicPersona`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -110,7 +111,10 @@ export class UserRepository {
                 body: JSON.stringify(credentials)
             });
 
-            if (!response.ok) throw new Error("Credenciales inválidas");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Credenciales inválidas");
+            }
 
             const authHeader = response.headers.get("authorization");
             if (!authHeader) throw new Error("No se encontró el token");
@@ -126,9 +130,9 @@ export class UserRepository {
     }
 
     async updateUser(id: number, updatedData: Partial<User>): Promise<User> {
-        const token = await this.verifyToken(); // Verifica el token primero
+        const token = await this.verifyToken();
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona/${id}`, {
+            const response = await fetch(`${this.baseUrl}/userMedicPersona/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -144,9 +148,9 @@ export class UserRepository {
     }
 
     async deleteUser(id: number): Promise<boolean> {
-        const token = await this.verifyToken(); // Verifica el token primero
+        const token = await this.verifyToken();
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona/${id}`, {
+            const response = await fetch(`${this.baseUrl}/userMedicPersona/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,

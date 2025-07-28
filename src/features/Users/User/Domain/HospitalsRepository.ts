@@ -1,6 +1,6 @@
 import type { Hospital } from "./Hospital";
 
-const API_URL = `${import.meta.env.VITE_URL_API_1}/Hospital`;
+const API_URL = `${import.meta.env.VITE_URL_API_1}/api/Hospital`;
 
 export class HospitalRepository {
 

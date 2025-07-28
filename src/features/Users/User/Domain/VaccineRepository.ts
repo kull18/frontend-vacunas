@@ -8,7 +8,8 @@ export interface Vaccine {
 }
 
 export class VaccineRepository {
-  private baseUrl = "http://127.0.0.1:8000/api/vaccine";
+      private baseUrl = `${import.meta.env.VITE_URL_API_1}/api`;
+      private secondUrl ="https://api.vacunas.brigadasvacunacion.com.mx/SensorCheck/alcoholemia"
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;
@@ -58,7 +59,7 @@ export class VaccineRepository {
 
   async getAlcoholemiaData(): Promise<AlcoholData[]> {
     try {
-      const response = await fetch(`http://localhost:8001/SensorCheck/alcoholemia`, {
+      const response = await fetch(this.secondUrl, {
         method: 'GET'
       });
 

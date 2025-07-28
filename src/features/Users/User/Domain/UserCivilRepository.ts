@@ -1,7 +1,7 @@
 import type { UserCivil } from "./UserCIvil";
 
 export class UserCivilRepository {
-  private baseUrl = "http://127.0.0.1:8000/api/userMedicPersona";
+        private baseUrl = `${import.meta.env.VITE_URL_API_1}/api/userMedicPersona`;
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;
