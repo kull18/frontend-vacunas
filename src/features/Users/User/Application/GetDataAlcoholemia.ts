@@ -11,7 +11,7 @@ export class GetAlcoholemia {
 
     async execute(token: string | null): Promise<AlcoholData[]> {
         try {
-           return this.repositorie.getAlcoholemiaData(token)
+           return this.repositorie.getAlcoholemiaData()
         }catch(error) {
             throw new Error("error to get data")
         }

@@ -84,33 +84,32 @@ export class UserCivilRepository {
       throw error;
     }
   }
-async delete(id: number, token: string | null): Promise<boolean> {
+
+  async delete(id: number, token: string | null): Promise<boolean> {
     try {
-        const response = await fetch(`${this.baseUrl}/${id}`, {
-            method: "DELETE",
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` })
-            }
-        });
+      const response = await fetch(`${this.baseUrl}/${id}`, {
+        method: "DELETE",
+        headers: this.getHeaders(token),
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('Error response:', errorData);
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
 
-        return true;
+      return true;
     } catch (error) {
-        console.error("Full error details:", {
-            error,
-            url: `${this.baseUrl}/${id}`,
-            method: "DELETE",
-            tokenPresent: !!token
-        });
-        throw error;
+      console.error("Full error details:", {
+        error,
+        url: `${this.baseUrl}/${id}`,
+        method: "DELETE",
+        tokenPresent: !!token
+      });
+      throw error;
     }
-}
+  }
+
   async getById(id: number, token: string | null): Promise<UserCivil> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {

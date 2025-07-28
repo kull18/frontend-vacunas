@@ -1,4 +1,5 @@
 import type { AlcoholData } from "./DataAlcoholemia";
+import type { VaccineVaccineBox } from "./VaccineVaccineBox";
 import type { VaccineName } from "./Vaccine";
 
 export interface Vaccine {
@@ -42,10 +43,6 @@ export class VaccineRepository {
         throw new Error("Token inválido o expirado");
       }
 
-      if (response.status === 401) {
-        throw new Error("No autorizado: Token inválido o faltante");
-      }
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "No se pudieron obtener las vacunas");
@@ -59,52 +56,67 @@ export class VaccineRepository {
     }
   }
 
-  async getAlcoholemiaData(token: string | null): Promise<AlcoholData[]> {
+  async getAlcoholemiaData(): Promise<AlcoholData[]> {
     try {
       const response = await fetch(`http://localhost:8001/SensorCheck/alcoholemia`, {
         method: 'GET'
-      })
+      });
 
-      if(!response.ok) {
-        throw new Error("error to get data alcoholemia")
+      if (!response.ok) {
+        throw new Error("Error al obtener datos de alcoholemia");
       }
 
-      const dataAlcoholemia = await response.json()
-
-      return dataAlcoholemia
-    }catch(error) {
-      throw error
+      const dataAlcoholemia = await response.json();
+      return dataAlcoholemia;
+    } catch (error) {
+      console.error("Error en getAlcoholemiaData:", error);
+      throw error;
     }
   }
-// En VaccineRepository.ts
-async createVaccine(newVaccine: { nameVaccine: string }, token: string | null): Promise<VaccineName> {
-  try {
-    const formattedToken = this.formatToken(token);
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (formattedToken) {
-      headers["Authorization"] = formattedToken;
+
+  async getVaccineAmount(token: string | null): Promise<VaccineVaccineBox[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}s/vaccineBox`, {
+        method: "GET",
+        headers: this.getHeaders(token)
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al obtener datos de vacunas en cajas");
+      }
+
+      const data: VaccineVaccineBox[] = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error en getVaccineAmount:", error);
+      throw error;
     }
-
-    const response = await fetch(this.baseUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ nameVaccine: newVaccine.nameVaccine }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Error al crear la vacuna");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error en createVaccine:", error);
-    throw error;
   }
-}
+
+  async createVaccine(newVaccine: { nameVaccine: string }, token: string | null): Promise<VaccineName> {
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        body: JSON.stringify({ nameVaccine: newVaccine.nameVaccine }),
+      });
+
+      if (response.status === 401) {
+        throw new Error("No autorizado: Token inválido o expirado");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al crear la vacuna");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error en createVaccine:", error);
+      throw error;
+    }
+  }
+
   async updateVaccine(id: number, updatedData: Partial<Vaccine>, token: string | null): Promise<Vaccine> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
@@ -133,7 +145,7 @@ async createVaccine(newVaccine: { nameVaccine: string }, token: string | null): 
         headers: this.getHeaders(token),
       });
 
-      console.log("Status del delete", response.status)
+      console.log("Status del delete", response.status);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "No se pudo eliminar la vacuna");

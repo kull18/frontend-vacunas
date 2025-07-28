@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import type { Vaccine } from "../../Domain/Vaccine"; // Ajusta según tu estructura
+import type { Vaccine } from "../../Domain/Vaccine";
 import { VaccineRepository } from "../../Domain/VaccineRepository";
 import { useAuth } from "./AuthProvider";
 import { GetVaccinesUseCase } from "../../Application/GetVaccinesUseCase";
-// useGetVaccines.ts
-// useGetVaccines.ts
+
 export function useGetVaccines() {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +28,8 @@ export function useGetVaccines() {
 
   return { 
     vaccines, 
+    setVaccines,
     loading, 
-    refetch: fetchVaccines // Asegúrate de exponer esta función
+    refetch: fetchVaccines
   };
 }

@@ -1,5 +1,7 @@
+import type { User } from "../Domain/User";
 import type { UserCivil } from "../Domain/UserCIvil";
 import { UserCivilRepository } from "../Domain/UserCivilRepository";
+import type { UserCivilVaccinated } from "../Domain/UserCivilVaccinated";
 
 export class CreateUserCivilUseCase {
     private userCivilRepository: UserCivilRepository

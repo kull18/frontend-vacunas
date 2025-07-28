@@ -17,6 +17,9 @@ importers:
       chart.js:
         specifier: ^4.5.0
         version: 4.5.0
+      chartjs-chart-matrix:
+        specifier: ^3.0.0
+        version: 3.0.0(chart.js@4.5.0)
       chartjs-plugin-zoom:
         specifier: ^2.2.0
         version: 2.2.0(chart.js@4.5.0)
@@ -791,6 +794,11 @@ packages:
   chart.js@4.5.0:
     resolution: {integrity: sha512-aYeC/jDgSEx8SHWZvANYMioYMZ2KX02W6f6uVfyteuCGcadDLcYVHdfdygsTQkQ4TKn5lghoojAsPj5pu0SnvQ==}
     engines: {pnpm: '>=8'}
+
+  chartjs-chart-matrix@3.0.0:
+    resolution: {integrity: sha512-lUWC1UaWkxGdG02dBJ5r1ppbSYB/uWmwAh11VEs7V3ZQItNCk4am+rmacwkgeb+SQeEj2hP9Qq4oGsUmPl/1lQ==}
+    peerDependencies:
+      chart.js: '>=3.0.0'
 
   chartjs-plugin-zoom@2.2.0:
     resolution: {integrity: sha512-in6kcdiTlP6npIVLMd4zXZ08PDUXC52gZ4FAy5oyjk1zX3gKarXMAof7B9eFiisf9WOC3bh2saHg+J5WtLXZeA==}
@@ -2143,6 +2151,10 @@ snapshots:
   chart.js@4.5.0:
     dependencies:
       '@kurkle/color': 0.3.4
+
+  chartjs-chart-matrix@3.0.0(chart.js@4.5.0):
+    dependencies:
+      chart.js: 4.5.0
 
   chartjs-plugin-zoom@2.2.0(chart.js@4.5.0):
     dependencies:

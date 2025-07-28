@@ -1,7 +1,12 @@
 import style from "../PacientesRegistrados/patients.module.css"
 import vaccineApplys from "../../../../../../assets/VaccineQuantitiesIcon.png"
 import celcius from "../../../../../../assets/celciusIcon.png"
+import { useGetVaccines } from "../../../../User/Presentation/Hooks/useGetVaccines";
 function InventoryCards() {
+
+    const { vaccines } = useGetVaccines()
+
+    
     return ( 
         <>
         <section className="mt-8 ml-14" id={style.cards}>
@@ -26,7 +31,7 @@ function InventoryCards() {
             <div className="w-[45vh] h-[15vh] bg-white rounded-2xl 
             flex justify-center items-center gap-10" id={style.card1}> 
                     <div className="">
-                        <p className="text-4xl text-[#3f3c3cc5] sm:text-[4.3vh]" id={style.text}>30</p>
+                        <p className="text-4xl text-[#3f3c3cc5] sm:text-[4.3vh]" id={style.text}>{vaccines.length}</p>
                         <p className="text-[1.6vh] text-[#0000009e] sm:text-[2.4vh]">Cantidad de vacunas</p>
                     </div>
                     <div className="w-20 h-20 bg-[#60D2E4] rounded-2xl flex justify-center items-center">
