@@ -1,40 +1,42 @@
 import { useState } from "react";
-import type { BoxVaccine, BoxVaccineAmount } from "../../Domain/BoxVaccine";
+import type { BoxVaccine } from "../../Domain/BoxVaccine";
 import { CreateBoxUseCase } from "../../Application/CreateBoxVaccine";
 
-interface PropsCreateBox {
+interface UseCreateBoxResult {
     createBox: (newBox: BoxVaccine) => Promise<BoxVaccine>;
     createdBox: BoxVaccine | null;
-    loadingBox: boolean;
-    error: unknown | null;
+    loading: boolean;
+    error: string | null;
+    reset: () => void;
 }
 
-export const useCreateBox = (): PropsCreateBox => {
+export const useCreateBox = (): UseCreateBoxResult => {
     const [createdBox, setCreatedBox] = useState<BoxVaccine | null>(null);
-    const [loadingBox, setLoading] = useState(false);
-    const [error, setError] = useState<unknown | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const reset = () => {
+        setCreatedBox(null);
+        setError(null);
+    };
 
     const createBox = async (newBox: BoxVaccine): Promise<BoxVaccine> => {
         setLoading(true);
-        setError(null);
+        reset();
 
         try {
-            const uc = new CreateBoxUseCase();
-            const data = await uc.execute(newBox);
-            setCreatedBox(data);
-            return data;
+            const useCase = new CreateBoxUseCase();
+            const result = await useCase.execute(newBox);
+            setCreatedBox(result);
+            return result;
         } catch (err) {
-            setError(err);
+            const message = err instanceof Error ? err.message : "Error desconocido al crear la caja";
+            setError(message);
             throw err;
         } finally {
             setLoading(false);
         }
     };
 
-    return {
-        createBox,
-        createdBox,
-        loadingBox,
-        error
-    };
+    return { createBox, createdBox, loading, error, reset };
 };

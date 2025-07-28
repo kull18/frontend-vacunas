@@ -25,7 +25,7 @@ function FormLogin() {
 
     const registerUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        Swal.fire("SweetAlert2 is working!");
+        Swal.fire("Bienvenido a Brigadas de vacunación");
          try {
         const { token, body } = await loginUser(formData);
 

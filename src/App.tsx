@@ -19,6 +19,9 @@ import RegisterGroupPage from './features/Users/presentation/Components/Pages/Re
 import BoxVaccinePage from './features/Users/presentation/Components/Pages/BoxVaccinesPage';
 import { ModalBoxsProvider } from './features/Users/presentation/Components/Molecules/GroupsBrigades/ModalBoxVaccinesContext';
 import RegisterNursesPage from './features/Users/presentation/Components/Pages/RegisterNursesPage';
+import CardsBrigadesById from './features/Users/presentation/Components/Molecules/BrigadasVacunacion/CardBrigadesById';
+import ProtectedRoute from './features/Users/ProtectedRoute';
+import { AuthProvider } from './Context/AuthContext';
 function App() {
   return (
     <>
@@ -43,6 +46,7 @@ function App() {
                     <Route path="grupo/registrar/administrador" element={<RegisterGroupPage></RegisterGroupPage>}/>
                     <Route path="cajas-vacunas/administrador" element={<BoxVaccinePage></BoxVaccinePage>}/>
                     <Route path="enfermeros/gestion/administrador" element={<RegisterNursesPage></RegisterNursesPage>}/>
+                    <Route path="brigada-individual/administrador/:idBrigade" element={<CardsBrigadesById></CardsBrigadesById>}/>
                 </Route>
             </Routes>
         </Router>

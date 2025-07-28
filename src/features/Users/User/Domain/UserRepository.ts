@@ -2,86 +2,88 @@ import { data } from "react-router-dom";
 import type { User, UserLogin } from "./User";
 import type { Group } from "../../Group/Domain/Group";
 import { useNavigate } from "react-router-dom";
-export class UserRepository{
-    async getUser():Promise<User[]>{
-        try{
-            const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona");
+import Swal from "sweetalert2";
+export class UserRepository {
+    private async verifyToken(): Promise<string> {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            await Swal.fire({
+                title: 'Sesión expirada',
+                text: 'No hay sesión activa',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            window.location.href = "/login"; // Redirige al login
+            throw new Error("NO_TOKEN");
+        }
+        return token;
+    }
 
-            if(!response.ok){
-                throw Error("No se pudo obtener los usuarios")
-            }
-            const data = await response.json();
-            console.log("data",data)
-            return data;
-        }catch (error){
-            console.error("Error fetch users", error)
+    private async handleResponse(response: Response): Promise<any> {
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            await Swal.fire({
+                title: 'Sesión expirada',
+                text: 'Tu sesión ha caducado',
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
+            window.location.href = "/login"; // Redirige al login
+            throw new Error("SESSION_EXPIRED");
+        }
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || "Error en la petición");
+        }
+
+        return response.json();
+    }
+
+    async getUser(): Promise<User[]> {
+        const token = await this.verifyToken(); // Verifica el token primero
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error("Error fetch users", error);
             throw error;
-            
-        } finally{
-            console.log("Fetch Completed")
         }
     }
 
-// src/Domain/UserRepository.ts
-async getUserByRol(): Promise<User[]> {
-  try {
-    console.log("[UserRepository] Obteniendo usuarios...");
+    async getUserByRol(): Promise<User[]> {
+        const token = await this.verifyToken(); // Verifica el token primero
+        try {
+            const headers = {
+                "Authorization": `Bearer ${token}`
+            };
 
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Token no encontrado en localStorage");
+            // Obtener usuarios
+            const usersResponse = await fetch("http://127.0.0.1:8000/api/leadersAndNurse", { headers });
+            const users: User[] = await this.handleResponse(usersResponse);
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+            // Obtener grupos
+            const groupsResponse = await fetch("http://127.0.0.1:8000/api/groups", { headers });
+            const groups: Group[] = await this.handleResponse(groupsResponse);
 
-    // Obtener usuarios
-    const usersResponse = await fetch("http://127.0.0.1:8000/api/leadersAndNurse", {
-      headers
-    });
+            // Asociar usuarios con sus grupos
+            return users.map(user => ({
+                ...user,
+                groupName: groups.find(g => g.idGroup === user.groupIdGroup)?.nameGroup || 'Sin grupo'
+            }));
 
-    if (!usersResponse.ok) {
-      console.error("[UserRepository] Error en respuesta de usuarios:", usersResponse.status);
-      throw new Error("Error al obtener usuarios");
+        } catch (error) {
+            console.error("[UserRepository] Error:", error);
+            throw error;
+        }
     }
-
-    const users: User[] = await usersResponse.json();
-    console.log("[UserRepository] Usuarios recibidos:", users);
-
-    // Obtener grupos
-    console.log("[UserRepository] Obteniendo grupos...");
-    const groupsResponse = await fetch("http://127.0.0.1:8000/api/groups", {
-      headers
-    });
-
-    if (!groupsResponse.ok) {
-      console.error("[UserRepository] Error en respuesta de grupos:", groupsResponse.status);
-      throw new Error("Error al obtener grupos");
-    }
-
-    const groups: Group[] = await groupsResponse.json();
-    console.log("[UserRepository] Grupos recibidos:", groups);
-
-    // Asociar usuarios con sus grupos
-    const usersWithGroups = users.map(user => {
-      const group = groups.find(g => g.idGroup === user.groupIdGroup);
-      return {
-        ...user,
-        groupName: group ? group.nameGroup : 'Sin grupo'
-      };
-    });
-
-    console.log("[UserRepository] Usuarios con grupos:", usersWithGroups);
-    return usersWithGroups;
-
-  } catch (error) {
-    console.error("[UserRepository] Error completo:", error);
-    throw error;
-  }
-}
-
 
     async createUser(newUser: User): Promise<User> {
-        const token = localStorage.getItem("token");
+        const token = await this.verifyToken(); // Verifica el token primero
         try {
             const response = await fetch("http://127.0.0.1:8000/api/userMedicPersona", {
                 method: "POST",
@@ -91,86 +93,58 @@ async getUserByRol(): Promise<User[]> {
                 },
                 body: JSON.stringify(newUser)
             });
-
-            if (!response.ok) {
-                throw new Error("No se pudo crear el usuario");
-            }
-
-            const data = await response.json();
-            return data.user; // O simplemente `data`, según tu API
+            return this.handleResponse(response);
         } catch (error) {
-            console.error("Error al crear usuario repo:", error);
+            console.error("Error al crear usuario:", error);
             throw error;
-        } finally {
-            console.log("Creación de usuario completada");
         }
     }
 
-async loginUser(credentials: { username: string; password: string }): Promise<{ token: string; body: User }> {
-    try {
-        const response = await fetch("http://127.0.0.1:8000/api/login/userMedicPersona", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(credentials)
-        });
-
-        if (!response.ok) {
-            console.log("Credenciales enviadas:", credentials);
-            throw new Error("Credenciales inválidas o error en el login");
-        }
-
-        const authHeader = response.headers.get("authorization");
-        if (!authHeader) {
-            throw new Error("No se encontró el token en el header");
-        }
-
-        // token
-        const token = authHeader.split(" ")[1];
-        console.log("Token limpio:", token);
-
-        // body completo
-        const body = await response.json();
-        console.log("Body de respuesta:", body);
-
-        return { token, body };
-
-    } catch (error) {
-        console.error("Error al iniciar sesión:", error);
-        throw error;
-    } finally {
-        console.log("Login completado");
-    }
-}
-
-
-    async updateUser(id: number, updatedData: Partial<User>): Promise<User> {
+    async loginUser(credentials: { username: string; password: string }): Promise<{ token: string; body: User }> {
         try {
-            const response = await fetch(`api/${id}`, {
-                method: "PUT",
+            const response = await fetch("http://127.0.0.1:8000/api/login/userMedicPersona", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(updatedData)
+                body: JSON.stringify(credentials)
             });
 
-            if (!response.ok) {
-                throw new Error("No se pudo actualizar el usuario");
-            }
+            if (!response.ok) throw new Error("Credenciales inválidas");
 
-            const data = await response.json();
-            return data.user; // O solo `data`, según la estructura de tu backend
+            const authHeader = response.headers.get("authorization");
+            if (!authHeader) throw new Error("No se encontró el token");
+
+            const token = authHeader.split(" ")[1];
+            const body = await response.json();
+            return { token, body };
+
         } catch (error) {
-            console.error("Error al actualizar usuario:", error);
+            console.error("Error al iniciar sesión:", error);
             throw error;
-        } finally {
-            console.log("Actualización de usuario completada");
         }
     }
 
-     async deleteUser(id: number): Promise<boolean> {
-        const token = localStorage.getItem("token");
+    async updateUser(id: number, updatedData: Partial<User>): Promise<User> {
+        const token = await this.verifyToken(); // Verifica el token primero
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error("Error al actualizar usuario:", error);
+            throw error;
+        }
+    }
+
+    async deleteUser(id: number): Promise<boolean> {
+        const token = await this.verifyToken(); // Verifica el token primero
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona/${id}`, {
                 method: "DELETE",
@@ -179,19 +153,11 @@ async loginUser(credentials: { username: string; password: string }): Promise<{ 
                     "Content-Type": "application/json"
                 }
             });
-
-            if (!response.ok) {
-                throw new Error("No se pudo eliminar el usuario");
-            }
-
-            console.log(`Usuario ${id} eliminado correctamente`);
+            await this.handleResponse(response);
             return true;
         } catch (error) {
             console.error("Error al eliminar usuario:", error);
             throw error;
-        } finally {
-            console.log("Petición DELETE completada");
         }
     }
-
 }

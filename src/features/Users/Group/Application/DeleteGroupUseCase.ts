@@ -2,7 +2,7 @@ import type { Group } from "../Domain/Group";
 import { GroupRepository } from "../Domain/GroupRepository";
 
 export class DeleteGroupUseCase {
-    private groupRepository: GroupRepository;
+    private readonly groupRepository: GroupRepository;
 
     constructor(groupRepository: GroupRepository) {
         this.groupRepository = groupRepository;
@@ -14,13 +14,7 @@ export class DeleteGroupUseCase {
         }
 
         try {
-            const success = await this.groupRepository.deleteGroup(id);
-            
-            if (!success) {
-                throw new Error("Group deletion failed");
-            }
-
-            return true;
+            return await this.groupRepository.deleteGroup(id);
         } catch (error) {
             const errorMessage = error instanceof Error 
                 ? error.message 

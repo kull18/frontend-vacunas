@@ -5,18 +5,22 @@ interface DeleteBoxUseCaseDependencies {
 }
 
 export class DeleteBoxUseCase {
-    private boxRepository: BoxRepository;
+    private readonly boxRepository: BoxRepository;
 
-    constructor({ boxRepository }: DeleteBoxUseCaseDependencies) {
+    constructor(boxRepository: BoxRepository) {
         this.boxRepository = boxRepository;
     }
 
     async execute(id: number): Promise<boolean> {
-        // Validaciones adicionales pueden ir aquí
         if (isNaN(id) || id <= 0) {
             throw new Error("El ID de la caja debe ser un número positivo");
         }
 
-        return await this.boxRepository.deleteBox(id);
+        try {
+            return await this.boxRepository.deleteBox(id);
+        } catch (error) {
+            console.error(`Error en DeleteBoxUseCase (ID: ${id}):`, error);
+            throw new Error(`No se pudo eliminar la caja: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        }
     }
 }

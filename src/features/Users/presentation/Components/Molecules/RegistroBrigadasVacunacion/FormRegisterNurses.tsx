@@ -368,47 +368,101 @@ const updateUser = async (e: React.FormEvent) => {
 <main className="pr-10 pl-10 pb-10 sm:pb-7">
   <label className="text-[2.4vh] ml-1 font-medium">Usuarios agregados</label>
 
-  {/* Scroll horizontal completo solo en pantallas pequeñas */}
-  <div className="overflow-x-auto mt-4 sm:overflow-visible">
-    {/* Scroll vertical solo para tbody en pantallas grandes */}
-    <div className="sm:max-h-[30vh] sm:overflow-y-auto min-w-[800px]">
-      <table className="min-w-full border-collapse border border-gray-300">
-        <thead className="sticky top-0 bg-white z-10">
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-4 py-2 text-left text-sm">Nombre</th>
-            <th className="border border-gray-300 px-4 py-2 text-left text-sm">Apellido</th>
-            <th className="border border-gray-300 px-2 py-2 text-left text-sm">Nombre de usuario</th>
-            <th className="border border-gray-300 px-4 py-2 text-left text-sm">Rol</th>
-            <th className="border border-gray-300 px-3 py-2 text-left text-sm">Grupo</th>
-            <th className="border border-gray-300 px-4 py-2 text-center text-sm">Acciones</th>
+<div className="overflow-x-auto mt-6 rounded-lg shadow-sm">
+  <div className="sm:max-h-[60vh] sm:overflow-y-auto min-w-[800px] rounded-lg border border-gray-200 bg-white">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="sticky top-0 bg-gradient-to-r from-blue-50 to-gray-50 z-10">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            <div className="flex items-center">
+              <span>Nombre</span>
+              <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </div>
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            Apellido
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            Usuario
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            Rol
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            Grupo
+          </th>
+          <th className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-b border-gray-200">
+            Acciones
+          </th>
+        </tr>
+      </thead>
+
+      <tbody className="bg-white divide-y divide-gray-200">
+        {users.map((persona, index) => (
+          <tr 
+            key={index} 
+            className={`hover:bg-blue-50 transition-colors duration-150 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+          >
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              {persona.name}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+              {persona.lastname}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {persona.username}
+              </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm">
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                persona.role === 'Admin' 
+                  ? 'bg-purple-100 text-purple-800 border border-purple-200' 
+                  : persona.role === 'Líder'
+                    ? 'bg-amber-100 text-amber-900 border border-amber-200 font-bold'
+                    : persona.role.toLowerCase() === 'enfermero'
+                      ? 'bg-teal-100 text-teal-900 border border-teal-200'
+                      : 'bg-green-100 text-green-800 border border-green-200'
+              }`}>
+                {persona.role}
+              </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+              {persona.groupName}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+              <div className="flex justify-center space-x-2">
+                <button
+                  onClick={() => handleEdit(persona)}
+                  className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200"
+                >
+                  <svg className="-ml-0.5 mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Editar
+                </button>
+                <button
+                  onClick={() => deletedUser(persona.idUser)}
+                  className="cursor-pointer inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                >
+                  <svg className="-ml-0.5 mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Eliminar
+                </button>
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-            {users
-              .map((persona, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2 text-sm">{persona.name}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-sm">{persona.lastname}</td>
-                  <td className="border border-gray-300 px-2 py-2 text-sm">{persona.username}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-sm">{persona.role}</td>
-                  <td className="border border-gray-300 px-3 py-2 text-sm">{persona.groupName}</td>
-                  <td className="border border-gray-300 py-2 text-center flex justify-center">
-                    <button 
-                    onClick={() => handleEdit(persona)}
-                    className="cursor-pointer bg-yellow-400 text-white px-2 py-1 rounded text-sm hover:bg-yellow-500 mr-2">
-                      Editar
-                    </button>
-                    <button className="cursor-pointer bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-                    onClick={() => deletedUser(persona.idUser)}>
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   </div>
+
+  {/* Efecto de sombra para indicar scroll */}
+  <div className="hidden sm:block h-4 bg-gradient-to-t from-gray-50 to-transparent -mt-4 relative z-20"></div>
+</div>
 </main>
         </>
     );
