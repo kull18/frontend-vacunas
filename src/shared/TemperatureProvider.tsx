@@ -1,38 +1,40 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
 interface FrecuenciaData {
+  fa: number[];
+  fac: number[];
+  fr: number[];
   intervalos: string[];
   marcas: number[];
-  fa: number[];
-  fr: number[];
-  fac: number[];
 }
 
-const initialFrecuenciaData: FrecuenciaData = {
-  intervalos: [],
-  marcas: [],
-  fa: [],
-  fr: [],
-  fac: [],
-};
-
-const TemperatureContext = createContext<FrecuenciaData>(initialFrecuenciaData);
+const TemperatureContext = createContext<FrecuenciaData | null>(null);
 
 export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [temperatureData, setTemperatureData] = useState<FrecuenciaData>(initialFrecuenciaData);
+  const [temperatureData, setTemperatureData] = useState<FrecuenciaData>({
+    intervalos: [],
+    marcas: [],
+    fa: [],
+    fr: [],
+    fac: [],
+  });
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 10;
 
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws/temperature-stats");
+  const connectWebSocket = () => {
+    ws.current = new WebSocket("ws://localhost:8080/ws/temperature-stats");
 
     ws.current.onopen = () => {
       console.log("Conectado al WebSocket (Temperature)");
+      reconnectAttempts.current = 0;
     };
 
     ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.temperature) {
+        if (data && data.temperature) {
           setTemperatureData(data.temperature);
           console.log("Temperature Data:", data.temperature);
         }
@@ -46,10 +48,28 @@ export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     ws.current.onclose = () => {
-      console.warn("WebSocket cerrado (Temperature)");
+      console.warn("🔌 WebSocket cerrado (Temperature)");
+
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000); // max 30s
+        console.log(`Intentando reconectar en ${timeout / 1000}s...`);
+        reconnectTimeout.current = window.setTimeout(() => {
+          reconnectAttempts.current++;
+          connectWebSocket();
+        }, timeout);
+      } else {
+        console.error("No se pudo reconectar después de varios intentos.");
+      }
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+      }
       ws.current?.close();
     };
   }, []);
@@ -59,6 +79,6 @@ export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
 export const useTemperature = () => {
   const context = useContext(TemperatureContext);
-  if (!context) throw new Error("useTemperature debe usarse dentro de TemperatureProvider");
+  if (context === null) throw new Error("useTemperature debe usarse dentro de TemperatureProvider");
   return context;
 };

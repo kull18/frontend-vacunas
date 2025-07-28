@@ -1,5 +1,5 @@
 import type { UserCivil } from "../Domain/UserCIvil";
-import { UserCivilRepository } from "../Domain/UserCivilRepository";
+import { UserCivilRepository } from "../Domain/UserCivilRepositoryRepository";
 
 export class UpdateUserCivilUseCase {
     private userCivilRepository: UserCivilRepository

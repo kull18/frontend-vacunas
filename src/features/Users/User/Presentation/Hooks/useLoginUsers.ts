@@ -3,21 +3,28 @@ import type { User, UserLogin } from "../../Domain/User";
 import { LoginUserUseCase } from "../../Application/LoginUserUseCase";
 
 interface AuthResponse {
-    token: string;
-    body: User;
+  token: string;
+  body: User;
 }
 
 interface PropsLoginUser {
   loginUser: (credentials: UserLogin) => Promise<AuthResponse>;
-  loggedUser: UserLogin | null;
+  loggedUser: User | null;
   loading: boolean;
   error: unknown | null;
   token: string | null;
 }
 
 export const useLoginUser = (): PropsLoginUser => {
-  const [loggedUser, setLoggedUser] = useState<UserLogin | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [loggedUser, setLoggedUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("loggedUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem("token");
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown | null>(null);
 
@@ -32,23 +39,44 @@ export const useLoginUser = (): PropsLoginUser => {
       console.log("Token:", token);
       console.log("Usuario desde Hook:", body);
 
-      setLoggedUser(body);     // Actualiza el usuario logueado
-      setToken(token);         // Guarda el token en estado
+      setLoggedUser(body);
+      setToken(token);
+
+      localStorage.setItem("loggedUser", JSON.stringify(body));
+      localStorage.setItem("token", token);
+
       return { token, body };
     } catch (err) {
       console.error("Error en Hook loginUser:", err);
       setError(err);
-      throw err; // Ensure the function always throws if it fails
+      throw err;
     } finally {
       setLoading(false);
     }
   };
+
+  // Opcional: efecto para sincronizar cambios del estado con localStorage (por si se actualiza por otro lado)
+  useEffect(() => {
+    if (loggedUser) {
+      localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
+    } else {
+      localStorage.removeItem("loggedUser");
+    }
+  }, [loggedUser]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [token]);
 
   return {
     loginUser,
     loggedUser,
     loading,
     error,
-    token
+    token,
   };
 };

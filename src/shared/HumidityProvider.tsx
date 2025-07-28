@@ -9,25 +9,33 @@ const initialFrecuenciaData: FrecuenciaData = {
   fac: [],
 };
 
-const HumidityContext = createContext<FrecuenciaData>(initialFrecuenciaData);
+const HumidityContext = createContext<FrecuenciaData | null>(null);
 
 export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [humidityData, setHumidityData] = useState<FrecuenciaData>(initialFrecuenciaData);
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectAttempts = useRef(0);
 
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws/humidity-stats");
+  const maxReconnectAttempts = 10;
+
+  const connectWebSocket = () => {
+    ws.current = new WebSocket("ws://localhost:8080/ws/humidity-stats");
 
     ws.current.onopen = () => {
       console.log("Conectado al WebSocket (Humidity)");
+      reconnectAttempts.current = 0;
     };
 
     ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.humidity) {
+        // Se asume que la data viene con clave 'humidity'
+        if (data && data.humidity) {
           setHumidityData(data.humidity);
           console.log("Humidity Data:", data.humidity);
+        } else {
+          console.warn("Mensaje WS humedad no contiene 'humidity':", data);
         }
       } catch (error) {
         console.error("Error al parsear humedad:", error);
@@ -39,19 +47,40 @@ export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     ws.current.onclose = () => {
-      console.warn("🔌 WebSocket cerrado (Humidity)");
+      console.warn("WebSocket cerrado (Humidity)");
+
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
+        reconnectTimeout.current = window.setTimeout(() => {
+          reconnectAttempts.current++;
+          connectWebSocket();
+        }, timeout);
+      } else {
+        console.error("No se pudo reconectar después de varios intentos.");
+      }
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+      }
       ws.current?.close();
     };
   }, []);
+
+  if (humidityData === null) {
+    return null; // O un loader si quieres
+  }
 
   return <HumidityContext.Provider value={humidityData}>{children}</HumidityContext.Provider>;
 };
 
 export const useHumidity = () => {
   const context = useContext(HumidityContext);
-  if (!context) throw new Error("useHumidity debe usarse dentro de HumidityProvider");
+  if (context === null) throw new Error("useHumidity debe usarse dentro de HumidityProvider");
   return context;
 };

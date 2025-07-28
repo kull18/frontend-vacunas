@@ -1,10 +1,9 @@
-import { UserCivilVaccinated } from "../Domain/UserCivilVaccinated"
-
+import { UserCivilVaccinatedRepository } from "../Domain/UserCivilVaccinatedRepository"
 export class GetUserCivilVaccinatedValuesUseCase {
-    private uc: UserCivilVaccinated
+    private uc: UserCivilVaccinatedRepository
 
     constructor() {
-        this.uc = new UserCivilVaccinated()
+        this.uc = new UserCivilVaccinatedRepository()
     }
 
     async execute() {

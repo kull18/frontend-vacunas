@@ -24,11 +24,13 @@ interface NormalData {
   desviacion_estandar: number;
 }
 
-export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalData) => {
+export const NormalDistributionChartEmpty = ({ media, desviacion_estandar }: NormalData) => {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    // Validación de entradas
+    const xValues: string[] = [];
+    const yValues: number[] = [];
+
     if (
       typeof media !== "number" ||
       isNaN(media) ||
@@ -36,15 +38,31 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
       isNaN(desviacion_estandar) ||
       desviacion_estandar <= 0
     ) {
-      setChartData(null);
+      // Gráfica vacía con etiquetas pero sin datos
+      for (let i = 0; i <= 10; i++) {
+        xValues.push(i.toString());
+        yValues.push(0);
+      }
+      setChartData({
+        labels: xValues,
+        datasets: [
+          {
+            label: 'No hay datos válidos',
+            data: yValues,
+            borderColor: 'rgba(200, 200, 200, 0.5)',
+            borderWidth: 1,
+            fill: false,
+            pointRadius: 0,
+            borderDash: [5, 5],
+          },
+        ],
+      });
       return;
     }
 
+    // Caso normal: graficar distribución normal
     const mean = media;
     const stdDev = desviacion_estandar;
-
-    const xValues = [];
-    const yValues = [];
 
     for (let x = mean - 3 * stdDev; x <= mean + 3 * stdDev; x += stdDev / 20) {
       xValues.push(x.toFixed(2));
@@ -68,7 +86,7 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
     });
   }, [media, desviacion_estandar]);
 
-  if (!chartData) return <p>Datos insuficientes o inválidos para graficar.</p>;
+  if (!chartData) return <p>Cargando gráfica...</p>;
 
   const options = {
     responsive: true,
@@ -77,13 +95,13 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
       x: {
         title: {
           display: true,
-          text: 'Temperatura (°C)',
+          text: 'Valores',
         },
       },
       y: {
         title: {
           display: true,
-          text: 'Densidad de Probabilidad',
+          text: 'Densidad',
         },
         beginAtZero: true,
       },
@@ -102,4 +120,4 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
   );
 };
 
-export default NormalDistributionChart;
+export default NormalDistributionChartEmpty;

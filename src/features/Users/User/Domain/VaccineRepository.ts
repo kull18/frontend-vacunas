@@ -1,4 +1,5 @@
 import type { AlcoholData } from "./DataAlcoholemia";
+import type { VaccineVaccineBox } from "./VaccineVaccineBox";
 
 export interface Vaccine {
   idVaccines: number;
@@ -69,6 +70,25 @@ export class VaccineRepository {
       return dataAlcoholemia
     }catch(error) {
       throw error
+    }
+  }
+
+
+  async getVaccineAmount(token: string | null): Promise<VaccineVaccineBox[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}s/vaccineBox`,  {
+        method: "GET", 
+        headers: this.getHeaders(token)
+      });
+
+      if (!response.ok) {
+        throw new Error("error to get data");
+      }
+
+      const data: VaccineVaccineBox[] = await response.json();
+      return data;
+    } catch (error) {
+      throw error;
     }
   }
 

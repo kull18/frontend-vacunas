@@ -22,27 +22,17 @@ function normalPDF(x: number, mean: number, stdDev: number): number {
 interface NormalData {
   media: number;
   desviacion_estandar: number;
+  // otros campos si quieres
 }
 
-export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalData) => {
+export const NormalDistributionChartHielera = ({ media, desviacion_estandar }: NormalData) => {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    // Validación de entradas
-    if (
-      typeof media !== "number" ||
-      isNaN(media) ||
-      typeof desviacion_estandar !== "number" ||
-      isNaN(desviacion_estandar) ||
-      desviacion_estandar <= 0
-    ) {
-      setChartData(null);
-      return;
-    }
-
     const mean = media;
     const stdDev = desviacion_estandar;
 
+    // Para x, generamos puntos desde (media - 3*stdDev) a (media + 3*stdDev)
     const xValues = [];
     const yValues = [];
 
@@ -67,8 +57,6 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
       ],
     });
   }, [media, desviacion_estandar]);
-
-  if (!chartData) return <p>Datos insuficientes o inválidos para graficar.</p>;
 
   const options = {
     responsive: true,
@@ -95,6 +83,8 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
     },
   };
 
+  if (!chartData) return <p>Cargando gráfica...</p>;
+
   return (
     <div style={{ width: '100%', height: '400px', padding: '2rem' }}>
       <Line data={chartData} options={options} />
@@ -102,4 +92,4 @@ export const NormalDistributionChart = ({ media, desviacion_estandar }: NormalDa
   );
 };
 
-export default NormalDistributionChart;
+export default NormalDistributionChartHielera;

@@ -102,15 +102,6 @@ const [selectedVaccine, setSelectedVaccine] = useState<{ id: number; name: strin
                     <td className="px-6 py-3  flex-1 min-w-[200px]">{vacuna.nameVaccine}</td>
                     <td className="px-6 py-3  flex-1 min-w-[200px]">
                       <div className="flex gap-2">
-<button
-  className="bg-[#F5C661] text-white px-2 py-1 rounded-lg flex items-center"
-  onClick={() => handleEditClick(vacuna)}
->
-  <img src={edit} alt="Editar" className="w-4 h-4 mr-1" />
-  Editar
-</button>
-
-
                         <button onClick={() => {handleDelete(vacuna.idVaccines)}} className="bg-[#F82C2C] text-white px-2 py-1 rounded-lg flex items-center">
                           <img src={deleteIcon} alt="Eliminar" className="w-4 h-4 mr-1" />
                           Eliminar
