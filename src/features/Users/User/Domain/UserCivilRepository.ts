@@ -1,7 +1,7 @@
 import type { UserCivil } from "./UserCIvil";
 
 export class UserCivilRepository {
-  private baseUrl = `${import.meta.env.VITE_URL_API_2}/UserCivil`;
+  private baseUrl = "http://127.0.0.1:8000/api/userMedicPersona";
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;
@@ -93,13 +93,19 @@ export class UserCivilRepository {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Error al eliminar usuario civil");
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       return true;
     } catch (error) {
-      console.error("Error en delete:", error);
+      console.error("Full error details:", {
+        error,
+        url: `${this.baseUrl}/${id}`,
+        method: "DELETE",
+        tokenPresent: !!token
+      });
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-import { UserCivilRepository } from "../Domain/UserCivilRepositoryRepository";
+import { UserCivilRepository } from "../Domain/UserCivilRepository";
 
 export class DeleteUserCivilUseCase {
     private userCivilRepository: UserCivilRepository
