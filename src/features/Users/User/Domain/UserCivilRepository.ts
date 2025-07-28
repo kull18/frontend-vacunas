@@ -1,7 +1,8 @@
 import type { UserCivil } from "./UserCIvil";
 
 export class UserCivilRepository {
-        private baseUrl = `${import.meta.env.VITE_URL_API_1}/api/userMedicPersona`;
+        private baseUrl = `${import.meta.env.VITE_URL_API_2}/UserCivil`;
+        private secondUrl = ``
 
   private formatToken(token: string | null): string | null {
     if (!token) return null;

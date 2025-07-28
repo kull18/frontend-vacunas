@@ -14,7 +14,7 @@ export class UserRepository {
                 icon: 'warning',
                 confirmButtonText: 'Entendido'
             });
-            window.location.href = "/login";
+            window.location.href = "/";
             throw new Error("NO_TOKEN");
         }
         return token;
@@ -29,7 +29,7 @@ export class UserRepository {
                 icon: 'error',
                 confirmButtonText: 'Entendido'
             });
-            window.location.href = "/login";
+            window.location.href = "/";
             throw new Error("SESSION_EXPIRED");
         }
 
