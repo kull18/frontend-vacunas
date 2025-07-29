@@ -19,4 +19,4 @@ export interface AuthResponse {
   body: User;
 }
 
-export type UserForm = Omit<User, "groupIdGroup">;
+export type UserForm = User

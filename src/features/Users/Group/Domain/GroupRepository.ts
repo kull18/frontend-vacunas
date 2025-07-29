@@ -40,7 +40,7 @@ export class GroupRepository {
 
     async getGroup(): Promise<Group[]> {
         const token = await this.verifyToken();
-        const response = await fetch("http://127.0.0.1:8000/api/groups", {
+        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
             headers: { 
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}` 
@@ -51,7 +51,7 @@ export class GroupRepository {
 
     async createGroup(newGroup: Omit<Group, 'id'>): Promise<Group> {
         const token = await this.verifyToken();
-        const response = await fetch("http://127.0.0.1:8000/api/groups", {
+        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export class GroupRepository {
     async deleteGroup(id: number): Promise<boolean> {
     try {
         const token = await this.verifyToken();
-        const response = await fetch(`http://127.0.0.1:8000/api/groups/${id}`, {
+        const response = await fetch(`https://api.vacunas.brigadasvacunacion.com.mx/api/groups${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export class GroupRepository {
 
     async updateGroup(id: number, updatedGroup: Partial<Group>): Promise<Group> {
         const token = await this.verifyToken();
-        const response = await fetch(`http://127.0.0.1:8000/api/groups/${id}`, {
+        const response = await fetch(`https://api.vacunas.brigadasvacunacion.com.mx/api/groups${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

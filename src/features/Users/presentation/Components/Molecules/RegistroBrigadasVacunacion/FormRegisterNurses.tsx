@@ -19,7 +19,7 @@ function FormRegisterNurses() {
     const {abrirModalVaccine} = useModalBrigadesVaccine()
     const { group, loadingGroup, errorGroup } = useGetGroup();
     const { users, loadingRole, error,refetch } = useGetUserRole();
-    const { createUser, createdUser, loading, errorCreate } = useCreateUser();
+    const { createUser, createdUser, loading } = useCreateUser();
     const { deleteUser, loading: deleting, error: deleteError } = useDeleteUser();
     const { updateUserCivil, error: updateError } = useUpdateUserCivil();
     const token = localStorage.getItem('token');

@@ -23,7 +23,11 @@ export class GetBrigadeUseCase {
                 throw new Error("Brigada no encontrada");
             }
 
-            return brigade;
+            return {
+  ...brigade,
+  locations: brigade.locations.map(loc => loc.location) // convierte BrigadeLocation a string
+};
+
         } catch (error) {
             // Enhance and rethrow the error with context
             const errorMessage = error instanceof Error 
