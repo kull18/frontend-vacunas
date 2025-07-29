@@ -62,7 +62,7 @@ function FormLogin() {
         <>
 
 
-        <form onSubmit={login} className="bg-[#cdcdcd30] z-50 w-[80vh] pl-7 pr-7 pt-10 pb-9 flex flex-col justify-center items-center rounded-[3vh]">
+        <form onSubmit={registerUser} className="bg-[#cdcdcd30] z-50 w-[80vh] pl-7 pr-7 pt-10 pb-9 flex flex-col justify-center items-center rounded-[3vh]">
             <p className="text-[6vh] text-center text-[#585a61] mb-6 z-10" id={style.font}>Iniciar sesión</p>
 
             <input
@@ -91,7 +91,7 @@ function FormLogin() {
 
                 <button className="bg-[#9CD5F4] rounded-3xl mt-7 px-16 py-3 
                 text-[#747d95] cursor-pointer hover:bg-[#93cae7] duration-75" 
-                id={style.font} onClick={registerUser}>ENTRAR</button>
+                id={style.font} type="submit">ENTRAR</button>
         </form>
 
         </>

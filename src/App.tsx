@@ -28,11 +28,13 @@ import { ModalBoxsProvider } from './features/Users/presentation/Components/Mole
 import { TemperatureProvider } from './shared/TemperatureProvider';
 import { HumidityProvider } from './shared/HumidityProvider';
 import { AuthProvider } from './Context/AuthContext';
+import { UserCivilStatsProvider } from './shared/useCivilProvider';
 
 function App() {
   return (
     <AuthProvider>
       <TemperatureProvider>
+        <UserCivilStatsProvider>
         <HumidityProvider>
           <ModalVaccinePrincipalProvider>
             <ModalBoxsProvider>
@@ -73,6 +75,7 @@ function App() {
             </ModalBoxsProvider>
           </ModalVaccinePrincipalProvider>
         </HumidityProvider>
+        </UserCivilStatsProvider>
       </TemperatureProvider>
     </AuthProvider>
   );

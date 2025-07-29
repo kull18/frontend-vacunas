@@ -5,11 +5,11 @@ import Swal from "sweetalert2";
 export class UserRepository {
     private baseUrl = `${import.meta.env.VITE_URL_API_1}/api`;
     
-    private async verifyToken(): Promise<string> {
+    private getToken(): string {
         const token = localStorage.getItem("token");
         if (!token) {
-            await Swal.fire({
-                title: 'Sesión expirada',
+            Swal.fire({
+                title: 'Sesión no encontrada',
                 text: 'No hay sesión activa',
                 icon: 'warning',
                 confirmButtonText: 'Entendido'
@@ -21,28 +21,15 @@ export class UserRepository {
     }
 
     private async handleResponse(response: Response): Promise<any> {
-        if (response.status === 401) {
-            localStorage.removeItem("token");
-            await Swal.fire({
-                title: 'Sesión expirada',
-                text: 'Tu sesión ha caducado',
-                icon: 'error',
-                confirmButtonText: 'Entendido'
-            });
-            window.location.href = "/";
-            throw new Error("SESSION_EXPIRED");
-        }
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || "Error en la petición");
         }
-
         return response.json();
     }
 
     async getUser(): Promise<User[]> {
-        const token = await this.verifyToken();
+        const token = this.getToken();
         try {
             const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
                 headers: {
@@ -57,7 +44,7 @@ export class UserRepository {
     }
 
     async getUserByRol(): Promise<User[]> {
-        const token = await this.verifyToken();
+        const token = this.getToken();
         try {
             const headers = {
                 "Authorization": `Bearer ${token}`
@@ -84,7 +71,7 @@ export class UserRepository {
     }
 
     async createUser(newUser: User): Promise<User> {
-        const token = await this.verifyToken();
+        const token = this.getToken();
         try {
             const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
                 method: "POST",
@@ -130,7 +117,7 @@ export class UserRepository {
     }
 
     async updateUser(id: number, updatedData: Partial<User>): Promise<User> {
-        const token = await this.verifyToken();
+        const token = this.getToken();
         try {
             const response = await fetch(`${this.baseUrl}/userMedicPersona/${id}`, {
                 method: "PUT",
@@ -148,7 +135,7 @@ export class UserRepository {
     }
 
     async deleteUser(id: number): Promise<boolean> {
-        const token = await this.verifyToken();
+        const token = this.getToken();
         try {
             const response = await fetch(`${this.baseUrl}/userMedicPersona/${id}`, {
                 method: "DELETE",

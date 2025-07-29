@@ -85,7 +85,7 @@ const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
   };
 
   return (
-    <div className="w-full sm:w-[88vh]" id={style.grafica}>
+    <div className="w-full sm:w-[100vh]" id={style.grafica}>
       <div className="mt-7 ml-10">
         <p className="text-2xl text-[#00000081]" id={style.title2}>
           Temperatura de hielera

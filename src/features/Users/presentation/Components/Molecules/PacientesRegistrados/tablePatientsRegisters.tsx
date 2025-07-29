@@ -80,7 +80,7 @@ function ModalAgregarSeleccionarVacuna({
     <Modal onClose={onClose}>
       <div className="p-4 bg-white rounded shadow-md max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">Agregar vacuna a {paciente.name}</h2>
+          <h2 className="text-lg font-bold">Agregar vacuna a {paciente.nameUser}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-xl font-bold"
@@ -143,7 +143,7 @@ function TablePatientsRegister() {
           setUserCivils([...originalUserCivils.current]);
         } else {
           const filtered = originalUserCivils.current.filter((user: UserCivil) =>
-            `${user.name} ${user.lastname}`.toLowerCase().includes(searchValue)
+            `${user.nameUser} ${user.firstLastname}`.toLowerCase().includes(searchValue)
           );
           setUserCivils(filtered);
         }
@@ -202,7 +202,7 @@ function TablePatientsRegister() {
                 {userCivils.map((v, index) => (
                   <tr key={index} className="flex border-b border-gray-300">
                     <td className="px-6 py-3 w-[250px] truncate">
-                      {v.name} {v.lastname}
+                      {v.nameUser} {v.firstLastname}
                     </td>
                     <td className="px-6 py-3 w-[150px] truncate">
                       {v.fol}
@@ -220,11 +220,11 @@ function TablePatientsRegister() {
                     </td>
 
                     <td className="px-4 py-3 w-[130px]">
-                      {v.isVaccinated === true ? "Sí" : "No"}
+                      {v.isVaccinatedUser === 1 ? "Sí" : "No"}
                     </td>
 
                     <td className="px-4 py-3 w-[160px]">
-                      {v.isVaccinated === true ? (
+                      {v.isVaccinatedUser === 1 ? (
                         "Ya ha sido asignado"
                       ) : (
                         <button

@@ -1,4 +1,4 @@
-import type { UserCivil } from "./UserCIvil";
+import type { UserCivil, UserCivilCompleted } from "./UserCIvil";
 
 export class UserCivilRepository {
         private baseUrl = `${import.meta.env.VITE_URL_API_2}/UserCivil`;
@@ -46,6 +46,27 @@ export class UserCivilRepository {
     }
   }
 
+async getAllCompleted(token: string | null): Promise<UserCivilCompleted[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/completed`, {
+        method: "GET",
+        headers: this.getHeaders(token),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || "Error al obtener usuarios civiles completados");
+      }
+
+      const data = await response.json();
+      // Asegurar que siempre devuelva un array del tipo correcto
+      return Array.isArray(data) ? data as UserCivilCompleted[] : []; 
+    } catch (error) {
+      console.error("Error en getAllCompleted:", error);
+      throw error;
+    }
+}
+
   async create(user: UserCivil, token: string | null): Promise<UserCivil> {
     try {
       const response = await fetch(this.baseUrl, {
@@ -68,7 +89,7 @@ export class UserCivilRepository {
 
   async update(id: number, data: Partial<UserCivil>, token: string | null): Promise<UserCivil> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
+      const response = await fetch(`https://api.vacunas.brigadasvacunacion.com.mx/api/userMedicPersona/${id}`, {
         method: "PUT",
         headers: this.getHeaders(token),
         body: JSON.stringify(data),

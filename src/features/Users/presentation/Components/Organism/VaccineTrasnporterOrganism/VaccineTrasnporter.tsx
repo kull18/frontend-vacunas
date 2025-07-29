@@ -25,13 +25,8 @@ function VaccineTrasnporter() {
     <>
       <div className="flex-none mt-3 sm:flex sm:flex-col">
         <div className="flex flex-col sm:flex-row gap-6">
-          <div className="flex flex-col gap-6" id={style.cards}>
-            <InventoryCards />
-          </div>
-
-          <div className="w-full sm:w-auto">
             <GraphTemperatureCooler labels={labels} temperatures={marcas} />
-          </div>
+
         </div>
 
         <div className="flex mt-5">

@@ -6,9 +6,14 @@ import { useGetAlcohol } from "../../../../User/Presentation/Hooks/useGetAlcohol
 import NormalDistributionChart from "../../Molecules/GausGraph/GaussJordanMatrixChart";
 import { useGetSensorCheckDataValues } from "../../../../User/Presentation/Hooks/useGetSensorCheckDataValues";
 import NormalDistributionChartEmpty from "../../Molecules/GausGraph/GaussJordanEmpty";
+import { UserCivilStatsProvider } from "../../Molecules/PacientesRegistrados/useUserCivilStats";
+import { useUserCivil } from "../../../../../../shared/useCivilProvider";
 
 function PatientsRegisters() {
   const { userCivilValues } = useGetUserCivilsValues();
+  const { userCivilData } = useUserCivil();
+
+  
   const { data: alcoholData } = useGetAlcohol();
   const { data: SensorCheck } = useGetSensorCheckDataValues();
 
@@ -45,19 +50,6 @@ function PatientsRegisters() {
         </div>
       </div>
 
-      <div className="mt-12 ml-6 mr-6">
-        {
-          SensorCheck.desviacion_estandar > 0 && SensorCheck.media > 0 ? (
-        <NormalDistributionChart media={SensorCheck.media} desviacion_estandar={SensorCheck.desviacion_estandar} />
-          ): (
-            <NormalDistributionChartEmpty
-               media={SensorCheck.media} 
-               desviacion_estandar={SensorCheck.desviacion_estandar}
-              />
-          )
-        }
-
-      </div>
     </>
   );
 }

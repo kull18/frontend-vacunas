@@ -1,4 +1,5 @@
 import type { UserCivil } from "../Domain/UserCIvil";
+import type { UserCivilCompleted } from "../Domain/UserCIvil";
 import { UserCivilRepository } from "../Domain/UserCivilRepository";
 
 export class GetUserCivilsUseCase {
@@ -10,4 +11,5 @@ export class GetUserCivilsUseCase {
   async execute(token: string | null): Promise<UserCivil[]> {
     return await this.userCivilRepository.getAll(token);
   }
+
 }
