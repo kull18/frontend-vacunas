@@ -20,7 +20,7 @@ export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const maxReconnectAttempts = 10;
 
   const connectWebSocket = () => {
-    ws.current = new WebSocket("ws://localhost:8080/ws/humidity-stats");
+    ws.current = new WebSocket("ws://98.85.230.138:8080/ws/humidity-stats");
 
     ws.current.onopen = () => {
       console.log("Conectado al WebSocket (Humidity)");

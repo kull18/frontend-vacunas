@@ -4,12 +4,14 @@ import { useState } from "react";
 import type { UserForm } from "../../../../User/Domain/User";
 function FormRegister({ onClick }: { onClick: () => void }) {
 
-        const { createUser, loading, error } = useCreateUser();
+        const { createUser, loading } = useCreateUser();
 
         const [formData, setFormData] = useState<UserForm>({
+        idUser: 0,
         username: "",
         password: "",
         role: "",
+        groupIdGroup: null,
         name: "",
         lastname: "",
         });
@@ -20,6 +22,7 @@ function FormRegister({ onClick }: { onClick: () => void }) {
         alert("proceso")
         try {
             await createUser({
+                idUser: 0, // Valor por defecto para nuevo usuario
                 username: formData.username,
                 password: formData.password,
                 role: formData.role,

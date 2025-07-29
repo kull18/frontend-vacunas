@@ -69,7 +69,7 @@ const switchToLogin = () => {
                                                 </div>
                                             ) : (
                                                 <div id={`${style.formContainer} ${showLogin ? style.fadeIn : style.fadeOut}`}>
-                                                    <FormLogin onClick={switchToRegister} />
+                                                    <FormLogin/>
                                                 </div>
                                             )}
                                         </div>

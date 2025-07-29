@@ -175,17 +175,19 @@ function TablePatientsRegister() {
         >
           {/* Cabecera */}
           <div className="flex-shrink-0 overflow-x-auto sm:overflow-auto">
-            <table className="w-full" id={style.table}>
-              <thead className="bg-[#F4F4F4]">
-                <tr className="flex">
-                  <th className="px-6 py-3 text-left w-[250px]">Nombre completo</th>
-                  <th className="px-4 py-3 text-left w-[120px]">Resultado de alcoholemia</th>
-                  <th className="px-4 py-3 text-left w-[80px]">Vacuna aplicada</th>
-                  <th className="px-4 py-3 text-left w-[160px]">Acción</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+  <table className="w-full" id={style.table}>
+    <thead className="bg-[#F4F4F4]">
+      <tr className="flex">
+        <th className="px-6 py-3 text-left w-[250px]">Nombre completo</th>
+        <th className="px-6 py-3 text-left w-[150px]">Folio</th>
+        <th className="px-4 py-3 text-left w-[170px]">Resultado de alcoholemia</th>
+        <th className="px-4 py-3 text-left w-[130px]">Temperatura corporal</th>
+        <th className="px-4 py-3 text-left w-[130px]">Vacuna aplicada</th>
+        <th className="px-4 py-3 text-left w-[160px]">Acción</th>
+      </tr>
+    </thead>
+  </table>
+</div>
 
           {/* Cuerpo */}
           <div
@@ -202,20 +204,27 @@ function TablePatientsRegister() {
                     <td className="px-6 py-3 w-[250px] truncate">
                       {v.name} {v.lastname}
                     </td>
-
+                    <td className="px-6 py-3 w-[150px] truncate">
+                      {v.fol}
+                    </td>
                     <td
-                      className={`px-4 py-3 w-[120px] truncate font-bold ${
+                      className={`px-4 py-3 w-[170px] truncate font-bold ${
                         v.alcoholBreat > 0.9 ? "text-red-500" : "text-green-600"
                       }`}
                     >
                       {v.alcoholBreat > 0.9 ? "POSITIVO" : "NEGATIVO"}
                     </td>
-                    <td className="px-4 py-3 w-[80px]">
-                      {v.isVaccinated === 1 ? "Sí" : "No"}
+
+                    <td className="px-4 py-3 w-[130px]">
+                      {v.corporalTemperature}
+                    </td>
+
+                    <td className="px-4 py-3 w-[130px]">
+                      {v.isVaccinated === true ? "Sí" : "No"}
                     </td>
 
                     <td className="px-4 py-3 w-[160px]">
-                      {v.isVaccinated === 1 ? (
+                      {v.isVaccinated === true ? (
                         "Ya ha sido asignado"
                       ) : (
                         <button
