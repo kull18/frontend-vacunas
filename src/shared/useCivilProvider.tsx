@@ -21,7 +21,7 @@ export const UserCivilStatsProvider: React.FC<{ children: React.ReactNode }> = (
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://98.85.230.138:8080/ws/usercivil-stats"); // ⚠ Cambia a tu dominio si es necesario
+    const ws = new WebSocket("ws://localhost:8080/ws/usercivil-stats"); // ⚠ Cambia a tu dominio si es necesario
     wsRef.current = ws;
 
     ws.onmessage = (event) => {

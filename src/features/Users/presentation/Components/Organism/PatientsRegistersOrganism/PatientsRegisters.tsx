@@ -8,29 +8,26 @@ import { useGetSensorCheckDataValues } from "../../../../User/Presentation/Hooks
 import NormalDistributionChartEmpty from "../../Molecules/GausGraph/GaussJordanEmpty";
 import { UserCivilStatsProvider } from "../../Molecules/PacientesRegistrados/useUserCivilStats";
 import { useUserCivil } from "../../../../../../shared/useCivilProvider";
+import { useVaccinationContext } from "../../../../../../shared/VaccinationContext";
 
 function PatientsRegisters() {
   const { userCivilValues } = useGetUserCivilsValues();
-  const { userCivilData } = useUserCivil();
-
-  
   const { data: alcoholData } = useGetAlcohol();
   const { data: SensorCheck } = useGetSensorCheckDataValues();
 
   const stillLoading = !userCivilValues || !alcoholData || !SensorCheck;
 
-
-  console.log("data from sensor chcck", SensorCheck)
-
   if (stillLoading) {
     return <div>Cargando datos...</div>;
-
-    
   }
 
-  console.log("data", SensorCheck)
+  // Obtenemos todos los nombres de vacunas
+  const allVaccineNames = userCivilValues.vaccinations.map((v) => v.vaccine.name);
 
-  const labels = userCivilValues.vaccinations.map((v) => v.vaccine.name);
+  // Filtramos para obtener nombres únicos
+  const labels = Array.from(new Set(allVaccineNames));
+
+  // Obtenemos los conteos correspondientes a cada vacuna única
   const dataValues = labels.map((name) => userCivilValues.vaccineCounts?.[name] ?? 0);
 
   return (
@@ -49,7 +46,6 @@ function PatientsRegisters() {
           )}
         </div>
       </div>
-
     </>
   );
 }

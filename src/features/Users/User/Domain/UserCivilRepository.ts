@@ -26,6 +26,24 @@ export class UserCivilRepository {
     return headers;
   }
 
+
+  async updateIsVaccinated(id_user: number): Promise<UserCivil> {
+    try {
+        const response = await fetch(`${this.baseUrl}/vaccinated/${id_user}`, {
+            method: 'PUT'
+        })
+
+        if(! response.ok) {
+            throw new Error("Error to update userCivil")
+        }
+
+        const data: UserCivil = await response.json()
+        return data
+    }catch(error) {
+        throw error
+    }
+  }
+
   async getAll(token: string | null): Promise<UserCivil[]> {
     try {
       const response = await fetch(this.baseUrl, {

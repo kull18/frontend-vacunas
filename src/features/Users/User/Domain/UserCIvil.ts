@@ -3,8 +3,8 @@ export interface UserCivil {
     fol: string;
     corporalTemperature: number;
     alcoholBreat: number;
-    isVaccinatedUser?: number;
-    nameUser?: string;
+    isVaccinated?: number;
+    name?: string;
     firstLastname?: string;
     CURP?: string;
     secondLastname?: string;

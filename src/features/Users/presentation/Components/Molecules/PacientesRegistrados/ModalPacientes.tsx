@@ -4,8 +4,14 @@ import { useCreateUserCivil } from '../../../../User/Presentation/Hooks/useCreat
 import type { UserCivil } from '../../../../User/Domain/UserCIvil';
 import { useModal } from './ModalContext';
 import { useUserCivil } from "../../../../../../shared/useCivilProvider";
+import { useVaccinationContext } from '../../../../../../shared/VaccinationContext';
 
-function ModalPacientes() {
+function ModalPacientes(
+  refetch: {
+
+    refetch: () => void
+  }
+) {
   const { userCivilData } = useUserCivil();
   
   const [formData, setFormData] = useState<UserCivil>({
@@ -13,8 +19,8 @@ function ModalPacientes() {
     fol: userCivilData?.fol || '',
     corporalTemperature: userCivilData?.corporalTemperature || 0,
     alcoholBreat: userCivilData?.alcoholBreat || 0,
-    isVaccinatedUser: 0,
-    nameUser: '',
+    isVaccinated: 0,
+    name: '',
     firstLastname: '',
     CURP: '',
     secondLastname: '',
@@ -30,6 +36,7 @@ function ModalPacientes() {
   const { users } = useGetUser();
   const { createUserCivil } = useCreateUserCivil();
   const filterUsers = users.filter((user) => user.role === 'enfermero');
+  const { refetchValues } = useVaccinationContext()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -41,16 +48,17 @@ function ModalPacientes() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      await createUserCivil(formData);
-      cerrarModal();
-    } catch (error) {
-      console.error('Error al crear paciente:', error);
-    }
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    await createUserCivil(formData);       // Espera a que termine
+    await refetchValues();                 // Luego refresca el contexto
+    cerrarModal();                         // Finalmente cierra el modal
+  } catch (error) {
+    console.error("Error al crear paciente:", error);
+  }
+}
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -84,8 +92,8 @@ function ModalPacientes() {
                   Nombre <span className="text-red-500">*</span>
                 </label>
                 <input
-                  name="nameUser"
-                  value={formData.nameUser}
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                   placeholder="Ej. Juan"
@@ -284,7 +292,7 @@ function ModalPacientes() {
                 </label>
                 <select
                   name="isVaccinatedUser"
-                  value={formData.isVaccinatedUser}
+                  value={formData.isVaccinated}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                   required
