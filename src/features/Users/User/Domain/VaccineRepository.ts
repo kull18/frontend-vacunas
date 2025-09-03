@@ -9,7 +9,7 @@ export interface Vaccine {
 
 export class VaccineRepository {
   private baseUrl = `${import.meta.env.VITE_URL_API_1}/api/vaccine`;
-  private secondUrl = "https://apivacunation.ddns.net/SensorCheck/alcoholemia";
+  private secondUrl =`${import.meta.env.VITE_URL_API_2}/SensorCheck/alcoholemia`;
 
   private getAuthHeaders(token: string): HeadersInit {
     return {

@@ -24,7 +24,7 @@ export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const maxReconnectAttempts = 10;
 
   const connectWebSocket = () => {
-    ws.current = new WebSocket("ws://98.85.230.138:8080/ws/temperature-stats");
+    ws.current = new WebSocket("ws://localhost:8080/ws/temperature-stats");
 
     ws.current.onopen = () => {
       console.log("Conectado al WebSocket (Temperature)");

@@ -5,12 +5,10 @@ import type { UserCivil } from '../../../../User/Domain/UserCIvil';
 import { useModal } from './ModalContext';
 import { useUserCivil } from "../../../../../../shared/useCivilProvider";
 import { useVaccinationContext } from '../../../../../../shared/VaccinationContext';
+import { useGetUserCivils } from '../../../../User/Presentation/Hooks/useGetUserCivils';
 
 function ModalPacientes(
-  refetch: {
-
-    refetch: () => void
-  }
+  refetch:{ refetch: () => void}
 ) {
   const { userCivilData } = useUserCivil();
   
@@ -36,7 +34,7 @@ function ModalPacientes(
   const { users } = useGetUser();
   const { createUserCivil } = useCreateUserCivil();
   const filterUsers = users.filter((user) => user.role === 'enfermero');
-  const { refetchValues } = useVaccinationContext()
+  const { refetchUserCivils } = useGetUserCivils();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -48,17 +46,17 @@ function ModalPacientes(
     }));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    await createUserCivil(formData);       // Espera a que termine
-    await refetchValues();                 // Luego refresca el contexto
-    cerrarModal();                         // Finalmente cierra el modal
-  } catch (error) {
-    console.error("Error al crear paciente:", error);
-  }
-}
+    try {
+      await createUserCivil(formData);       // Espera a que termine
+      await refetchUserCivils();                 // Esto debería actualizar el contexto y por ende la tabla
+      cerrarModal();                         // Finalmente cierra el modal
+    } catch (error) {
+      console.error("Error al crear paciente:", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -165,7 +163,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <option value="">Mes</option>
                     <option value="Enero">Enero</option>
                     <option value="Febrero">Febrero</option>
-                    {/* ... otros meses ... */}
+                    <option value="Marzo">Marzo</option>
+                    <option value="Abril">Abril</option>
+                    <option value="Mayo">Mayo</option>
+                    <option value="Junio">Junio</option>
+                    <option value="Julio">Julio</option>
+                    <option value="Agosto">Agosto</option>
+                    <option value="Septiembre">Septiembre</option>
+                    <option value="Octubre">Octubre</option>
+                    <option value="Noviembre">Noviembre</option>
+                    <option value="Diciembre">Diciembre</option>
                   </select>
                   <input
                     type="number"
@@ -291,7 +298,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   Vacuna aplicada <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name="isVaccinatedUser"
+                  name="isVaccinated"
                   value={formData.isVaccinated}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
