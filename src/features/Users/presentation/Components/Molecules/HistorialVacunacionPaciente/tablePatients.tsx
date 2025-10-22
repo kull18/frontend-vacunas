@@ -1,5 +1,4 @@
 import style from "../../Molecules/HistorialVacunacionPaciente/main.module.css";
-import download from "../../../../../../assets/downloadLogo.png";
 import { FilePatient } from "../../Pdf/filePatient";
 import { useGetUserCivilVaccinatedValuesId } from "../../../../User/Presentation/Hooks/useGetUserCivilVaccinatedValuesId";
 import { useLoginUser } from "../../../../User/Presentation/Hooks/useLoginUsers";
