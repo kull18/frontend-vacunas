@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { GetAlcoholemia } from "../../Application/GetDataAlcoholemia";
 import { useAuth } from "./AuthProvider";
+import type { AlcoholData } from "../../Domain/DataAlcoholemia";
 
 export const useGetAlcohol = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<AlcoholData>(null);
   const { token } = useAuth();
 
   const fetchData = async () => {
@@ -24,5 +25,5 @@ export const useGetAlcohol = () => {
     fetchData();
   }, [token]);
 
-  return { data, loading };
+  return { data, loading, refetchAlcohol: fetchData };
 };

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useModalVaccines } from "./ModalVaccineContext";
-import x from "../../../../../../assets/x.png";
 import { useCreateVaccine } from "../../../../User/Presentation/Hooks/useCreateVaccine";
 import type { Vaccine } from "../../../../User/Domain/Vaccine";
 

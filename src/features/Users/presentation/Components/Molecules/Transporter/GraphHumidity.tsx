@@ -9,7 +9,6 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import style from "../../Molecules/PacientesRegistrados/patients.module.css";
-import { zoom } from 'chartjs-plugin-zoom';
 import styled from "../../Molecules/Transporter/transporter.module.css"
 
 ChartJS.register(
@@ -23,14 +22,13 @@ ChartJS.register(
 
 type GraphHumidityProps = {
   labels: string[];
-  humidity: number[]; 
+  humidity: number[];
 };
 
 const GraphHumidity: React.FC<GraphHumidityProps> = ({
   labels,
   humidity,
 }) => {
-
   const data = {
     labels,
     datasets: [
@@ -47,6 +45,8 @@ const GraphHumidity: React.FC<GraphHumidityProps> = ({
 
   const options = {
     responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -70,18 +70,11 @@ const GraphHumidity: React.FC<GraphHumidityProps> = ({
   };
 
   return (
-    <>
-      <div className="w-full sm:w-[145vh]" id={style.grafica}>
-        <div className="ml-10">
-          <p className="text-2xl text-[#00000081]" id={style.title2}>
-            Humedad de hielera
-          </p>
-        </div>
-        <div id={styled.graficaLinea2}>
+    <div className="w-full h-full" id={style.grafica}>
+      <div id={styled.graficaLinea2}>
         <Line data={data} options={options} />
-        </div>
       </div>
-    </>
+    </div>
   );
 };
 

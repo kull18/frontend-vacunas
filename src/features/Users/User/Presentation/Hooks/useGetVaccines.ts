@@ -28,7 +28,6 @@ export function useGetVaccines() {
 
   return { 
     vaccines, 
-    setVaccines,
     loading, 
     refetch: fetchVaccines
   };

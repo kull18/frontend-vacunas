@@ -9,7 +9,7 @@ export class GetAlcoholemia {
     }
 
 
-    async execute(token: string | null): Promise<AlcoholData[]> {
+    async execute(token: string | null): Promise<AlcoholData> {
         try {
            return this.repositorie.getAlcoholemiaData()
         }catch(error) {

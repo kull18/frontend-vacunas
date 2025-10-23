@@ -12,6 +12,7 @@ import { Line } from 'react-chartjs-2';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import style from "../../Molecules/PacientesRegistrados/patients.module.css";
 import styled from "../../Molecules/Transporter/transporter.module.css"
+
 ChartJS.register(
   LineElement,
   CategoryScale,
@@ -47,6 +48,8 @@ const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
 
   const options: ChartOptions<'line'> = {
     responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2,
     plugins: {
       legend: {
         position: 'top',
@@ -85,14 +88,9 @@ const GraphTemperatureCooler: React.FC<GraphTemperatureProps> = ({
   };
 
   return (
-    <div className="w-full sm:w-[100vh]" id={style.grafica}>
-      <div className="mt-7 ml-10">
-        <p className="text-2xl text-[#00000081]" id={style.title2}>
-          Temperatura de hielera
-        </p>
-      </div>
+    <div className="w-full h-full" id={style.grafica}>
       <div id={styled.graficaLinea}>
-      <Line data={data} options={options} />
+        <Line data={data} options={options} />
       </div>
     </div>
   );
