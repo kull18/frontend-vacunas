@@ -6,12 +6,13 @@ import { useGetAlcohol } from "../../../../User/Presentation/Hooks/useGetAlcohol
 import { useGetSensorCheckDataValues } from "../../../../User/Presentation/Hooks/useGetSensorCheckDataValues";
 
 function PatientsRegisters() {
-  const { userCivilValues } = useGetUserCivilsValues();
-  const { data: alcoholData } = useGetAlcohol();
-  const { data: SensorCheck } = useGetSensorCheckDataValues();
-  
-  const stillLoading = !userCivilValues || !alcoholData || !SensorCheck;
-  
+  const { userCivilValues, refetch } = useGetUserCivilsValues();
+  const { data: alcoholData, refetchAlcohol } = useGetAlcohol();
+
+
+  console.log("data from alcoholemia", alcoholData)
+  const stillLoading = !userCivilValues || !alcoholData;
+
   if (stillLoading) {
     return (
       <main className="p-4 sm:p-6 lg:p-8">
@@ -49,31 +50,36 @@ function PatientsRegisters() {
     );
   }
 
+  // ✅ CORRECCIÓN: userCivilValues ya ES el array directamente
+  const vaccineData = Array.isArray(userCivilValues) ? userCivilValues : [];
   
-  // Obtenemos todos los nombres de vacunas
-  const allVaccineNames = userCivilValues.vaccinations.map((v) => v.vaccine.name);
-  
-  // Filtramos para obtener nombres únicos
-  const labels = Array.from(new Set(allVaccineNames));
-  
-  // Obtenemos los conteos correspondientes a cada vacuna única
-  const dataValues = labels.map((name) => userCivilValues.vaccineCounts?.[name] ?? 0);
+  const labels = vaccineData.map((item) => item.vaccineName);
+  const dataValues = vaccineData.map((item) => item.dosesApplied);
+
+  console.log("labels", labels);
+  console.log("dataValues", dataValues);
 
   return (
     <>
-      <TablePatientsRegister />
+      <TablePatientsRegister refetchDataTable={refetch} refetchAlcohol={refetchAlcohol}/>
       
       {/* Grid responsive para las gráficas */}
       <div className="w-full flex justify-center items-center gap-4">
         {/* Gráfica de barras */}
         <div className="w-[45%] h-[75%]">
-          <PatientBarGraph labels={labels} dataValues={dataValues} />
+          {vaccineData.length > 0 ? (
+            <PatientBarGraph labels={labels} dataValues={dataValues} />
+          ) : (
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-full flex items-center justify-center">
+              <p className="text-gray-500">No hay datos de vacunas aún</p>
+            </div>
+          )}
         </div>
         
         {/* Gráfica de dona */}
         <div className="w-[45%] h-[75%]">
-          {alcoholData.length > 0 ? (
-            <PatientDonaPatients data={alcoholData} />
+          {alcoholData.distribution !== undefined ? (
+            <PatientDonaPatients data={alcoholData} totalCases={alcoholData.statistics.totalRecords}/>
           ) : (
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-full flex items-center justify-center">
               <p className="text-gray-500">No hay datos de alcohol aún</p>

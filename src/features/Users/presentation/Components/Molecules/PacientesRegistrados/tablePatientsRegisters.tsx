@@ -4,8 +4,7 @@ import type { UserCivil } from "../../../../User/Domain/UserCIvil";
 import { ModalAgregarSeleccionarVacuna } from "./ModalAgregarVacunaSeleccionada";
 import ModalPacientes from "./ModalPacientes";
 
-
-function TablePatientsRegister() {
+function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDataTable: () => void ,refetchAlcohol: () => void }) {
   const { userCivils, setUserCivils, refetchUserCivils } = useGetUserCivils();
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<UserCivil | null>(null);
   const [mostrarModalVacuna, setMostrarModalVacuna] = useState(false);
@@ -14,7 +13,6 @@ function TablePatientsRegister() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Filtrar pacientes basado en búsqueda
   const filteredUserCivils = searchTerm.trim()
     ? userCivils.filter((user: UserCivil) =>
         `${user.name} ${user.firstLastname} ${user.secondLastname}`
@@ -23,13 +21,11 @@ function TablePatientsRegister() {
       )
     : userCivils;
 
-  // Calcular paginación
   const totalPages = Math.ceil(filteredUserCivils.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentUserCivils = filteredUserCivils.slice(startIndex, endIndex);
 
-  // Resetear a página 1 cuando cambia la búsqueda
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -38,13 +34,11 @@ function TablePatientsRegister() {
     setSearchTerm(e.target.value);
   };
 
-  // Función mejorada para manejar el cierre del modal
   const handleCloseModal = useCallback(() => {
     setMostrarModalVacuna(false);
     setPacienteSeleccionado(null);
   }, []);
 
-  // Función para cerrar el modal de paciente civil
   const handleCloseModalPaciente = useCallback(() => {
     setMostrarModalPacienteCivil(false);
   }, []);
@@ -299,6 +293,7 @@ function TablePatientsRegister() {
 
       {mostrarModalVacuna && pacienteSeleccionado && (
         <ModalAgregarSeleccionarVacuna
+          refetchDataTable={refetchDataTable}
           paciente={pacienteSeleccionado} 
           onClose={handleCloseModal}
           refetchUserCivils={refetchUserCivils}
@@ -307,6 +302,7 @@ function TablePatientsRegister() {
 
       {mostrarPacienteCivil && (
         <ModalPacientes 
+        refetchAlcohol={refetchAlcohol}
           refetch={refetchUserCivils}
           onClose={handleCloseModalPaciente}
         />

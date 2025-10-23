@@ -37,7 +37,7 @@ export class VaccineRepository {
     }
   }
 
-  async getAlcoholemiaData(): Promise<AlcoholData[]> {
+  async getAlcoholemiaData(): Promise<AlcoholData> {
     try {
       const response = await fetch(this.secondUrl, {
         method: 'GET',

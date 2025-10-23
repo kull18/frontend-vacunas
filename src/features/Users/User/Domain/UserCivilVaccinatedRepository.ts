@@ -1,6 +1,6 @@
 import type { UserCivilVaccinated } from "./UserCivilVaccinated";
 import type { UserCivilVaccinatedData } from "./UserCivilVaccinatedData";
-import type { VaccinationResponse } from "./VaccinationResponse";
+import type { VaccinationNameCountGraph, VaccinationResponse } from "./VaccinationResponse";
 
 export class UserCivilVaccinatedRepository {
     private baseUrl = `${import.meta.env.VITE_URL_API_2}/UserCivilVaccinated`;
@@ -27,7 +27,7 @@ export class UserCivilVaccinatedRepository {
         }
     }
 
-    async getUserCivilVaccinatedValues(): Promise<VaccinationResponse> {
+    async getUserCivilVaccinatedValues(): Promise<VaccinationNameCountGraph> {
         try {
             const response = await fetch(`${this.baseUrl}/with-values`);
 
@@ -36,7 +36,9 @@ export class UserCivilVaccinatedRepository {
                 throw new Error(errorData.message || 'Failed to fetch vaccination data');
             }
 
-            return await response.json();
+            const data  = await response.json();
+
+            return data.vaccineCounts; 
         } catch (error) {
             console.error('Error in getUserCivilVaccinatedValues:', error);
             throw error;

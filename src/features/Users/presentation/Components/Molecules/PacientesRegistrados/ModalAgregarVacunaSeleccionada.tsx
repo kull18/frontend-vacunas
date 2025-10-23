@@ -45,10 +45,12 @@ function ModalAgregarSeleccionarVacuna({
   paciente,
   onClose,
   refetchUserCivils,
+  refetchDataTable, 
 }: {
   paciente: UserCivil;
   onClose: () => void;
   refetchUserCivils: () => void;
+  refetchDataTable: () => void; 
 }) {
   const [selectedVaccineId, setSelectedVaccineId] = useState<number | "">("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,18 +72,14 @@ function ModalAgregarSeleccionarVacuna({
         date: new Date().toISOString(),
       };
 
-      // Ejecutar las operaciones secuencialmente
       await createUserCivilVaccinated(userCivilVaccinated);
       await execute(paciente.idUserCivil);
       
-      // Forzar la actualización de los datos
       await refetchUserCivils();
-      
-      // Cerrar el modal después de todas las operaciones
+      await refetchDataTable(); 
       onClose();
     } catch (error) {
       console.error("Error al guardar la vacuna:", error);
-      // Aquí podrías mostrar un mensaje de error al usuario
     } finally {
       setIsLoading(false);
     }

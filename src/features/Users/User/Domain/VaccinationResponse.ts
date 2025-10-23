@@ -20,3 +20,12 @@ export interface VaccinationResponse {
   vaccinations: VaccinationRecord[];
   vaccineCounts: Record<string, number>;
 }
+
+// Interfaces corregidas
+export interface VaccinationNameCount {
+  vaccineName: string;
+  dosesApplied: number;
+}
+
+// ✅ userCivilValues ES DIRECTAMENTE UN ARRAY, no un objeto con propiedad vaccinations
+export type VaccinationNameCountGraph = VaccinationNameCount[];

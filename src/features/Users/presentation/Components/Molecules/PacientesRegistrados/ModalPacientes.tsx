@@ -6,9 +6,10 @@ import { useUserCivil } from "../../../../../../shared/useCivilProvider";
 interface ModalPacientesProps {
   refetch: () => void;
   onClose: () => void; 
+  refetchAlcohol: () => void; 
 }
 
-function ModalPacientes({ refetch, onClose }: ModalPacientesProps) {
+function ModalPacientes({ refetch, onClose, refetchAlcohol }: ModalPacientesProps) {
   const { userCivilData } = useUserCivil();
   
   const [formData, setFormData] = useState<UserCivil>({
@@ -44,6 +45,7 @@ function ModalPacientes({ refetch, onClose }: ModalPacientesProps) {
     try {
       await createUserCivil(formData);
       await refetch();
+      await refetchAlcohol()
       onClose();
     } catch (error) {
       console.error("Error al crear paciente:", error);

@@ -17,7 +17,7 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, zoomPl
 
 type VaccinePatientsBarChartProps = {
   labels: string[];
-  dataValues: number[];
+  dataValues: number[]
 };
 
 const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({

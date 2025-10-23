@@ -6,22 +6,41 @@ import {
 } from "chart.js";
 import type { ChartOptions } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import style from "../PacientesRegistrados/patients.module.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-type AlcoholData = {
+export interface AlcoholDistribution {
   category: string;
+  count: number;
   probability: number;
-};
+  percentage: number;
+}
+
+export interface AlcoholStatistics {
+  totalRecords: number;
+  average: number;
+  minimum: number;
+  maximum: number;
+  positiveCases: number;
+  positiveRate: number;
+}
+
+export interface AlcoholData {
+  statistics: AlcoholStatistics;
+  distribution: AlcoholDistribution[];
+}
 
 type PatientDonaPatientsProps = {
-  data: AlcoholData[];
+  data: AlcoholData;
+  totalCases: number; 
 };
 
-const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
-  const labels = data.map((item) => item.category);
-  const values = data.map((item) => item.probability);
+const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCases }) => {
+  const distribution = data.distribution || [];
+
+  // Maps corregidos
+  const labels = distribution.map((item) => item.category);
+  const values = distribution.map((item) => item.probability);
 
   const chartData = {
     labels,
@@ -62,11 +81,7 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
         position: "top",
         labels: {
           color: "#374151",
-          font: {
-            size: 13,
-            weight: 'normal',
-            family: "'Inter', sans-serif",
-          },
+          font: { size: 13, weight: 'normal', family: "'Inter', sans-serif" },
           padding: 15,
           usePointStyle: true,
           pointStyle: 'circle',
@@ -99,13 +114,8 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
         displayColors: true,
         borderColor: 'rgba(156, 163, 175, 0.3)',
         borderWidth: 1,
-        titleFont: {
-          size: 14,
-          weight: 'bold',
-        },
-        bodyFont: {
-          size: 13,
-        },
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 13 },
         callbacks: {
           label: (context) => {
             const label = context.label || "";
@@ -121,8 +131,8 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
 
   // Calcular estadísticas
   const total = values.reduce((a, b) => a + b, 0);
-  const maxCategory = labels[values.indexOf(Math.max(...values))];
   const maxValue = Math.max(...values);
+  const maxCategory = labels[values.indexOf(maxValue)] || "";
   const maxPercent = ((maxValue / total) * 100).toFixed(1);
 
   return (
@@ -144,10 +154,8 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
       {/* Chart */}
       <div className="relative w-full h-[350px] mb-6">
         <Doughnut data={chartData} options={options} />
-        
-        {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-4xl font-bold text-gray-800">{total}</p>
+          <p className="text-4xl font-bold text-gray-800">{totalCases}</p>
           <p className="text-sm text-gray-500 font-medium">Total pacientes</p>
         </div>
       </div>
@@ -156,14 +164,12 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
           <p className="text-xs font-semibold text-blue-600 uppercase mb-1">Total Casos</p>
-          <p className="text-2xl font-bold text-blue-900">{total}</p>
+          <p className="text-2xl font-bold text-blue-900">{totalCases}</p>
         </div>
-        
         <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
           <p className="text-xs font-semibold text-green-600 uppercase mb-1">Categoría Mayor</p>
           <p className="text-lg font-bold text-green-900 truncate">{maxCategory}</p>
         </div>
-        
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
           <p className="text-xs font-semibold text-purple-600 uppercase mb-1">Porcentaje</p>
           <p className="text-2xl font-bold text-purple-900">{maxPercent}%</p>
