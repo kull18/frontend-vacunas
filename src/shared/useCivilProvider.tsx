@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { getWebSocketURL } from "./utils/websocket"; 
 
 export interface UserCivilFormat {
   fol: string;
@@ -21,13 +22,14 @@ export const UserCivilStatsProvider: React.FC<{ children: React.ReactNode }> = (
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080/ws/usercivil-stats"); // ⚠ Cambia a tu dominio si es necesario
+    // 🎯 Usar la función auxiliar
+    const wsURL = getWebSocketURL("/ws/usercivil-stats");
+    const ws = new WebSocket(wsURL);
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-  
         setUserCivilData(message as UserCivilFormat);
         console.log("Datos de usuario civil recibidos:", event.data);
       } catch (error) {
@@ -35,8 +37,8 @@ export const UserCivilStatsProvider: React.FC<{ children: React.ReactNode }> = (
       }
     };
 
-    ws.onerror = (err) => console.error("WebSocket error:", err);
-    ws.onclose = () => console.log("WebSocket cerrado");
+    ws.onerror = (err) => console.error("❌ WebSocket error:", err);
+    ws.onclose = () => console.log("🔌 WebSocket cerrado");
 
     return () => {
       ws.close();
@@ -52,6 +54,6 @@ export const UserCivilStatsProvider: React.FC<{ children: React.ReactNode }> = (
 
 export const useUserCivil = () => {
   const context = useContext(UserCivilStatsContext);
-  if (context === null) throw new Error("useTemperature debe usarse dentro de TemperatureProvider");
+  if (context === null) throw new Error("useUserCivil debe usarse dentro de UserCivilStatsProvider");
   return context;
 };

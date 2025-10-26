@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { getWebSocketURL } from "./utils/websocket";
 
 interface FrecuenciaData {
   fa: number[];
@@ -24,10 +25,12 @@ export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const maxReconnectAttempts = 10;
 
   const connectWebSocket = () => {
-    ws.current = new WebSocket("ws://localhost:8080/ws/temperature-stats");
+    // 🎯 Usar la función auxiliar
+    const wsURL = getWebSocketURL("/ws/temperature-stats");
+    ws.current = new WebSocket(wsURL);
 
     ws.current.onopen = () => {
-      console.log("Conectado al WebSocket (Temperature)");
+      console.log("✅ Conectado al WebSocket (Temperature)");
       reconnectAttempts.current = 0;
     };
 
@@ -44,14 +47,14 @@ export const TemperatureProvider: React.FC<{ children: React.ReactNode }> = ({ c
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error (Temperature):", error);
+      console.error("❌ WebSocket error (Temperature):", error);
     };
 
     ws.current.onclose = () => {
       console.warn("🔌 WebSocket cerrado (Temperature)");
 
       if (reconnectAttempts.current < maxReconnectAttempts) {
-        const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000); // max 30s
+        const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
         console.log(`Intentando reconectar en ${timeout / 1000}s...`);
         reconnectTimeout.current = window.setTimeout(() => {
           reconnectAttempts.current++;
