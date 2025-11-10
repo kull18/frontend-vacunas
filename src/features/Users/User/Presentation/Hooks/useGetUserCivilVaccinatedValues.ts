@@ -1,27 +1,40 @@
-import { useEffect, useState } from "react";
-import type { UserCivilVaccinatedData } from "../../Domain/UserCivilVaccinatedData";
+import { useEffect, useState, useCallback, useRef } from "react";
+import type { VaccinationNameCountGraph, VaccinationResponse } from "../../Domain/VaccinationResponse";
 import { GetUserCivilVaccinatedValuesUseCase } from "../../Application/GetUserCivilVaccinatedValuesUseCsae";
-import type { VaccinationResponse } from "../../Domain/VaccinationResponse";
 
 export const useGetUserCivilsValues = () => {
-  const [userCivilValues, setUserCivilValues] = useState<VaccinationResponse | null>(null);
+  const [userCivilValues, setUserCivilValues] = useState<VaccinationNameCountGraph | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const getUserCivilValues = async () => {
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchUserCivilValues = async() => {
+    setLoading(true)
     try {
-      const repo = new GetUserCivilVaccinatedValuesUseCase();
-      const data = await repo.execute();
-      setUserCivilValues(data);
-    } catch (error) {
-      console.error("Error en getVaccines:", error);
-    } finally {
-      setLoading(false);
+      const uc = new GetUserCivilVaccinatedValuesUseCase()
+
+      const response = await uc.execute()
+
+      if(!response) {
+        throw new Error("error to fetch data")
+      }
+
+      setUserCivilValues(response)
+    }catch(error) {
+      setError(error)
+      throw error
+    }finally {
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    getUserCivilValues();
-  }, []);
+    fetchUserCivilValues()
+  }, [])
 
-  return { userCivilValues, loading, refetch: getUserCivilValues };
+  return {
+    userCivilValues,
+    loading,
+    error,
+    refetch: fetchUserCivilValues,
+  };
 };

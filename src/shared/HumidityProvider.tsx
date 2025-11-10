@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { FrecuenciaData } from "../features/Users/User/Domain/FrecuenciaData";
+import { getWebSocketURL } from "./utils/websocket" 
 
 const initialFrecuenciaData: FrecuenciaData = {
   intervalos: [],
@@ -20,17 +21,18 @@ export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const maxReconnectAttempts = 10;
 
   const connectWebSocket = () => {
-    ws.current = new WebSocket("ws://98.85.230.138:8080/ws/humidity-stats");
+    // 🎯 Usar la función auxiliar
+    const wsURL = getWebSocketURL("/ws/humidity-stats");
+    ws.current = new WebSocket(wsURL);
 
     ws.current.onopen = () => {
-      console.log("Conectado al WebSocket (Humidity)");
+      console.log("✅ Conectado al WebSocket (Humidity)");
       reconnectAttempts.current = 0;
     };
 
     ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // Se asume que la data viene con clave 'humidity'
         if (data && data.humidity) {
           setHumidityData(data.humidity);
           console.log("Humidity Data:", data.humidity);
@@ -43,11 +45,11 @@ export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     ws.current.onerror = (error) => {
-      console.error("WebSocket error (Humidity):", error);
+      console.error("❌ WebSocket error (Humidity):", error);
     };
 
     ws.current.onclose = () => {
-      console.warn("WebSocket cerrado (Humidity)");
+      console.warn("🔌 WebSocket cerrado (Humidity)");
 
       if (reconnectAttempts.current < maxReconnectAttempts) {
         const timeout = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
@@ -73,7 +75,7 @@ export const HumidityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   if (humidityData === null) {
-    return null; // O un loader si quieres
+    return null;
   }
 
   return <HumidityContext.Provider value={humidityData}>{children}</HumidityContext.Provider>;

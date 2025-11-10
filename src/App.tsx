@@ -29,6 +29,7 @@ import { TemperatureProvider } from './shared/TemperatureProvider';
 import { HumidityProvider } from './shared/HumidityProvider';
 import { AuthProvider } from './Context/AuthContext';
 import { UserCivilStatsProvider } from './shared/useCivilProvider';
+import { VaccinationProvider } from './shared/VaccinationContext'; // 👈 IMPORTACIÓN
 
 function App() {
   return (
@@ -45,8 +46,14 @@ function App() {
                       <Router>
                         <Routes>
                           <Route path="/" element={<LoginPage />} />
-                          <Route path="/dashboard" element={<HistorialVacunacionPaciente />}>
-
+                          <Route 
+                            path="/dashboard" 
+                            element={
+                              <ProtectedRoute>
+                                <HistorialVacunacionPaciente />
+                              </ProtectedRoute>
+                            }
+                          >
                             <Route path="Historial-vacunacion/paciente" element={<MainHistorialVacunationPage />} />
                             <Route path="estado-salud" element={<HeatlStatusPage />} />
                             <Route path="tabla-pacientes-registrados/enfermero" element={<PatientsRegistersPage />} />
@@ -59,7 +66,6 @@ function App() {
                             <Route path="cajas-vacunas/administrador" element={<BoxVaccinePage />} />
                             <Route path="enfermeros/gestion/administrador" element={<RegisterNursesPage />} />
                             <Route path="brigada-individual/administrador/:idBrigade" element={<CardsBrigadesById />} />
-                            
                           </Route>
                         </Routes>
                       </Router>

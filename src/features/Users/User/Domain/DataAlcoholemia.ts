@@ -1,6 +1,20 @@
+export interface AlcoholDistribution {
+  category: string;
+  count: number;
+  probability: number;
+  percentage: number;
+}
 
+export interface AlcoholStatistics {
+  totalRecords: number;
+  average: number;
+  minimum: number;
+  maximum: number;
+  positiveCases: number;
+  positiveRate: number;
+}
 
 export interface AlcoholData {
-  category: string;
-  probability: number;
+  statistics: AlcoholStatistics;
+  distribution: AlcoholDistribution[];
 }

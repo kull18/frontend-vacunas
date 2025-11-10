@@ -9,21 +9,28 @@ export const useGetUserCivils = () => {
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
-  useEffect(() => {
-    const fetchUserCivils = async () => {
-      try {
-        const useCase = new GetUserCivilsUseCase();
-        const result = await useCase.execute(token);
-        setUserCivils(result);
-      } catch (err) {
-        setError("Error al obtener los usuarios civiles");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUserCivils = async () => {
+    try {
+      setLoading(true);
+      const useCase = new GetUserCivilsUseCase();
+      const result = await useCase.execute(token);
+      setUserCivils(result);
+    } catch (err) {
+      setError("Error al obtener los usuarios civiles");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUserCivils();
   }, [token]);
 
-  return { userCivils, setUserCivils ,loading, error };
+  return {
+    userCivils,
+    setUserCivils,
+    loading,
+    error,
+    refetchUserCivils: fetchUserCivils 
+  };
 };

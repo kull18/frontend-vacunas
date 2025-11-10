@@ -8,8 +8,13 @@ export interface Vaccine {
 }
 
 export class VaccineRepository {
+<<<<<<< HEAD
   private baseUrl = `http://127.0.0.1:8000/api/vaccine`;
   private secondUrl = "https://apivacunation.ddns.net/SensorCheck/alcoholemia";
+=======
+  private baseUrl = `${import.meta.env.VITE_URL_API_1}/api/vaccine`;
+  private secondUrl =`${import.meta.env.VITE_URL_API_2}/SensorCheck/alcoholemia`;
+>>>>>>> 8fc1e48d5b22053bcf49d7231b79283e799be128
 
   private getAuthHeaders(token: string): HeadersInit {
     return {
@@ -37,7 +42,7 @@ export class VaccineRepository {
     }
   }
 
-  async getAlcoholemiaData(): Promise<AlcoholData[]> {
+  async getAlcoholemiaData(): Promise<AlcoholData> {
     try {
       const response = await fetch(this.secondUrl, {
         method: 'GET',
