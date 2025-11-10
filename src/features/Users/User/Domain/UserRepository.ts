@@ -31,7 +31,7 @@ export class UserRepository {
     async getUser(): Promise<User[]> {
         const token = this.getToken();
         try {
-            const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/userMedicPersona`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -51,7 +51,7 @@ export class UserRepository {
             };
 
             // Get users
-            const usersResponse = await fetch(`${this.baseUrl}/leadersAndNurse`, { headers });
+            const usersResponse = await fetch("http://127.0.0.1:8000/api/leadersAndNurse", { headers });
             const users: User[] = await this.handleResponse(usersResponse);
 
             // Get groups
@@ -90,7 +90,7 @@ export class UserRepository {
 
     async loginUser(credentials: { username: string; password: string }): Promise<{ token: string; body: User }> {
         try {
-            const response = await fetch(`${this.baseUrl}/login/userMedicPersona`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/login/userMedicPersona`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
