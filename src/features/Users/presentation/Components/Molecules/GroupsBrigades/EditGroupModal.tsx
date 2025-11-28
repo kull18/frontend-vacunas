@@ -1,24 +1,24 @@
-// EditGroupModal.tsx
 import { useState, useEffect } from "react";
+import { useUpdateGroup } from "../../../../Group/Presentation/Hooks/useUpdateGroup"
+import type { Group } from "../../../../Group/Domain/Group";
 import Swal from "sweetalert2";
 
 interface EditGroupModalProps {
     isOpen: boolean;
     onClose: () => void;
-    groupData: {
-        idGroup?: number;
-        nameGroup: string;
-        dateGroup: string;
-    } | null;
-    onSave: (groupId: number, updatedData: { nameGroup: string; dateGroup: string }) => Promise<boolean>;
+    groupData: Group | null;
+    onUpdate: () => void;
 }
 
-function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalProps) {
+function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModalProps) {
     const [formData, setFormData] = useState({
         nameGroup: "",
-        dateGroup: ""
+        dateGroup: "",
+        idVaccineBox: 0,
+        idBrigade: 0
     });
-    const [isLoading, setIsLoading] = useState(false);
+
+    const { updateGroup, loading, error } = useUpdateGroup();
 
     // Función para convertir fecha DD/MM/YYYY a YYYY-MM-DD
     const convertToInputFormat = (dateString: string) => {
@@ -52,11 +52,14 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
         return dateString;
     };
 
+    // Cargar datos del grupo cuando cambie
     useEffect(() => {
         if (groupData) {
             setFormData({
                 nameGroup: groupData.nameGroup,
-                dateGroup: convertToInputFormat(groupData.dateGroup)
+                dateGroup: convertToInputFormat(groupData.dateGroup),
+                idVaccineBox: groupData.idVaccineBox,
+                idBrigade: groupData.idBrigade
             });
         }
     }, [groupData]);
@@ -64,50 +67,126 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!groupData?.idGroup) return;
+        if (!groupData?.idGroup) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo identificar el grupo a actualizar",
+            });
+            return;
+        }
 
-        setIsLoading(true);
+        // Validaciones
+        const trimmedName = formData.nameGroup.trim();
         
-        // Convertir la fecha al formato que espera el backend antes de guardar
-        const dataToSave = {
-            nameGroup: formData.nameGroup,
-            dateGroup: convertToDisplayFormat(formData.dateGroup)
-        };
-        
-        const success = await onSave(groupData.idGroup, dataToSave);
-        setIsLoading(false);
+        if (!trimmedName) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "El nombre del grupo no puede estar vacío",
+            });
+            return;
+        }
 
-        if (success) {
+        if (trimmedName.length < 3) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "El nombre debe tener al menos 3 caracteres",
+            });
+            return;
+        }
+
+        if (!formData.dateGroup) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Debes seleccionar una fecha",
+            });
+            return;
+        }
+
+        // Verificar si hubo cambios
+        const noChanges = 
+            trimmedName === groupData.nameGroup &&
+            convertToDisplayFormat(formData.dateGroup) === groupData.dateGroup &&
+            formData.idVaccineBox === groupData.idVaccineBox &&
+            formData.idBrigade === groupData.idBrigade;
+
+        if (noChanges) {
+            Swal.fire({
+                icon: "info",
+                title: "Sin cambios",
+                text: "No se detectaron cambios en el grupo",
+            });
+            return;
+        }
+
+        try {
+            // Preparar datos para enviar
+            const dataToUpdate: Partial<Group> = {
+                nameGroup: trimmedName,
+                dateGroup: convertToDisplayFormat(formData.dateGroup),
+                idVaccineBox: formData.idVaccineBox,
+                idBrigade: formData.idBrigade
+            };
+
+            await updateGroup(groupData.idGroup, dataToUpdate);
+            
             await Swal.fire({
+                icon: 'success',
                 title: '¡Actualizado!',
                 text: 'El grupo ha sido actualizado correctamente',
-                icon: 'success',
-                confirmButtonColor: '#089ea1'
+                timer: 2000,
+                showConfirmButton: false,
             });
-            onClose();
-        } else {
-            await Swal.fire({
-                title: 'Error',
-                text: 'No se pudo actualizar el grupo',
+
+            onUpdate(); // Refetch de datos
+            onClose(); // Cerrar modal
+        } catch (err) {
+            Swal.fire({
                 icon: 'error',
-                confirmButtonColor: '#d33'
+                title: 'Error',
+                text: error || 'No se pudo actualizar el grupo',
             });
         }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'idVaccineBox' || name === 'idBrigade' 
+                ? Number(value) 
+                : value
+        }));
     };
 
-    if (!isOpen) return null;
+    const handleCancel = () => {
+        if (groupData) {
+            setFormData({
+                nameGroup: groupData.nameGroup,
+                dateGroup: convertToInputFormat(groupData.dateGroup),
+                idVaccineBox: groupData.idVaccineBox,
+                idBrigade: groupData.idBrigade
+            });
+        }
+        onClose();
+    };
+
+    if (!isOpen || !groupData) return null;
+
+    // Detectar cambios
+    const hasChanges = 
+        formData.nameGroup.trim() !== groupData.nameGroup ||
+        convertToDisplayFormat(formData.dateGroup) !== groupData.dateGroup ||
+        formData.idVaccineBox !== groupData.idVaccineBox ||
+        formData.idBrigade !== groupData.idBrigade;
 
     return (
         <>
             <div className="fixed inset-0 bg-gradient-to-br from-black/30 via-black/20 to-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-white absolute top-1/4 w-full max-w-2xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-gray-100 max-h-[90vh] flex flex-col">
+                <div className="bg-white w-full max-w-2xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-gray-100 max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200">
                     
                     {/* HEADER */}
                     <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-5 flex justify-between items-center rounded-t-2xl">
@@ -116,9 +195,10 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
                             <p className="text-sm text-violet-100 mt-1">Modifica la información del grupo</p>
                         </div>
                         <button
-                            onClick={onClose}
+                            onClick={handleCancel}
                             type="button"
-                            className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 group"
+                            disabled={loading}
+                            className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Cerrar modal"
                         >
                             <svg className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,6 +210,19 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
                     {/* CONTENT */}
                     <div className="overflow-y-auto flex-1 scrollbar-hide">
                         <div className="p-8 space-y-6">
+                            {/* Info actual */}
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <div className="flex items-center gap-2 text-purple-800">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium">Grupo actual</p>
+                                        <p className="text-lg font-bold truncate">{groupData.nameGroup}</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="bg-gradient-to-br from-violet-50 to-white p-6 rounded-xl border border-violet-100 shadow-sm">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 bg-violet-500 rounded-xl flex items-center justify-center shadow-md">
@@ -152,10 +245,19 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
                                             name="nameGroup"
                                             value={formData.nameGroup}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 outline-none hover:border-gray-400 bg-white"
+                                            disabled={loading}
+                                            maxLength={100}
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm 
+                                                     focus:ring-2 focus:ring-violet-500 focus:border-violet-500 
+                                                     transition-all duration-200 outline-none hover:border-gray-400 
+                                                     bg-white disabled:opacity-50 disabled:cursor-not-allowed 
+                                                     disabled:bg-gray-100"
                                             placeholder="Ej. Covid-19"
                                             required
                                         />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {formData.nameGroup.trim().length}/100 caracteres
+                                        </p>
                                     </div>
 
                                     {/* Fecha de aplicación */}
@@ -169,11 +271,80 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
                                             name="dateGroup"
                                             value={formData.dateGroup}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 outline-none hover:border-gray-400 bg-white"
+                                            disabled={loading}
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm 
+                                                     focus:ring-2 focus:ring-violet-500 focus:border-violet-500 
+                                                     transition-all duration-200 outline-none hover:border-gray-400 
+                                                     bg-white disabled:opacity-50 disabled:cursor-not-allowed 
+                                                     disabled:bg-gray-100"
                                             required
                                         />
                                     </div>
+
+                                    {/* ID Caja de Vacunas */}
+                                    <div>
+                                        <label htmlFor="idVaccineBox" className="block text-sm font-semibold text-gray-700 mb-2">
+                                            ID Caja de Vacunas <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="idVaccineBox"
+                                            name="idVaccineBox"
+                                            value={formData.idVaccineBox}
+                                            onChange={handleChange}
+                                            disabled={loading}
+                                            min="1"
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm 
+                                                     focus:ring-2 focus:ring-violet-500 focus:border-violet-500 
+                                                     transition-all duration-200 outline-none hover:border-gray-400 
+                                                     bg-white disabled:opacity-50 disabled:cursor-not-allowed 
+                                                     disabled:bg-gray-100"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* ID Brigada */}
+                                    <div>
+                                        <label htmlFor="idBrigade" className="block text-sm font-semibold text-gray-700 mb-2">
+                                            ID Brigada <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="idBrigade"
+                                            name="idBrigade"
+                                            value={formData.idBrigade}
+                                            onChange={handleChange}
+                                            disabled={loading}
+                                            min="1"
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm 
+                                                     focus:ring-2 focus:ring-violet-500 focus:border-violet-500 
+                                                     transition-all duration-200 outline-none hover:border-gray-400 
+                                                     bg-white disabled:opacity-50 disabled:cursor-not-allowed 
+                                                     disabled:bg-gray-100"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Indicador de cambios */}
+                                    {hasChanges && formData.nameGroup.trim().length >= 3 && (
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                                            <div className="flex items-center gap-2 text-green-700">
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="text-sm font-medium">Cambios detectados - Listo para actualizar</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </form>
+                            </div>
+
+                            {/* Mensaje de ayuda */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <p className="text-xs text-gray-600">
+                                    <span className="font-semibold">Nota:</span> Todos los campos son obligatorios. 
+                                    Asegúrate de que la información sea correcta antes de guardar.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -183,25 +354,41 @@ function EditGroupModal({ isOpen, onClose, groupData, onSave }: EditGroupModalPr
                         <div className="flex justify-end gap-3">
                             <button
                                 type="button"
-                                onClick={onClose}
-                                className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-                                disabled={isLoading}
+                                onClick={handleCancel}
+                                disabled={loading}
+                                className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white 
+                                         border-2 border-gray-300 rounded-lg hover:bg-gray-50 
+                                         hover:border-gray-400 transition-all duration-200 
+                                         focus:ring-2 focus:ring-gray-300 focus:ring-offset-2
+                                         disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Cancelar
                             </button>
                             <button
                                 type="button"
                                 onClick={handleSubmit}
-                                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-700 rounded-lg hover:from-violet-700 hover:to-purple-800 transition-all duration-200 shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={isLoading}
+                                disabled={loading || !hasChanges || formData.nameGroup.trim().length < 3}
+                                className="px-6 py-2.5 text-sm font-semibold text-white 
+                                         bg-gradient-to-r from-violet-600 to-purple-700 rounded-lg 
+                                         hover:from-violet-700 hover:to-purple-800 transition-all 
+                                         duration-200 shadow-lg shadow-violet-500/30 hover:shadow-xl 
+                                         hover:shadow-violet-500/40 focus:ring-2 focus:ring-violet-500 
+                                         focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+                                         disabled:from-gray-400 disabled:to-gray-500
+                                         flex items-center justify-center gap-2 min-w-[140px]"
                             >
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <>
                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                         Guardando...
-                                    </div>
+                                    </>
                                 ) : (
-                                    'Guardar cambios'
+                                    <>
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Guardar cambios
+                                    </>
                                 )}
                             </button>
                         </div>

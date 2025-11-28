@@ -12,8 +12,9 @@ import { useCreateUser } from "../../../../User/Presentation/Hooks/useCreateUser
 import { useGetGroup } from "../../../../Group/Presentation/Hooks/useGetGroups";
 import { useGetUserRole } from "../../../../User/Presentation/Hooks/useGetUserByRol";
 import Swal from "sweetalert2";
-import { useDeleteUserCivil } from "../../../../User/Presentation/Hooks/useUserCivilDeleteUser";
+import { useDeleteUser } from "../../../../User/Presentation/Hooks/useDeleteUser";
 import { useUpdateUserCivil } from "../../../../User/Presentation/Hooks/useUpdateUserCivil";
+import { useUpdateUser } from "../../../../User/Presentation/Hooks/useUpdateUser";
 
 // Loading Skeleton Component
 function FormLoadingSkeleton() {
@@ -50,17 +51,14 @@ function FormLoadingSkeleton() {
 
 // Main Content Component
 function FormContent() {
-  const { abrirModal } = useModalBrigades();
-  const { abrirModalVaccine } = useModalBrigadesVaccine();
-  const { group, loadingGroup, errorGroup } = useGetGroup();
-  const { users, loadingRole, error, refetch } = useGetUserRole();
-  const { createUser, createdUser, loading } = useCreateUser();
-  const { deleteUser, loading: deleting, error: deleteError } = useDeleteUserCivil();
-  const { updateUserCivil, error: updateError } = useUpdateUserCivil();
+  const { group, loadingGroup,  } = useGetGroup();
+  const { users, refetch } = useGetUserRole();
+  const { createUser, loading } = useCreateUser();
+  const { deleteUser, loading: deleting, error: deleteError } = useDeleteUser();
+  const { useUpdateUserHandler } = useUpdateUser()
   
   const [isPending, startTransition] = useTransition();
-  const token = localStorage.getItem('token');
-  
+
   const [formData, setFormData] = useState<User>({
     idUser: 0,
     name: "",
@@ -156,7 +154,7 @@ function FormContent() {
 
     if (!confirmed.isConfirmed) return;
 
-    const success = await deleteUser(id, token);
+    const success = await deleteUser(id);
     
     if (success) {
       Swal.fire('¡Eliminado!', 'El usuario ha sido eliminado.', 'success');
@@ -189,7 +187,7 @@ function FormContent() {
 
     try {
       if (isEditing && formData.idUser) {
-        await updateUserCivil(formData.idUser, userData);
+        await useUpdateUserHandler(formData.idUser, userData);
         Swal.fire("Éxito", "Usuario actualizado correctamente", "success");
       } else {
         await createUser(userData as User);
@@ -541,7 +539,6 @@ function FormContent() {
   );
 }
 
-// Main Component with Suspense
 function FormRegisterNurses() {
   return (
     <Suspense fallback={<FormLoadingSkeleton />}>

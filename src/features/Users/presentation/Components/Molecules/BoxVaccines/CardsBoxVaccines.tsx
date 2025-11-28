@@ -43,6 +43,7 @@ function BoxesContent() {
   const { abrirModal } = useModalVaccinesPrincipal();
   const { box, loadingBox, errorBox, refetch } = useGetBox();
   const { deleteBox } = useDeleteBox(new BoxRepository());
+
   
   const [isPending, startTransition] = useTransition();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
