@@ -1,15 +1,44 @@
 import { useGetCivilUsersWithoutAccount } from '../../../../Users/User/Presentation/Hooks/useGetCivilUsersWithoutAccount';
 import { useGetUserAccounts } from '../../../../Users/User/Presentation/Hooks/useGetUserAccounts';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition, Suspense } from 'react';
 import { useCreateUser } from '../../../User/Presentation/Hooks/useCreateUsers';
-import type { UserCivil } from '../../../User/Domain/User'
+import type { UserCivil } from '../../../User/Domain/User';
 import { useDeleteUser } from '../../../User/Presentation/Hooks/useDeleteUser';
 
-function UserAccountsPage() {
+// Componente de Loading Skeleton
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="h-9 w-96 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-5 w-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="h-40 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Componente de contenido principal
+function UserAccountsContent() {
   const { data: civilUsers, loading: loadingCivil, refetch: refetchCivil } = useGetCivilUsersWithoutAccount();
   const { data: accounts, loading: loadingAccounts, refetch: refetchAccounts } = useGetUserAccounts();
   const { createUser } = useCreateUser();
   const { deleteUser } = useDeleteUser();
+
+  // useTransition para transiciones no urgentes
+  const [isPendingCivil, startTransitionCivil] = useTransition();
+  const [isPendingAccounts, startTransitionAccounts] = useTransition();
 
   // Estados de paginación para usuarios sin cuenta
   const [currentPageCivil, setCurrentPageCivil] = useState(1);
@@ -30,125 +59,160 @@ function UserAccountsPage() {
     role: 'paciente',
     name: '',
     lastname: '',
-    idUserCivil: ''
+    idUserCivil: 0
   });
 
-  // Paginación para usuarios civiles
-  const paginatedCivilData = useMemo(() => {
+  // Memoizar paginación para usuarios civiles
+  const { paginatedCivilData, totalPagesCivil, startIndexCivil, endIndexCivil } = useMemo(() => {
     const startIndex = (currentPageCivil - 1) * itemsPerPageCivil;
     const endIndex = startIndex + itemsPerPageCivil;
-    return civilUsers.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(civilUsers.length / itemsPerPageCivil);
+    const paginatedData = civilUsers.slice(startIndex, endIndex);
+    
+    return {
+      paginatedCivilData: paginatedData,
+      totalPagesCivil: totalPages,
+      startIndexCivil: startIndex,
+      endIndexCivil: endIndex
+    };
   }, [civilUsers, currentPageCivil, itemsPerPageCivil]);
 
-  const totalPagesCivil = Math.ceil(civilUsers.length / itemsPerPageCivil);
-
-  // Paginación para cuentas activas
-  const paginatedAccountsData = useMemo(() => {
+  // Memoizar paginación para cuentas activas
+  const { paginatedAccountsData, totalPagesAccounts, startIndexAccounts, endIndexAccounts } = useMemo(() => {
     const startIndex = (currentPageAccounts - 1) * itemsPerPageAccounts;
     const endIndex = startIndex + itemsPerPageAccounts;
-    return accounts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(accounts.length / itemsPerPageAccounts);
+    const paginatedData = accounts.slice(startIndex, endIndex);
+    
+    return {
+      paginatedAccountsData: paginatedData,
+      totalPagesAccounts: totalPages,
+      startIndexAccounts: startIndex,
+      endIndexAccounts: endIndex
+    };
   }, [accounts, currentPageAccounts, itemsPerPageAccounts]);
 
-  const totalPagesAccounts = Math.ceil(accounts.length / itemsPerPageAccounts);
-
-  // Funciones de navegación para usuarios civiles
+  // Funciones de navegación para usuarios civiles con transiciones
   const goToNextPageCivil = () => {
-    setCurrentPageCivil((prev) => Math.min(prev + 1, totalPagesCivil));
+    startTransitionCivil(() => {
+      setCurrentPageCivil((prev) => Math.min(prev + 1, totalPagesCivil));
+    });
   };
 
   const goToPreviousPageCivil = () => {
-    setCurrentPageCivil((prev) => Math.max(prev - 1, 1));
+    startTransitionCivil(() => {
+      setCurrentPageCivil((prev) => Math.max(prev - 1, 1));
+    });
   };
 
   const goToPageCivil = (page: number) => {
-    setCurrentPageCivil(page);
+    startTransitionCivil(() => {
+      setCurrentPageCivil(page);
+    });
   };
 
-  // Funciones de navegación para cuentas activas
+  // Funciones de navegación para cuentas activas con transiciones
   const goToNextPageAccounts = () => {
-    setCurrentPageAccounts((prev) => Math.min(prev + 1, totalPagesAccounts));
+    startTransitionAccounts(() => {
+      setCurrentPageAccounts((prev) => Math.min(prev + 1, totalPagesAccounts));
+    });
   };
 
   const goToPreviousPageAccounts = () => {
-    setCurrentPageAccounts((prev) => Math.max(prev - 1, 1));
+    startTransitionAccounts(() => {
+      setCurrentPageAccounts((prev) => Math.max(prev - 1, 1));
+    });
   };
 
   const goToPageAccounts = (page: number) => {
-    setCurrentPageAccounts(page);
+    startTransitionAccounts(() => {
+      setCurrentPageAccounts(page);
+    });
   };
 
-  // Generar números de página (reutilizable)
-  const getPageNumbers = (currentPage: number, totalPages: number) => {
-    const pages: (number | string)[] = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
+  // Memoizar generación de números de página
+  const getPageNumbers = useMemo(() => {
+    return (currentPage: number, totalPages: number) => {
+      const pages: (number | string)[] = [];
+      const maxPagesToShow = 5;
+      
+      if (totalPages <= maxPagesToShow) {
+        for (let i = 1; i <= totalPages; i++) {
           pages.push(i);
         }
       } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push('...');
-        pages.push(totalPages);
+        if (currentPage <= 3) {
+          for (let i = 1; i <= 4; i++) {
+            pages.push(i);
+          }
+          pages.push('...');
+          pages.push(totalPages);
+        } else if (currentPage >= totalPages - 2) {
+          pages.push(1);
+          pages.push('...');
+          for (let i = totalPages - 3; i <= totalPages; i++) {
+            pages.push(i);
+          }
+        } else {
+          pages.push(1);
+          pages.push('...');
+          pages.push(currentPage - 1);
+          pages.push(currentPage);
+          pages.push(currentPage + 1);
+          pages.push('...');
+          pages.push(totalPages);
+        }
       }
-    }
-    
-    return pages;
-  };
+      
+      return pages;
+    };
+  }, []);
 
   const handleCreateAccount = (civil: UserCivil) => {
     setSelectedCivil(civil);
     setFormData({
       idUser: null, 
-      username: civil.name,
+      username: civil.fol,
       groupIdGroup: null, 
       password: '',
       role: 'paciente',
       name: civil.name,
       lastname: `${civil.firstLastname} ${civil.secondLastname}`,
-      idUserCivil: civil.idUserCivil.toString()
+      idUserCivil: civil.idUserCivil
     });
     setShowModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    console.log("user", formData);
     await createUser(formData);
 
     setShowModal(false);
-    setCurrentPageCivil(1);
+    
+    // Usar transición para las actualizaciones
+    startTransitionCivil(() => {
+      setCurrentPageCivil(1);
+    });
+    
     refetchCivil();
     refetchAccounts();
   };
 
   const handleDeleteAccount = async (idUser: number) => {
-    console.log("user id", idUser)
+    console.log("user id", idUser);
     const success = await deleteUser(idUser);
     
     if (success) {
       const remainingItems = accounts.length - 1;
       const maxPage = Math.ceil(remainingItems / itemsPerPageAccounts);
-      if (currentPageAccounts > maxPage && maxPage > 0) {
-        setCurrentPageAccounts(maxPage);
-      }
+      
+      startTransitionAccounts(() => {
+        if (currentPageAccounts > maxPage && maxPage > 0) {
+          setCurrentPageAccounts(maxPage);
+        }
+      });
       
       refetchCivil();
       refetchAccounts();
@@ -170,7 +234,9 @@ function UserAccountsPage() {
 
         {/* Pacientes sin cuenta */}
         <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className={`bg-white rounded-2xl shadow-lg p-6 transition-opacity duration-200 ${
+            isPendingCivil ? 'opacity-60' : 'opacity-100'
+          }`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
@@ -188,6 +254,14 @@ function UserAccountsPage() {
                   </p>
                 </div>
               </div>
+              
+              {/* Indicador de carga cuando está pendiente */}
+              {isPendingCivil && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm font-medium">Actualizando...</span>
+                </div>
+              )}
             </div>
 
             {loadingCivil ? (
@@ -236,13 +310,13 @@ function UserAccountsPage() {
                   /* Controles de Paginación - Usuarios Civiles */
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div className="text-sm text-gray-600">
-                      Mostrando {((currentPageCivil - 1) * itemsPerPageCivil) + 1} - {Math.min(currentPageCivil * itemsPerPageCivil, civilUsers.length)} de {civilUsers.length}
+                      Mostrando {startIndexCivil + 1} - {Math.min(endIndexCivil, civilUsers.length)} de {civilUsers.length}
                     </div>
                     
                     <div className="flex items-center gap-2">
                       <button
                         onClick={goToPreviousPageCivil}
-                        disabled={currentPageCivil === 1}
+                        disabled={currentPageCivil === 1 || isPendingCivil}
                         className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -260,7 +334,8 @@ function UserAccountsPage() {
                             <button
                               key={`civil-${page}`}
                               onClick={() => goToPageCivil(page as number)}
-                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              disabled={isPendingCivil}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
                                 currentPageCivil === page
                                   ? 'bg-blue-500 text-white'
                                   : 'text-gray-700 hover:bg-gray-100'
@@ -274,7 +349,7 @@ function UserAccountsPage() {
 
                       <button
                         onClick={goToNextPageCivil}
-                        disabled={currentPageCivil === totalPagesCivil}
+                        disabled={currentPageCivil === totalPagesCivil || isPendingCivil}
                         className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -290,17 +365,29 @@ function UserAccountsPage() {
         </div>
 
         {/* Cuentas existentes */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
+        <div className={`bg-white rounded-2xl shadow-lg p-6 transition-opacity duration-200 ${
+          isPendingAccounts ? 'opacity-60' : 'opacity-100'
+        }`}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Cuentas Activas</h2>
+                <p className="text-sm text-gray-500">{accounts.length} cuentas registradas</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">Cuentas Activas</h2>
-              <p className="text-sm text-gray-500">{accounts.length} cuentas registradas</p>
-            </div>
+
+            {/* Indicador de carga cuando está pendiente */}
+            {isPendingAccounts && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm font-medium">Actualizando...</span>
+              </div>
+            )}
           </div>
 
           {loadingAccounts ? (
@@ -322,7 +409,7 @@ function UserAccountsPage() {
                   </thead>
                   <tbody>
                     {paginatedAccountsData.map((account) => (
-                      <tr key={account.idUser} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={account.idUser} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <td className="py-3 px-4 font-medium text-gray-800">{account.username}</td>
                         <td className="py-3 px-4 text-gray-600">{account.name} {account.lastname}</td>
                         <td className="py-3 px-4">
@@ -333,6 +420,7 @@ function UserAccountsPage() {
                         <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleDeleteAccount(account.idUser)}
+                            disabled={isPendingAccounts}
                             className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Eliminar
@@ -348,13 +436,13 @@ function UserAccountsPage() {
               {accounts.length > 0 && (
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-600">
-                    Mostrando {((currentPageAccounts - 1) * itemsPerPageAccounts) + 1} - {Math.min(currentPageAccounts * itemsPerPageAccounts, accounts.length)} de {accounts.length}
+                    Mostrando {startIndexAccounts + 1} - {Math.min(endIndexAccounts, accounts.length)} de {accounts.length}
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <button
                       onClick={goToPreviousPageAccounts}
-                      disabled={currentPageAccounts === 1}
+                      disabled={currentPageAccounts === 1 || isPendingAccounts}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -372,7 +460,8 @@ function UserAccountsPage() {
                           <button
                             key={`accounts-${page}`}
                             onClick={() => goToPageAccounts(page as number)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            disabled={isPendingAccounts}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
                               currentPageAccounts === page
                                 ? 'bg-green-500 text-white'
                                 : 'text-gray-700 hover:bg-gray-100'
@@ -386,7 +475,7 @@ function UserAccountsPage() {
 
                     <button
                       onClick={goToNextPageAccounts}
-                      disabled={currentPageAccounts === totalPagesAccounts}
+                      disabled={currentPageAccounts === totalPagesAccounts || isPendingAccounts}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -402,90 +491,100 @@ function UserAccountsPage() {
       </div>
 
       {/* Modal */}
-{showModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-hidden">
-    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl">
-      
-      {/* Header */}
-      <div className="bg-blue-600 px-6 py-5 flex justify-between items-center rounded-t-2xl">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Crear Cuenta</h2>
-          <p className="text-sm text-blue-100 mt-1">Configura el acceso para el paciente</p>
-        </div>
-        <button
-          onClick={() => setShowModal(false)}
-          className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-hidden">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-200">
+            
+            {/* Header */}
+            <div className="bg-blue-600 px-6 py-5 flex justify-between items-center rounded-t-2xl">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Crear Cuenta</h2>
+                <p className="text-sm text-blue-100 mt-1">Configura el acceso para el paciente</p>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-      {/* Content */}
-      <div className="p-6 space-y-5">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Nombre de usuario <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.username}
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            required
-          />
-        </div>
+            {/* Content */}
+            <form onSubmit={handleSubmit}>
+              <div className="p-6 space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Nombre de usuario <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    required
+                  />
+                </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Contraseña <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            required
-          />
-        </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Contraseña <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    required
+                  />
+                </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Rol <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.role}
-            onChange={(e) => setFormData({...formData, role: e.target.value})}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
-          >
-            <option value="patient">Paciente</option>
-          </select>
-        </div>
-      </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Rol <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+                  >
+                    <option value="patient">Paciente</option>
+                  </select>
+                </div>
+              </div>
 
-      {/* Footer */}
-      <div className="px-6 pb-6 pt-2">
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => setShowModal(false)}
-            className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-          >
-            Crear Cuenta
-          </button>
+              {/* Footer */}
+              <div className="px-6 pb-6 pt-2">
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                  >
+                    Crear Cuenta
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
-  </div>
-)}
-    </div>
+  );
+}
+
+function UserAccountsPage() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <UserAccountsContent />
+    </Suspense>
   );
 }
 

@@ -7,6 +7,7 @@ export interface User {
     name: string,
     lastname: string,
     groupName?: string;
+    idUserCivil?: number
 }
 
 export interface UserLogin { 

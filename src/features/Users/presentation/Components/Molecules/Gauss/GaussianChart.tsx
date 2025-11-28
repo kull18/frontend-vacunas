@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useTransition, useDeferredValue } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 import type { ChartOptions } from "chart.js";
@@ -27,29 +27,38 @@ interface GraphData {
 export default function GaussianChart() {
   const [graphData, setGraphData] = useState<GraphData | null>(null);
   const [valueToHighlight, setValueToHighlight] = useState<number | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const { token } = useAuth();
   const { data } = useGetGaussCurve();
   const { createPoint } = useCreatePointGauss();
 
+  // Usar useDeferredValue para el valor del input
+  const deferredValue = useDeferredValue(valueToHighlight);
+
   useEffect(() => {
     if (data) {
-      setGraphData(data);
+      startTransition(() => {
+        setGraphData(data);
+      });
     }
   }, [data]);
 
   const handleHighlight = async () => {
-    if (valueToHighlight === null || !token) return;
+    if (deferredValue === null || !token) return;
 
     try {
-      const result = await createPoint(token, valueToHighlight);
-      setGraphData(result);
+      const result = await createPoint(token, deferredValue);
+      startTransition(() => {
+        setGraphData(result);
+      });
     } catch (error) {
       console.error("Error al crear punto Gauss:", error);
     }
   };
 
-  const chartData = {
+  // Memoizar los datos del gráfico
+  const chartData = useMemo(() => ({
     labels: graphData?.points.map((p) => p.x.toFixed(2)) ?? [],
     datasets: [
       {
@@ -83,30 +92,31 @@ export default function GaussianChart() {
           ]
         : []),
     ],
-  };
+  }), [graphData]);
 
-  const options: ChartOptions<'line'> = {
+  // Memoizar las opciones del gráfico
+  const options: ChartOptions<'line'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: true,
     aspectRatio: 2.2,
     interaction: {
-      mode: 'index',
+      mode: 'index' as const,
       intersect: false,
     },
     plugins: {
       legend: {
         display: true,
-        position: 'top',
+        position: 'top' as const,
         labels: {
           padding: 20,
           font: {
             size: 13,
-            weight: 'bold',
+            weight: 'bold' as const,
             family: "'Inter', 'system-ui', sans-serif",
           },
           color: '#1f2937',
           usePointStyle: true,
-          pointStyle: 'circle',
+          pointStyle: 'circle' as const,
         },
       },
       tooltip: {
@@ -121,7 +131,7 @@ export default function GaussianChart() {
         boxPadding: 6,
         titleFont: {
           size: 13,
-          weight: 'bold',
+          weight: 'bold' as const,
         },
         bodyFont: {
           size: 12,
@@ -148,7 +158,7 @@ export default function GaussianChart() {
           color: '#4b5563',
           font: {
             size: 14,
-            weight: 'bold',
+            weight: 'bold' as const,
             family: "'Inter', 'system-ui', sans-serif",
           },
           padding: { top: 10 },
@@ -173,7 +183,7 @@ export default function GaussianChart() {
           color: '#4b5563',
           font: {
             size: 14,
-            weight: 'bold',
+            weight: 'bold' as const,
             family: "'Inter', 'system-ui', sans-serif",
           },
           padding: { bottom: 10 },
@@ -193,21 +203,31 @@ export default function GaussianChart() {
         },
       },
     },
-  };
+  }), []);
+
+  // Detectar si el valor está "stale"
+  const isValueStale = valueToHighlight !== deferredValue;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Header con estadísticas */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
-          Curva de Distribución Normal
-        </h2>
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <h2 className="text-3xl font-bold text-gray-800 text-center">
+            Curva de Distribución Normal
+          </h2>
+          {isPending && (
+            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          )}
+        </div>
         <p className="text-gray-500 text-center text-sm">
           Análisis estadístico de temperatura
         </p>
         
         {graphData && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6">
+          <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 transition-opacity duration-200 ${
+            isPending ? 'opacity-60' : 'opacity-100'
+          }`}>
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
               <p className="text-xs font-medium text-blue-600 mb-1">Media (μ)</p>
               <p className="text-lg font-bold text-blue-900">{graphData.mean.toFixed(2)}°C</p>
@@ -243,39 +263,55 @@ export default function GaussianChart() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Valor a sombrear (°C):
             </label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="Ej: 20.5"
-              value={valueToHighlight ?? ""}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                setValueToHighlight(isNaN(val) ? null : val);
-              }}
-              className="w-full sm:w-64 px-4 py-3 text-sm border-2 border-indigo-200 rounded-lg 
-                       focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none 
-                       transition-all duration-200 bg-white"
-            />
+            <div className="relative">
+              <input
+                type="number"
+                step="0.1"
+                placeholder="Ej: 20.5"
+                value={valueToHighlight ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setValueToHighlight(isNaN(val) ? null : val);
+                }}
+                className="w-full sm:w-64 px-4 py-3 text-sm border-2 border-indigo-200 rounded-lg 
+                         focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none 
+                         transition-all duration-200 bg-white"
+              />
+              {isValueStale && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </div>
           </div>
 
           <button
             onClick={handleHighlight}
-            disabled={valueToHighlight === null || !token}
+            disabled={deferredValue === null || !token || isPending}
             className={`px-6 py-3 mt-0 sm:mt-6 rounded-lg font-semibold text-sm 
                        transition-all duration-200 shadow-md
-                       ${valueToHighlight === null || !token
+                       ${deferredValue === null || !token || isPending
                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                          : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0'
                        }`}
           >
-            {valueToHighlight === null || !token ? "Sombrear" : "Sombrear Área"}
+            {isPending ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Procesando...
+              </span>
+            ) : (
+              deferredValue === null || !token ? "Sombrear" : "Sombrear Área"
+            )}
           </button>
         </div>
       </div>
 
       {/* Gráfica */}
       {graphData ? (
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
+        <div className={`bg-white rounded-xl p-6 border border-gray-200 shadow-lg transition-opacity duration-200 ${
+          isPending ? 'opacity-60' : 'opacity-100'
+        }`}>
           <Line data={chartData} options={options} />
         </div>
       ) : (

@@ -1,37 +1,64 @@
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useState, useTransition, useDeferredValue, useMemo } from "react";
 import { useGetUserCivils } from "../../../../User/Presentation/Hooks/useGetUserCivils";
 import type { UserCivil } from "../../../../User/Domain/UserCIvil";
 import { ModalAgregarSeleccionarVacuna } from "./ModalAgregarVacunaSeleccionada";
 import ModalPacientes from "./ModalPacientes";
 
-function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDataTable: () => void ,refetchAlcohol: () => void }) {
-  const { userCivils, setUserCivils, refetchUserCivils } = useGetUserCivils();
+function TablePatientsRegister({ 
+  refetchDataTable, 
+  refetchAlcohol 
+}: { 
+  refetchDataTable: () => void;
+  refetchAlcohol: () => void;
+}) {
+  const { userCivils, refetchUserCivils } = useGetUserCivils();
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<UserCivil | null>(null);
   const [mostrarModalVacuna, setMostrarModalVacuna] = useState(false);
   const [mostrarPacienteCivil, setMostrarModalPacienteCivil] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isPending, startTransition] = useTransition();
+  
   const itemsPerPage = 5;
 
-  const filteredUserCivils = searchTerm.trim()
-    ? userCivils.filter((user: UserCivil) =>
-        `${user.name} ${user.firstLastname} ${user.secondLastname}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      )
-    : userCivils;
+  // useDeferredValue para el término de búsqueda
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+
+  // useMemo para filtrado - solo se recalcula cuando cambia deferredSearchTerm
+  const filteredUserCivils = useMemo(() => {
+    if (!deferredSearchTerm.trim()) return userCivils;
+    
+    return userCivils.filter((user: UserCivil) =>
+      `${user.name} ${user.firstLastname} ${user.secondLastname}`
+        .toLowerCase()
+        .includes(deferredSearchTerm.toLowerCase())
+    );
+  }, [userCivils, deferredSearchTerm]);
 
   const totalPages = Math.ceil(filteredUserCivils.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentUserCivils = filteredUserCivils.slice(startIndex, endIndex);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+  // Detectar si la búsqueda está "stale"
+  const isSearchStale = searchTerm !== deferredSearchTerm;
 
+  // Handler del input de búsqueda - actualización urgente
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value); // Actualización urgente - el input responde inmediatamente
+    
+    // Actualización no urgente - resetear página
+    startTransition(() => {
+      setCurrentPage(1);
+    });
+  };
+
+  // Handler de cambio de página con transición
+  const handlePageChange = (newPage: number) => {
+    startTransition(() => {
+      setCurrentPage(newPage);
+    });
   };
 
   const handleCloseModal = useCallback(() => {
@@ -73,6 +100,12 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                 onChange={handleSearchChange}
                 value={searchTerm}
               />
+              {/* Indicador de búsqueda en progreso */}
+              {isSearchStale && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
 
             <button
@@ -96,11 +129,12 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
           </div>
         </div>
 
-        {/* Tabla moderna */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        {/* Tabla con transición de opacity cuando isPending */}
+        <div className={`bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-opacity duration-200 ${
+          isPending ? 'opacity-60' : 'opacity-100'
+        }`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              {/* Header */}
               <thead>
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -121,7 +155,6 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                 </tr>
               </thead>
 
-              {/* Body */}
               <tbody className="divide-y divide-gray-200">
                 {currentUserCivils.length === 0 ? (
                   <tr>
@@ -145,7 +178,6 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                       key={`${v.idUserCivil}-${v.isVaccinated}`} 
                       className="hover:bg-gray-50 transition-colors duration-150"
                     >
-                      {/* Nombre */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold shadow-md">
@@ -162,18 +194,16 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                         </div>
                       </td>
 
-                      {/* Folio */}
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
                           {v.fol}
                         </span>
                       </td>
 
-                      {/* Alcoholemia */}
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                           v.alcoholBreat > 0.9 
-                            ? " bg-green-100 text-green-700 border border-green-200" 
+                            ? "bg-green-100 text-green-700 border border-green-200" 
                             : "bg-red-100 text-red-700 border border-red-200"
                         }`}>
                           <span className={`w-2 h-2 rounded-full ${
@@ -183,7 +213,6 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                         </span>
                       </td>
 
-                      {/* Temperatura */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
@@ -195,7 +224,6 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                         </div>
                       </td>
 
-                      {/* Vacuna */}
                       <td className="px-6 py-4 text-center">
                         {v.isVaccinated === 1 ? (
                           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-50 border border-green-200">
@@ -239,8 +267,8 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                  disabled={currentPage === 1 || isPending}
                   className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -250,7 +278,6 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
 
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    // Mostrar solo páginas cercanas a la actual
                     if (
                       page === 1 ||
                       page === totalPages ||
@@ -259,12 +286,13 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                       return (
                         <button
                           key={page}
-                          onClick={() => setCurrentPage(page)}
+                          onClick={() => handlePageChange(page)}
+                          disabled={isPending}
                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             currentPage === page
                               ? "bg-blue-600 text-white"
                               : "text-gray-700 hover:bg-gray-100"
-                          }`}
+                          } disabled:opacity-50`}
                         >
                           {page}
                         </button>
@@ -277,8 +305,8 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
                 </div>
 
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages || isPending}
                   className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -302,7 +330,7 @@ function TablePatientsRegister({ refetchDataTable, refetchAlcohol }: { refetchDa
 
       {mostrarPacienteCivil && (
         <ModalPacientes 
-        refetchAlcohol={refetchAlcohol}
+          refetchAlcohol={refetchAlcohol}
           refetch={refetchUserCivils}
           onClose={handleCloseModalPaciente}
         />
