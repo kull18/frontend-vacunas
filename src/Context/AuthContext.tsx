@@ -1,6 +1,7 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
+import Swal from "sweetalert2";
 
 interface AuthContextType {
   isAuthenticated: boolean;

@@ -5,95 +5,299 @@ import { useLoginUser } from "../../../../User/Presentation/Hooks/useLoginUsers"
 import { useState } from "react";
 import { userAuth } from "../../../../User/Presentation/Hooks/AuthUser";
 import { useAuth } from "../../../../User/Presentation/Hooks/AuthProvider";
-import Swal from 'sweetalert2'
+
 function FormLogin() {
     const navigate = useNavigate();
     const { setUser } = userAuth();
-    const { setToken  } = useAuth()
+    const { setToken } = useAuth();
 
-    async function login(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault(); // Evita que la página se recargue al enviar el formulario
-        console.log("Formulario enviado correctamente!");
-    }
-
-
-    const { loginUser, loading, error } = useLoginUser();
+    const { loginUser, loading } = useLoginUser();
     const [formData, setFormData] = useState<UserLogin>({
         username: "",
         password: "",
-    })
+    });
+
+    // Estados para las alertas personalizadas
+    const [showWelcome, setShowWelcome] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [showEmptyFields, setShowEmptyFields] = useState(false);
+    const [userData, setUserData] = useState<any>(null);
 
     const registerUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        Swal.fire("Bienvenido a Brigadas de vacunación");
-         try {
-        const { token, body } = await loginUser(formData);
 
-       if (!body.role) {
+        // Validar campos vacíos
+        if (!formData.username.trim() || !formData.password.trim()) {
+            setShowEmptyFields(true);
+            setTimeout(() => {
+                setShowEmptyFields(false);
+            }, 3000);
+            return;
+        }
+
+        try {
+            const { token, body } = await loginUser(formData);
+
+            if (!body.role) {
                 throw new Error("La respuesta del servidor no incluye el rol");
             }
 
-        const role = body.role.toLowerCase();
-        setUser(body)
-        setToken(token)
-        // 🔀 Redirección según el rol
-        switch (role) {
-            case "enfermero":
-                console.log("ROLE", role)
-                navigate("/dashboard/tabla-pacientes-registrados/enfermero");
-                break;
-            case "paciente":
-                navigate("/dashboard/Historial-vacunacion/paciente");
-                break;
-            case "director":
-                navigate("/dashboard/brigadas/administrador");
-                break;
-            default:
-                alert("Rol no reconocido. Redirección cancelada.");
-                break;
+            const role = body.role.toLowerCase();
+            setUser(body);
+            setToken(token);
+            setUserData(body);
+
+            // Mostrar alerta de bienvenida
+            setShowWelcome(true);
+
+            // Esperar 2.5 segundos antes de redirigir
+            setTimeout(() => {
+                setShowWelcome(false);
+                
+                // Redirección según el rol
+                switch (role) {
+                    case "enfermero":
+                        console.log("ROLE", role);
+                        navigate("/dashboard/tabla-pacientes-registrados/enfermero");
+                        break;
+                    case "paciente":
+                        navigate("/dashboard/Historial-vacunacion/paciente");
+                        break;
+                    case "director":
+                        navigate("/dashboard/brigadas/administrador");
+                        break;
+                    default:
+                        alert("Rol no reconocido. Redirección cancelada.");
+                        break;
+                }
+            }, 2500);
+
+        } catch (err) {
+            console.error("Error en login:", err);
+            
+            // Mostrar alerta de error
+            setShowError(true);
+            
+            // Ocultar alerta después de 3 segundos
+            setTimeout(() => {
+                setShowError(false);
+            }, 3000);
         }
-    } catch (err) {
-        console.error("Error en login:", err);
-        alert("Error al iniciar sesión. Verifica tus credenciales.");
-    }
     };
 
-    return ( 
+    return (
         <>
+            {/* Alerta de Bienvenida */}
+            {showWelcome && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-scaleIn">
+                        <div className="text-center">
+                            {/* Icono animado */}
+                            <div className="mb-4 flex justify-center">
+                                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                    <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
 
+                            {/* Título */}
+                            <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                                ¡Bienvenido!
+                            </h2>
 
-        <form onSubmit={registerUser} className="bg-[#cdcdcd30] z-50 w-[80vh] pl-7 pr-7 pt-10 pb-9 flex flex-col justify-center items-center rounded-[3vh]">
-            <p className="text-[6vh] text-center text-[#585a61] mb-6 z-10" id={style.font}>Iniciar sesión</p>
+                            {/* Emoji */}
+                            <div className="text-5xl mb-4">💉</div>
 
-            <input
+                            {/* Nombre del usuario */}
+                            <p className="text-lg font-semibold text-gray-700 mb-1">
+                                {userData?.name} {userData?.lastname}
+                            </p>
+
+                            {/* Subtítulo */}
+                            <p className="text-gray-500 text-sm mb-6">
+                                Brigadas de Vacunación
+                            </p>
+
+                            {/* Barra de progreso */}
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                <div className="bg-gradient-to-r from-blue-500 via-cyan-500 to-green-500 h-full rounded-full animate-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Alerta de Error */}
+            {showError && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake">
+                        <div className="text-center">
+                            {/* Icono de error */}
+                            <div className="mb-4 flex justify-center">
+                                <div className="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg">
+                                    <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Título */}
+                            <h2 className="text-xl font-bold text-gray-800 mb-3">
+                                Error al iniciar sesión
+                            </h2>
+
+                            {/* Emoji */}
+                            <div className="text-5xl mb-4">🔒</div>
+
+                            {/* Mensaje */}
+                            <p className="text-gray-600 text-sm mb-6">
+                                Verifica tu nombre de usuario y contraseña
+                            </p>
+
+                            {/* Botón */}
+                            <button
+                                onClick={() => setShowError(false)}
+                                className="w-full px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm shadow-md"
+                            >
+                                Intentar de nuevo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Alerta de Campos Vacíos */}
+            {showEmptyFields && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake">
+                        <div className="text-center">
+                            {/* Icono de advertencia */}
+                            <div className="mb-4 flex justify-center">
+                                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                                    <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Título */}
+                            <h2 className="text-xl font-bold text-gray-800 mb-3">
+                                Campos incompletos
+                            </h2>
+
+                            {/* Emoji */}
+                            <div className="text-5xl mb-4">⚠️</div>
+
+                            {/* Mensaje */}
+                            <p className="text-gray-600 text-sm mb-6">
+                                Por favor, completa todos los campos para continuar
+                            </p>
+
+                            {/* Botón */}
+                            <button
+                                onClick={() => setShowEmptyFields(false)}
+                                className="w-full px-6 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm shadow-md"
+                            >
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Formulario */}
+            <form onSubmit={registerUser} className="bg-[#cdcdcd30] z-50 w-[80vh] pl-7 pr-7 pt-10 pb-9 flex flex-col justify-center items-center rounded-[3vh]">
+                <p className="text-[6vh] text-center text-[#585a61] mb-6 z-10" id={style.font}>Iniciar sesión</p>
+
+                <input
                     id="lugar"
                     type="text"
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
                     placeholder="Nombre de usuario"
                     value={formData.username}
                     onChange={(e) =>
                         setFormData((prev) => ({ ...prev, username: e.target.value }))
                     }
-                    />
+                    disabled={loading}
+                />
 
-            <input
+                <input
                     id="lugar"
                     type="password"
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm mt-6
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm mt-6 w-full
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
                     placeholder="Contraseña"
                     value={formData.password}
                     onChange={(e) =>
                         setFormData((prev) => ({ ...prev, password: e.target.value }))
                     }
-                    />
+                    disabled={loading}
+                />
 
-                <button className="bg-[#9CD5F4] rounded-3xl mt-7 px-16 py-3 
-                text-[#747d95] cursor-pointer hover:bg-[#93cae7] duration-75" 
-                id={style.font} type="submit">ENTRAR</button>
-        </form>
+                <button 
+                    className="bg-[#9CD5F4] rounded-3xl mt-7 px-16 py-3 
+                    text-[#747d95] cursor-pointer hover:bg-[#93cae7] duration-75 
+                    disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
+                    id={style.font} 
+                    type="submit"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            CARGANDO...
+                        </span>
+                    ) : (
+                        'ENTRAR'
+                    )}
+                </button>
+            </form>
 
+            {/* CSS para las animaciones */}
+            <style>{`
+                @keyframes scaleIn {
+                    from {
+                        transform: scale(0.5);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                    20%, 40%, 60%, 80% { transform: translateX(10px); }
+                }
+
+                @keyframes progress {
+                    from {
+                        width: 0%;
+                    }
+                    to {
+                        width: 100%;
+                    }
+                }
+
+                .animate-scaleIn {
+                    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+
+                .animate-shake {
+                    animation: shake 0.5s ease-in-out;
+                }
+
+                .animate-progress {
+                    animation: progress 2.5s linear;
+                }
+            `}</style>
         </>
     );
 }

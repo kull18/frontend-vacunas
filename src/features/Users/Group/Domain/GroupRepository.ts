@@ -2,6 +2,7 @@ import type { Group } from "./Group";
 import Swal from "sweetalert2";
 
 export class GroupRepository {
+    private baseurl: string = `${import.meta.env.VITE_URL_API_1}/api/groups`
     private async verifyToken(): Promise<string> {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -40,7 +41,7 @@ export class GroupRepository {
 
     async getGroup(): Promise<Group[]> {
         const token = await this.verifyToken();
-        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
+        const response = await fetch(this.baseurl, {
             headers: { 
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}` 
@@ -51,7 +52,7 @@ export class GroupRepository {
 
     async createGroup(newGroup: Omit<Group, 'id'>): Promise<Group> {
         const token = await this.verifyToken();
-        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
+        const response = await fetch(this.baseurl,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -65,7 +66,7 @@ export class GroupRepository {
     async deleteGroup(id: number): Promise<boolean> {
     try {
         const token = await this.verifyToken();
-        const response = await fetch(`https://api.vacunas.brigadasvacunacion.com.mx/api/groups${id}`, {
+        const response = await fetch(`${this.baseurl}/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -86,7 +87,7 @@ export class GroupRepository {
 
     async updateGroup(id: number, updatedGroup: Partial<Group>): Promise<Group> {
         const token = await this.verifyToken();
-        const response = await fetch(`https://api.vacunas.brigadasvacunacion.com.mx/api/groups${id}`, {
+        const response = await fetch(`${this.baseurl}/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

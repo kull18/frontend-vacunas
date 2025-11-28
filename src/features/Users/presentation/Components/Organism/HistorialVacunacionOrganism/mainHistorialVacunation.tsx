@@ -4,17 +4,18 @@ import VaccinationHistoryCards from "../../Molecules/HistorialVacunacionPaciente
 
 function MainHistorialVacunation() {
     return ( 
-        <>
-            <div className="mt-6">
-                            <VaccinationHistoryCards></VaccinationHistoryCards>
-                        </div>
-                        
-                        <div className="flex-none pl-3 pr-3 gap-0 sm:gap-10 sm:pl-7 sm:pr-7 sm:flex mt-3 ">
-                            <TablePatients></TablePatients>
-                            {/**<ResumenVaccination></ResumenVaccination>**/}
-                        </div>
-        </>
-     );
+        <div className="min-h-screen bg-gradient-to-br from-white-50 to-white-100 pb-8">
+            <div className="max-w-7xl mx-auto">
+                <VaccinationHistoryCards />
+                
+                <div className="mt-6">
+                    <TablePatients />
+                </div>
+                
+                {/**<ResumenVaccination />**/}
+            </div>
+        </div>
+    );
 }
 
 export default MainHistorialVacunation;

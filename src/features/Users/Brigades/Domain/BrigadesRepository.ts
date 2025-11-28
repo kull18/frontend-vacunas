@@ -2,7 +2,7 @@ import type { Brigade, BrigadeById } from "./Brigades";
 import Swal from "sweetalert2";
 
 export class BrigadesRepository {
-    private readonly baseUrl: string = "https://api.vacunas.brigadasvacunacion.com.mx/api/brigades";
+    private readonly baseUrl: string = `${import.meta.env.VITE_URL_API_1}/api/brigades`;
 
     private async verifyToken(): Promise<string> {
         const token = localStorage.getItem("token");

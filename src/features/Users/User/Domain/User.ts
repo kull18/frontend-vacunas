@@ -19,4 +19,25 @@ export interface AuthResponse {
   body: User;
 }
 
+
+export interface UserCivil {
+  idUserCivil: number;
+  name: string;
+  firstLastname: string;
+  secondLastname: string;
+  CURP: string;
+  fol: string;
+}
+
+
+export interface CreateAccountData {
+  username: string;
+  password: string;
+  role: string;
+  name: string;
+  lastname: string;
+  idUserCivil: string;
+}
+
+
 export type UserForm = User
