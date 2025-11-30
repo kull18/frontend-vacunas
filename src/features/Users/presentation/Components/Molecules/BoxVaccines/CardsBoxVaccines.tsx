@@ -1,13 +1,118 @@
-import { useState, useTransition, useMemo, Suspense } from "react";
+import { useState, useTransition, useMemo, Suspense, useEffect } from "react";
+import { createPortal } from "react-dom";
+import toast, { Toaster } from "react-hot-toast";
 import style from "../../Molecules/BoxVaccines/box.module.css";
 import vaccine from "../../../../../../assets/vacunas.png";
-import Swal from "sweetalert2";
 import { useModalBrigadesVaccine } from "../RegistroBrigadasVacunacion/ModalBrigadesVaccineContext";
 import { useModalVaccinesPrincipal } from "../GestionVacunas/ModalVaccinesPrincipalContext";
 import { useGetBox } from "../../../../BoxVaccine/Presentation/Hooks/useGetBoxVaccine";
 import { BoxRepository } from "../../../../BoxVaccine/Domain/BoxVaccineRepository";
 import { useDeleteBox } from "../../../../BoxVaccine/Presentation/Hooks/useDeleteBox";
 import ModalEditVaccines from "./ModalEditVaccines";
+
+// ✅ COMPONENTE DE CONFIRMACIÓN DE ELIMINACIÓN CON PORTAL
+interface DeleteBoxConfirmationModalProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  amountVaccines: number;
+}
+
+function DeleteBoxConfirmationModal({ isOpen, onConfirm, onCancel, amountVaccines }: DeleteBoxConfirmationModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        onClick={onCancel}
+      ></div>
+
+      {/* Modal centrado */}
+      <div 
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-lg px-4"
+        style={{ position: 'fixed' }}
+      >
+        <div className="bg-white rounded-2xl shadow-2xl animate-in zoom-in fade-in duration-200">
+          {/* Header rojo */}
+          <div className="bg-red-600 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+            <div>
+              <h2 className="text-xl font-bold text-white">Eliminar Caja de Vacunas</h2>
+              <p className="text-sm text-red-100 mt-1">Esta acción no se puede deshacer</p>
+            </div>
+            <button
+              onClick={onCancel}
+              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors flex-shrink-0"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Contenido */}
+          <div className="p-6">
+            {/* Icono de advertencia */}
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Información de la caja */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 justify-center">
+                <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p className="text-sm text-gray-700">
+                  Esta caja contiene{' '}
+                  <span className="font-bold text-red-700">{amountVaccines} vacunas</span>
+                </p>
+              </div>
+            </div>
+
+            <p className="text-center text-gray-600 text-sm mb-6">
+              Toda la información de esta caja será eliminada permanentemente del sistema.
+            </p>
+
+            {/* Botones */}
+            <div className="flex gap-3">
+              <button
+                onClick={onCancel}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={onConfirm}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors shadow-lg"
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
+}
 
 // Loading Skeleton Component
 function BoxesLoadingSkeleton() {
@@ -42,56 +147,101 @@ function BoxesContent() {
   const { abrirModalVaccine } = useModalBrigadesVaccine();
   const { abrirModal } = useModalVaccinesPrincipal();
   const { box, loadingBox, errorBox, refetch } = useGetBox();
-  const { deleteBox } = useDeleteBox(new BoxRepository());
-
+  const { deleteBox, loading: deletingBox } = useDeleteBox(new BoxRepository());
   
   const [isPending, startTransition] = useTransition();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBox, setSelectedBox] = useState<{id: number, amount: number} | null>(null);
+  
+  // ✅ Estados para el modal de confirmación de eliminación
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [boxToDelete, setBoxToDelete] = useState<{id: number, amount: number} | null>(null);
 
   // Memoizar las cajas para evitar re-renders innecesarios
   const memoizedBoxes = useMemo(() => box || [], [box]);
 
-  const handleDelete = async (idBox: number) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: "¡No podrás revertir esta acción!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      reverseButtons: true,
+  // ✅ Función para mostrar modal de confirmación
+  const handleDeleteClick = (idBox: number, amountVaccines: number) => {
+    setBoxToDelete({ id: idBox, amount: amountVaccines });
+    setShowDeleteConfirm(true);
+  };
+
+  // ✅ Función para cancelar eliminación
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setBoxToDelete(null);
+  };
+
+  // ✅ Función para confirmar eliminación
+  const handleConfirmDelete = async () => {
+    if (!boxToDelete) return;
+
+    setShowDeleteConfirm(false);
+
+    // Toast de carga
+    const loadingToast = toast.loading('Eliminando caja de vacunas...', {
+      style: {
+        borderRadius: '12px',
+        background: '#333',
+        color: '#fff',
+        padding: '16px',
+      },
     });
 
-    if (result.isConfirmed) {
-      try {
-        const success = await deleteBox(idBox);
+    try {
+      const success = await deleteBox(boxToDelete.id);
+      
+      if (success) {
+        // Toast de éxito
+        toast.success(
+          <div>
+            <strong className="block mb-1">¡Caja eliminada!</strong>
+            <p className="text-sm opacity-90">
+              Se eliminaron {boxToDelete.amount} vacunas
+            </p>
+          </div>,
+          {
+            id: loadingToast,
+            duration: 4000,
+            icon: '🗑️',
+            style: {
+              borderRadius: '12px',
+              background: '#10b981',
+              color: '#fff',
+              padding: '16px',
+            },
+          }
+        );
         
-        if (success) {
-          await Swal.fire({
-            icon: 'success',
-            title: '¡Eliminado!',
-            text: 'La caja ha sido eliminada correctamente',
-            timer: 2000,
-            showConfirmButton: false,
-          });
-          
-          // Usar transición para el refetch
-          startTransition(() => {
-            refetch();
-          });
-        } else {
-          throw new Error('No se pudo eliminar la caja');
-        }
-      } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al eliminar la caja',
+        // Usar transición para el refetch
+        startTransition(() => {
+          refetch();
         });
+      } else {
+        throw new Error('No se pudo eliminar la caja');
       }
+    } catch (err) {
+      // Toast de error
+      toast.error(
+        <div>
+          <strong className="block mb-1">Error al eliminar</strong>
+          <p className="text-sm opacity-90">
+            No se pudo eliminar la caja. Intenta nuevamente.
+          </p>
+        </div>,
+        {
+          id: loadingToast,
+          duration: 4000,
+          style: {
+            borderRadius: '12px',
+            background: '#ef4444',
+            color: '#fff',
+            padding: '16px',
+          },
+        }
+      );
+    } finally {
+      setBoxToDelete(null);
     }
   };
 
@@ -136,6 +286,22 @@ function BoxesContent() {
 
   return (
     <>
+      {/* ✅ TOASTER */}
+      <Toaster 
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: '#363636',
+            padding: '16px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+          },
+        }}
+      />
+
       <div className="mt-10 mx-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pl-7 pr-7">
         <div className="flex items-center gap-3">
           <p className="text-2xl text-[#00000081]" id={style.title1}>
@@ -206,7 +372,7 @@ function BoxesContent() {
               <div className="mt-5 flex flex-col sm:flex-row justify-between gap-3">
                 <button 
                   onClick={() => handleEdit(boxs.idVaccineBox, boxs.amountVaccines)}
-                  disabled={isPending}
+                  disabled={isPending || deletingBox}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 hover:from-amber-200 hover:to-amber-100 border border-amber-200 transition-all duration-300 shadow-sm hover:shadow-md w-full sm:w-auto rounded-xl cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -216,14 +382,23 @@ function BoxesContent() {
                 </button>
 
                 <button 
-                  onClick={() => handleDelete(boxs.idVaccineBox)}
-                  disabled={isPending}
+                  onClick={() => handleDeleteClick(boxs.idVaccineBox, boxs.amountVaccines)}
+                  disabled={isPending || deletingBox}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 hover:from-rose-100 hover:to-rose-50 border border-rose-200 transition-all duration-300 shadow-sm hover:shadow-md w-full sm:w-auto rounded-xl cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  <span className="group-hover:font-medium">Eliminar</span>
+                  {deletingBox ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-rose-700 border-t-transparent rounded-full animate-spin"></div>
+                      <span>Eliminando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span className="group-hover:font-medium">Eliminar</span>
+                    </>
+                  )}
                 </button>
               </div>
               
@@ -233,6 +408,16 @@ function BoxesContent() {
           ))
         )}
       </main>
+
+      {/* ✅ MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CON PORTAL */}
+      {boxToDelete && (
+        <DeleteBoxConfirmationModal
+          isOpen={showDeleteConfirm}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          amountVaccines={boxToDelete.amount}
+        />
+      )}
 
       {/* Modal de edición */}
       {selectedBox && (

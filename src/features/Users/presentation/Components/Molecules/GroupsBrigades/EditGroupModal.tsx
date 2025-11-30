@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import toast from "react-hot-toast";
 import { useUpdateGroup } from "../../../../Group/Presentation/Hooks/useUpdateGroup"
 import type { Group } from "../../../../Group/Domain/Group";
-import Swal from "sweetalert2";
 
 interface EditGroupModalProps {
     isOpen: boolean;
@@ -20,16 +21,26 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
 
     const { updateGroup, loading, error } = useUpdateGroup();
 
+    // ✅ Bloquear scroll del body cuando el modal está abierto
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     // Función para convertir fecha DD/MM/YYYY a YYYY-MM-DD
     const convertToInputFormat = (dateString: string) => {
         if (!dateString) return "";
         
-        // Si ya está en formato YYYY-MM-DD, retornar tal cual
         if (dateString.includes("-") && dateString.split("-")[0].length === 4) {
             return dateString;
         }
         
-        // Si está en formato DD/MM/YYYY, convertir
         const parts = dateString.split("/");
         if (parts.length === 3) {
             const [day, month, year] = parts;
@@ -68,10 +79,14 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
         e.preventDefault();
         
         if (!groupData?.idGroup) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "No se pudo identificar el grupo a actualizar",
+            toast.error('No se pudo identificar el grupo a actualizar', {
+                duration: 3000,
+                style: {
+                    borderRadius: '12px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                },
             });
             return;
         }
@@ -80,28 +95,40 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
         const trimmedName = formData.nameGroup.trim();
         
         if (!trimmedName) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "El nombre del grupo no puede estar vacío",
+            toast.error('El nombre del grupo no puede estar vacío', {
+                duration: 3000,
+                style: {
+                    borderRadius: '12px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                },
             });
             return;
         }
 
         if (trimmedName.length < 3) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "El nombre debe tener al menos 3 caracteres",
+            toast.error('El nombre debe tener al menos 3 caracteres', {
+                duration: 3000,
+                style: {
+                    borderRadius: '12px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                },
             });
             return;
         }
 
         if (!formData.dateGroup) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Debes seleccionar una fecha",
+            toast.error('Debes seleccionar una fecha', {
+                duration: 3000,
+                style: {
+                    borderRadius: '12px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '16px',
+                },
             });
             return;
         }
@@ -114,13 +141,28 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
             formData.idBrigade === groupData.idBrigade;
 
         if (noChanges) {
-            Swal.fire({
-                icon: "info",
-                title: "Sin cambios",
-                text: "No se detectaron cambios en el grupo",
+            toast('No se detectaron cambios en el grupo', {
+                icon: 'ℹ️',
+                duration: 3000,
+                style: {
+                    borderRadius: '12px',
+                    background: '#3b82f6',
+                    color: '#fff',
+                    padding: '16px',
+                },
             });
             return;
         }
+
+        // Toast de carga
+        const loadingToast = toast.loading('Actualizando grupo...', {
+            style: {
+                borderRadius: '12px',
+                background: '#333',
+                color: '#fff',
+                padding: '16px',
+            },
+        });
 
         try {
             // Preparar datos para enviar
@@ -133,22 +175,49 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
 
             await updateGroup(groupData.idGroup, dataToUpdate);
             
-            await Swal.fire({
-                icon: 'success',
-                title: '¡Actualizado!',
-                text: 'El grupo ha sido actualizado correctamente',
-                timer: 2000,
-                showConfirmButton: false,
-            });
+            // Toast de éxito
+            toast.success(
+                <div>
+                    <strong className="block mb-1">¡Grupo actualizado!</strong>
+                    <p className="text-sm opacity-90">
+                        Los cambios se guardaron correctamente
+                    </p>
+                </div>,
+                {
+                    id: loadingToast,
+                    duration: 4000,
+                    icon: '✅',
+                    style: {
+                        borderRadius: '12px',
+                        background: '#10b981',
+                        color: '#fff',
+                        padding: '16px',
+                    },
+                }
+            );
 
             onUpdate(); // Refetch de datos
             onClose(); // Cerrar modal
         } catch (err) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error || 'No se pudo actualizar el grupo',
-            });
+            // Toast de error
+            toast.error(
+                <div>
+                    <strong className="block mb-1">Error al actualizar</strong>
+                    <p className="text-sm opacity-90">
+                        {error || 'No se pudo actualizar el grupo'}
+                    </p>
+                </div>,
+                {
+                    id: loadingToast,
+                    duration: 4000,
+                    style: {
+                        borderRadius: '12px',
+                        background: '#ef4444',
+                        color: '#fff',
+                        padding: '16px',
+                    },
+                }
+            );
         }
     };
 
@@ -183,13 +252,25 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
         formData.idVaccineBox !== groupData.idVaccineBox ||
         formData.idBrigade !== groupData.idBrigade;
 
-    return (
+    // ✅ RENDERIZAR CON PORTAL
+    return createPortal(
         <>
-            <div className="fixed inset-0 bg-gradient-to-br from-black/30 via-black/20 to-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-2xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-gray-100 max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200">
+            {/* Backdrop */}
+            <div 
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                onClick={handleCancel}
+            ></div>
+
+            {/* Modal centrado */}
+            <div 
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-2xl px-4"
+                style={{ position: 'fixed', maxHeight: '90vh' }}
+            >
+                <div className="bg-white rounded-2xl shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200" style={{ maxHeight: '90vh' }}>
                     
                     {/* HEADER */}
-                    <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-5 flex justify-between items-center rounded-t-2xl">
+                    <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-5 flex justify-between items-center rounded-t-2xl flex-shrink-0">
                         <div>
                             <h2 className="text-2xl font-bold text-white">Editar Grupo</h2>
                             <p className="text-sm text-violet-100 mt-1">Modifica la información del grupo</p>
@@ -198,7 +279,7 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
                             onClick={handleCancel}
                             type="button"
                             disabled={loading}
-                            className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 hover:bg-white/20 rounded-full transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                             aria-label="Cerrar modal"
                         >
                             <svg className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +289,7 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
                     </div>
 
                     {/* CONTENT */}
-                    <div className="overflow-y-auto flex-1 scrollbar-hide">
+                    <div className="overflow-y-auto flex-1" style={{ scrollbarWidth: 'thin' }}>
                         <div className="p-8 space-y-6">
                             {/* Info actual */}
                             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -350,7 +431,7 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
                     </div>
 
                     {/* FOOTER */}
-                    <div className="bg-white border-t border-gray-200 px-8 py-4 rounded-b-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                    <div className="bg-white border-t border-gray-200 px-8 py-4 rounded-b-2xl flex-shrink-0">
                         <div className="flex justify-end gap-3">
                             <button
                                 type="button"
@@ -395,20 +476,8 @@ function EditGroupModal({ isOpen, onClose, groupData, onUpdate }: EditGroupModal
                     </div>
                 </div>
             </div>
-
-            <style>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-                .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-                body {
-                    overflow: hidden;
-                }
-            `}</style>
-        </>
+        </>,
+        document.body
     );
 }
 
