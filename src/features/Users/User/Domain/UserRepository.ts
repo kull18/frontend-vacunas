@@ -2,6 +2,21 @@ import type { User, UserLogin, UserCivil } from "./User";
 import type { Group } from "../../Group/Domain/Group";
 import Swal from "sweetalert2";
 
+
+interface AuthResponse {
+  token: string;
+  body: User;
+}
+
+interface LoginError {
+  type: 'invalid_credentials' | 'network_error' | 'server_error' | 'unknown'; // ← Actualizado
+  message: string;
+  response?: {
+    status: number;
+    data: any;
+  };
+}
+
 export class UserRepository {
     private baseUrl = `${import.meta.env.VITE_URL_API_1}/api`;
     
@@ -70,51 +85,95 @@ export class UserRepository {
         }
     }
 
-    async createUser(newUser: User): Promise<User> {
-        const token = this.getToken();
-        try {
-            const response = await fetch(`${this.baseUrl}/users`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(newUser)
-            });
-            return this.handleResponse(response);
-        } catch (error) {
-            console.error("Error al crear usuario:", error);
-            throw error;
+  async loginUser(credentials: UserLogin): Promise<AuthResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}/login/userMedicPersona`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(credentials)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const detail = errorData.detail;
+
+        console.log("❌ Error del backend:", detail);
+        console.log("📊 Status HTTP:", response.status);
+
+        // Caso 1: Error estructurado con type y message
+        if (typeof detail === 'object' && detail.type && detail.message) {
+          throw {
+            type: detail.type,
+            message: detail.message,
+            response: { status: response.status, data: errorData }
+          } as LoginError;
         }
-    }
 
-    async loginUser(credentials: { username: string; password: string }): Promise<{ token: string; body: User }> {
-        try {
-            const response = await fetch(`${this.baseUrl}/login/userMedicPersona`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(credentials)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || "Credenciales inválidas");
-            }
-
-            const authHeader = response.headers.get("authorization");
-            if (!authHeader) throw new Error("No se encontró el token");
-
-            const token = authHeader.split(" ")[1];
-            const body = await response.json();
-            return { token, body };
-
-        } catch (error) {
-            console.error("Error al iniciar sesión:", error);
-            throw error;
+        // Caso 2: Error como string simple
+        if (typeof detail === 'string') {
+          // Credenciales inválidas (401 o 404)
+          if (response.status === 401 || response.status === 404 || 
+              detail.toLowerCase().includes('credenciales') ||
+              detail.toLowerCase().includes('usuario') ||
+              detail.toLowerCase().includes('contraseña')) {
+            throw {
+              type: 'invalid_credentials',
+              message: 'Credenciales inválidas',
+              response: { status: response.status, data: errorData }
+            } as LoginError;
+          }
         }
+
+        // Error de servidor
+        if (response.status === 500) {
+          throw {
+            type: 'server_error',
+            message: 'Error del servidor. Intenta más tarde.',
+            response: { status: response.status, data: errorData }
+          } as LoginError;
+        }
+
+        // Error genérico HTTP
+        throw {
+          type: 'unknown',
+          message: 'Error al iniciar sesión',
+          response: { status: response.status, data: errorData }
+        } as LoginError;
+      }
+
+      // Login exitoso
+      const authHeader = response.headers.get("authorization");
+      if (!authHeader) {
+        throw {
+          type: 'unknown',
+          message: 'No se encontró el token de autenticación'
+        } as LoginError;
+      }
+
+      const token = authHeader.replace("Bearer ", "");
+      const body = await response.json();
+
+      console.log("✅ Login exitoso en Repository");
+      console.log("🔑 Token:", token);
+      console.log("👤 User:", body);
+
+      return { token, body };
+
+    } catch (error: any) {
+      if (error.type) {
+        console.error("❌ Error en LoginUserRepository:", error);
+        throw error;
+      }
+
+      console.error("❌ Error de red en Repository:", error);
+      throw {
+        type: 'network_error',
+        message: 'Error de conexión. Verifica tu internet.'
+      } as LoginError;
     }
+  }
 
     async updateUser(id: number, updatedData: Partial<User>): Promise<User> {
         const token = this.getToken();
