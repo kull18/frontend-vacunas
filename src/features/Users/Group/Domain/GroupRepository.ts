@@ -41,7 +41,8 @@ export class GroupRepository {
 
     async getGroup(): Promise<Group[]> {
         const token = await this.verifyToken();
-        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
+
+        const response = await fetch(this.baseurl, {
             headers: { 
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}` 
@@ -52,7 +53,9 @@ export class GroupRepository {
 
     async createGroup(newGroup: Omit<Group, 'id'>): Promise<Group> {
         const token = await this.verifyToken();
-        const response = await fetch("https://api.vacunas.brigadasvacunacion.com.mx/api/groups", {
+
+        const response = await fetch(this.baseurl,{
+
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
