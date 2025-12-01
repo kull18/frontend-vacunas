@@ -53,6 +53,11 @@ function DashBoard() {
       setSelectedSection("Transportadora");
     }
 
+    const gestionUsuarios = () => {
+      navigate("/dashboard/gestion-cuentas/enfermero")
+      setSelectedSection("Gestión de usuarios")      
+    }
+
     const brigadaVacunacion = () =>{
       navigate("/dashboard/brigadas/administrador")
       setSelectedSection("Brigada de vacunacion");
@@ -191,6 +196,13 @@ useEffect(() => {
           }}
           selected={selectedSection === "Transportadora"}
         />
+        <ListDashboard
+          image={userLogo}
+          text="Gestion de usuarios"
+          onClick={gestionUsuarios}
+          selected={selectedSection === "Gestión de usuarios"}
+        />
+
 
         <ListDashboard
           image={logout}

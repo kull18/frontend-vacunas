@@ -1,4 +1,4 @@
-import type { User, UserLogin } from "./User";
+import type { User, UserLogin, UserCivil } from "./User";
 import type { Group } from "../../Group/Domain/Group";
 import Swal from "sweetalert2";
 
@@ -73,7 +73,7 @@ export class UserRepository {
     async createUser(newUser: User): Promise<User> {
         const token = this.getToken();
         try {
-            const response = await fetch(`${this.baseUrl}/userMedicPersona`, {
+            const response = await fetch(`${this.baseUrl}/users`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export class UserRepository {
     async deleteUser(id: number): Promise<boolean> {
         const token = this.getToken();
         try {
-            const response = await fetch(`${this.baseUrl}/userMedicPersona/${id}`, {
+            const response = await fetch(`${this.baseUrl}/users/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -151,4 +151,40 @@ export class UserRepository {
             throw error;
         }
     }
+
+      /**
+   * Obtiene usuarios civiles sin cuenta asociada
+   */
+  async getCivilUsersWithoutAccount(): Promise<UserCivil[]> {
+    const token = this.getToken();
+    try {
+      const response = await fetch(`${this.baseUrl}/users-civil/without-account`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching civil users without account:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene todas las cuentas de usuario activas
+   */
+  async getUserAccounts(): Promise<User[]> {
+    const token = this.getToken();
+    try {
+      const response = await fetch(`${this.baseUrl}/user-accounts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error("Error fetching user accounts:", error);
+      throw error;
+    }
+  }
 }

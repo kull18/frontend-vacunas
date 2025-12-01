@@ -1,20 +1,16 @@
-import { useState } from "react"
-import { DeleteUserUseCase } from "../../Application/DeleteUseUseCase";
-import { UserRepository } from "../../Domain/UserRepository";
+import { useState } from "react";
+import { DeleteUserCivilUseCase } from "../../Application/DeleteUserCivilUseCase";
+export const useDeleteUserCivil = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-export const useDeleteUser = () => {
-    const [error, setError] = useState<string>("")
-    const [loading, setLoading] = useState<boolean>(false)
-
-
-    const deleteUser = async(id: number) => {
+    const deleteUser = async (id: number, token: string | null): Promise<boolean> => {
         setLoading(true);
         setError(null);
 
         try {
-            const repository = new UserRepository()
-            const deleteUseCase = new DeleteUserUseCase(repository);
-            const success = await deleteUseCase.execute(id);
+            const deleteUseCase = new DeleteUserCivilUseCase();
+            const success = await deleteUseCase.execute(id, token);
             
             if (!success) {
                 throw new Error('No se recibió confirmación de eliminación');
@@ -32,4 +28,4 @@ export const useDeleteUser = () => {
     };
 
     return { deleteUser, loading, error };
-} 
+};

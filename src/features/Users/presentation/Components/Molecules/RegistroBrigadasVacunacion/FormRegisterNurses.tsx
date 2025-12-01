@@ -12,7 +12,7 @@ import { useState } from "react"
 import { useGetGroup } from "../../../../Group/Presentation/Hooks/useGetGroups"
 import { useGetUserRole } from "../../../../User/Presentation/Hooks/useGetUserByRol"
 import Swal from "sweetalert2"
-import { useDeleteUser } from "../../../../User/Presentation/Hooks/useDeleteUser"
+import { useDeleteUserCivil } from "../../../../User/Presentation/Hooks/useUserCivilDeleteUser"
 import { useUpdateUserCivil } from "../../../../User/Presentation/Hooks/useUpdateUserCivil"
 function FormRegisterNurses() {
     const {abrirModal} = useModalBrigades()
@@ -20,7 +20,7 @@ function FormRegisterNurses() {
     const { group, loadingGroup, errorGroup } = useGetGroup();
     const { users, loadingRole, error,refetch } = useGetUserRole();
     const { createUser, createdUser, loading } = useCreateUser();
-    const { deleteUser, loading: deleting, error: deleteError } = useDeleteUser();
+    const { deleteUser, loading: deleting, error: deleteError } = useDeleteUserCivil();
     const { updateUserCivil, error: updateError } = useUpdateUserCivil();
     const token = localStorage.getItem('token');
     const [formData, setFormData] = useState<User>({

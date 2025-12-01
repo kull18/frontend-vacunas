@@ -2,7 +2,7 @@ import type { BoxVaccine, BoxVaccineAmount } from "../Domain/BoxVaccine";
 import Swal from "sweetalert2";
 
 export class BoxRepository {
-    private readonly baseUrl: string = "http://127.0.0.1:8000/api/vaccineBox";
+    private readonly baseUrl: string = "https://api.vacunas.brigadasvacunacion.com.mx/api/vaccineBox";
 
     private async verifyToken(): Promise<string> {
         const token = localStorage.getItem("token");
