@@ -7,12 +7,18 @@ interface AuthResponse {
   body: User;
 }
 
+interface LoginError {
+  type: 'invalid_credentials' | 'network_error' | 'server_error' | 'unknown'; // ← Actualizado
+  message: string;
+}
+
 interface PropsLoginUser {
   loginUser: (credentials: UserLogin) => Promise<AuthResponse>;
   loggedUser: User | null;
   loading: boolean;
-  error: unknown | null;
+  error: LoginError | null;
   token: string | null;
+  clearError: () => void;
 }
 
 export const useLoginUser = (): PropsLoginUser => {
@@ -26,7 +32,7 @@ export const useLoginUser = (): PropsLoginUser => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<unknown | null>(null);
+  const [error, setError] = useState<LoginError | null>(null);
 
   const loginUser = async (credentials: UserLogin): Promise<AuthResponse> => {
     setLoading(true);
@@ -36,8 +42,6 @@ export const useLoginUser = (): PropsLoginUser => {
       const uc = new LoginUserUseCase();
       const { token, body } = await uc.execute(credentials);
 
-      console.log("Token:", token);
-      console.log("Usuario desde Hook:", body);
 
       setLoggedUser(body);
       setToken(token);
@@ -46,16 +50,24 @@ export const useLoginUser = (): PropsLoginUser => {
       localStorage.setItem("token", token);
 
       return { token, body };
-    } catch (err) {
+      
+    } catch (err: any) {
       console.error("Error en Hook loginUser:", err);
-      setError(err);
-      throw err;
+      
+      const loginError: LoginError = err as LoginError;
+      setError(loginError);
+      
+      throw loginError;
+      
     } finally {
       setLoading(false);
     }
   };
 
-  // Opcional: efecto para sincronizar cambios del estado con localStorage (por si se actualiza por otro lado)
+  const clearError = () => {
+    setError(null);
+  };
+
   useEffect(() => {
     if (loggedUser) {
       localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
@@ -78,5 +90,6 @@ export const useLoginUser = (): PropsLoginUser => {
     loading,
     error,
     token,
+    clearError,
   };
 };

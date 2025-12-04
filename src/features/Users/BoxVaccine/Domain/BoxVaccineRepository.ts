@@ -1,4 +1,4 @@
-import type { BoxVaccine, BoxVaccineAmount } from "../Domain/BoxVaccine";
+import type { BoxVaccine } from "../Domain/BoxVaccine";
 import Swal from "sweetalert2";
 
 export class BoxRepository {
@@ -57,29 +57,28 @@ export class BoxRepository {
         }
     }
 
-async createBox(newBox: BoxVaccine): Promise<BoxVaccine> {
-    try {
-        const token = await this.verifyToken();
-        const response = await fetch(this.baseUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                amountVaccines: newBox.amountVaccines || 0,
-                idVaccineBox: newBox.idVaccineBox
-            })
-        });
-        return this.handleResponse(response);
-    } catch (error) {
-        console.error("Error al crear caja:", error);
-        throw error;
+    async createBox(newBox: BoxVaccine): Promise<BoxVaccine> {
+        try {
+            const token = await this.verifyToken();
+            const response = await fetch(this.baseUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    amountVaccines: newBox.amountVaccines || 0,
+                    idVaccineBox: newBox.idVaccineBox
+                })
+            });
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error("Error al crear caja:", error);
+            throw error;
+        }
     }
-}
 
-
-    async createAmountVaccineBox(newBox: BoxVaccineAmount): Promise<BoxVaccineAmount> {
+    async createAmountVaccineBox(newBox: BoxVaccine): Promise<BoxVaccine> {
         try {
             const token = await this.verifyToken();
             const response = await fetch(this.baseUrl, {
@@ -98,25 +97,47 @@ async createBox(newBox: BoxVaccine): Promise<BoxVaccine> {
             throw error;
         }
     }
-async deleteBox(id: number): Promise<boolean> {
-    try {
-        const token = await this.verifyToken();
-        const response = await fetch(`${this.baseUrl}/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP! estado: ${response.status}`);
+    // ✅ NUEVO MÉTODO UPDATE
+    async updateBox(id: number, updatedBox: Partial<BoxVaccine>): Promise<BoxVaccine> {
+        try {
+            const token = await this.verifyToken();
+            const response = await fetch(`${this.baseUrl}/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    amountVaccines: updatedBox.amountVaccines
+                })
+            });
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error(`Error al actualizar caja (ID: ${id}):`, error);
+            throw error;
         }
-
-        return true;
-    } catch (error) {
-        console.error(`Error al eliminar caja (ID: ${id}):`, error);
-        throw error;
     }
-}
+
+    async deleteBox(id: number): Promise<boolean> {
+        try {
+            const token = await this.verifyToken();
+            const response = await fetch(`${this.baseUrl}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP! estado: ${response.status}`);
+            }
+
+            return true;
+        } catch (error) {
+            console.error(`Error al eliminar caja (ID: ${id}):`, error);
+            throw error;
+        }
+    }
 }

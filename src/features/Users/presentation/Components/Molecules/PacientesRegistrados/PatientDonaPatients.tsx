@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -38,23 +39,26 @@ type PatientDonaPatientsProps = {
 const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCases }) => {
   const distribution = data.distribution || [];
 
-  // Maps corregidos
-  const labels = distribution.map((item) => item.category);
-  const values = distribution.map((item) => item.probability);
+  // Memoizar los datos procesados
+  const { labels, values } = useMemo(() => ({
+    labels: distribution.map((item) => item.category),
+    values: distribution.map((item) => item.probability),
+  }), [distribution]);
 
-  const chartData = {
+  // Memoizar los datos del gráfico
+  const chartData = useMemo(() => ({
     labels,
     datasets: [
       {
         label: "Distribución",
         data: values,
         backgroundColor: [
-          'rgba(34, 197, 94, 0.8)',   // Green
-          'rgba(239, 68, 68, 0.8)',   // Red
-          'rgba(251, 146, 60, 0.8)',  // Orange
-          'rgba(59, 130, 246, 0.8)',  // Blue
-          'rgba(168, 85, 247, 0.8)',  // Purple
-          'rgba(236, 72, 153, 0.8)',  // Pink
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+          'rgba(251, 146, 60, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(168, 85, 247, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
         ],
         borderColor: [
           'rgba(34, 197, 94, 1)',
@@ -69,9 +73,10 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCa
         spacing: 2,
       },
     ],
-  };
+  }), [labels, values]);
 
-  const options: ChartOptions<"doughnut"> = {
+  // Memoizar las opciones del gráfico
+  const options: ChartOptions<"doughnut"> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     cutout: '65%',
@@ -127,17 +132,20 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCa
         },
       },
     },
-  };
+  }), []);
 
-  // Calcular estadísticas
-  const total = values.reduce((a, b) => a + b, 0);
-  const maxValue = Math.max(...values);
-  const maxCategory = labels[values.indexOf(maxValue)] || "";
-  const maxPercent = ((maxValue / total) * 100).toFixed(1);
+  // Memoizar las estadísticas calculadas
+  const stats = useMemo(() => {
+    const total = values.reduce((a, b) => a + b, 0);
+    const maxValue = Math.max(...values);
+    const maxCategory = labels[values.indexOf(maxValue)] || "";
+    const maxPercent = ((maxValue / total) * 100).toFixed(1);
+
+    return { total, maxValue, maxCategory, maxPercent };
+  }, [labels, values]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,7 +159,6 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCa
         </div>
       </div>
 
-      {/* Chart */}
       <div className="relative w-full h-[350px] mb-6">
         <Doughnut data={chartData} options={options} />
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -160,7 +167,6 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCa
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
           <p className="text-xs font-semibold text-blue-600 uppercase mb-1">Total Casos</p>
@@ -168,15 +174,15 @@ const PatientDonaPatients: React.FC<PatientDonaPatientsProps> = ({ data, totalCa
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
           <p className="text-xs font-semibold text-green-600 uppercase mb-1">Categoría Mayor</p>
-          <p className="text-lg font-bold text-green-900 truncate">{maxCategory}</p>
+          <p className="text-lg font-bold text-green-900 truncate">{stats.maxCategory}</p>
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
           <p className="text-xs font-semibold text-purple-600 uppercase mb-1">Porcentaje</p>
-          <p className="text-2xl font-bold text-purple-900">{maxPercent}%</p>
+          <p className="text-2xl font-bold text-purple-900">{stats.maxPercent}%</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default PatientDonaPatients;
+export default React.memo(PatientDonaPatients);

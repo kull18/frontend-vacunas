@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import {
   Chart as ChartJS,
   BarElement,
@@ -10,9 +10,7 @@ import {
 import type { ChartOptions } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import style from "../PacientesRegistrados/patients.module.css";
 
-// Registrar los componentes necesarios
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, zoomPlugin);
 
 type VaccinePatientsBarChartProps = {
@@ -26,7 +24,8 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
 }) => {
   const chartRef = useRef<any>(null);
 
-  const data = {
+  // Memoizar los datos del gráfico para evitar recalculos innecesarios
+  const data = useMemo(() => ({
     labels,
     datasets: [
       {
@@ -40,9 +39,10 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
         hoverBorderColor: 'rgba(37, 99, 235, 1)',
       },
     ],
-  };
+  }), [labels, dataValues]);
 
-  const options: ChartOptions<'bar'> = {
+  // Memoizar las opciones del gráfico
+  const options: ChartOptions<'bar'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -147,7 +147,7 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
         },
       },
     },
-  };
+  }), []);
 
   const handleResetZoom = () => {
     const chart = chartRef.current;
@@ -158,7 +158,6 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,12 +170,10 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
         </div>
       </div>
 
-      {/* Chart */}
       <div className="w-full h-[400px] mb-4">
         <Bar ref={chartRef} data={data} options={options} />
       </div>
 
-      {/* Reset Button */}
       <div className="flex justify-center pt-4 border-t border-gray-100">
         <button
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -192,4 +189,4 @@ const PatientBarGraph: React.FC<VaccinePatientsBarChartProps> = ({
   );
 };
 
-export default PatientBarGraph;
+export default React.memo(PatientBarGraph);

@@ -1,25 +1,29 @@
 import type { User, UserLogin } from "../Domain/User";
 import { UserRepository } from "../Domain/UserRepository";
 
+interface LoginError {
+  type: 'invalid_credentials' | 'network_error' | 'server_error' | 'unknown'; // ← Actualizado
+  message: string;
+}
+
 export class LoginUserUseCase {
-    private userRepository: UserRepository;
+    private repository: UserRepository;
 
     constructor() {
-        this.userRepository = new UserRepository();
+        this.repository = new UserRepository();
     }
 
-    async execute(newUser: UserLogin): Promise<{ token: string; body: User }> {
+    async execute(credentials: UserLogin): Promise<{ token: string; body: User }> {
         try {
-            const authResponse = await this.userRepository.loginUser(newUser);
-
-            console.log("Token desde UseCase:", authResponse.token);
-            console.log("Body desde UseCase:", authResponse.body);
-
+            console.log("🔄 UseCase: Intentando login...");
+            const authResponse = await this.repository.loginUser(credentials);
+            
+            console.log("✅ UseCase: Login exitoso");
             return authResponse;
 
-        } catch (error) {
-            console.error("Error al iniciar sesión, app:", error);
-            throw error;
+        } catch (error: any) {
+            console.error("❌ UseCase: Error capturado:", error);
+            throw error as LoginError;
         }
     }
 }

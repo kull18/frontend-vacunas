@@ -11,17 +11,29 @@ function FormLogin() {
     const { setUser } = userAuth();
     const { setToken } = useAuth();
 
-    const { loginUser, loading } = useLoginUser();
+    const { loginUser, loading, clearError } = useLoginUser();
     const [formData, setFormData] = useState<UserLogin>({
         username: "",
         password: "",
     });
 
-    // Estados para las alertas personalizadas
+    // Estados para las alertas
     const [showWelcome, setShowWelcome] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showEmptyFields, setShowEmptyFields] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [userData, setUserData] = useState<any>(null);
+
+    // Limpiar errores al editar campos
+    const handleInputChange = (field: 'username' | 'password', value: string) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        
+        // Limpiar error visual si el usuario está editando
+        if (showError) {
+            clearError();
+            setShowError(false);
+        }
+    };
 
     const registerUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,6 +48,7 @@ function FormLogin() {
         }
 
         try {
+            console.log("user", formData)
             const { token, body } = await loginUser(formData);
 
             if (!body.role) {
@@ -72,16 +85,27 @@ function FormLogin() {
                 }
             }, 2500);
 
-        } catch (err) {
-            console.error("Error en login:", err);
+        } catch (err: any) {
+            console.error("❌ Error en login:", err);
+            
+            // Determinar el mensaje según el tipo de error
+            if (err.type === 'invalid_credentials') {
+                setErrorMessage('Credenciales inválidas');
+            } else if (err.type === 'network_error') {
+                setErrorMessage('Error de conexión. Verifica tu internet.');
+            } else if (err.type === 'server_error') {
+                setErrorMessage('Error del servidor. Intenta más tarde.');
+            } else {
+                setErrorMessage(err.message || 'Error al iniciar sesión');
+            }
             
             // Mostrar alerta de error
             setShowError(true);
             
-            // Ocultar alerta después de 3 segundos
+            // Ocultar alerta después de 4 segundos
             setTimeout(() => {
                 setShowError(false);
-            }, 3000);
+            }, 4000);
         }
     };
 
@@ -128,14 +152,14 @@ function FormLogin() {
                 </div>
             )}
 
-            {/* Alerta de Error */}
+            {/* Alerta de Error - Genérica */}
             {showError && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake pointer-events-auto">
                         <div className="text-center">
-                            {/* Icono de error */}
+                            {/* Icono de error genérico */}
                             <div className="mb-4 flex justify-center">
-                                <div className="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg">
+                                <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-gray-400 to-gray-600">
                                     <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -144,21 +168,21 @@ function FormLogin() {
 
                             {/* Título */}
                             <h2 className="text-xl font-bold text-gray-800 mb-3">
-                                Error al iniciar sesión
+                                Error de conexión
                             </h2>
 
                             {/* Emoji */}
-                            <div className="text-5xl mb-4">🔒</div>
+                            <div className="text-5xl mb-4">⚠️</div>
 
-                            {/* Mensaje */}
-                            <p className="text-gray-600 text-sm mb-6">
-                                Verifica tu nombre de usuario y contraseña
+                            {/* Mensaje de error */}
+                            <p className="text-gray-600 text-base font-semibold mb-6">
+                                {errorMessage}
                             </p>
 
                             {/* Botón */}
                             <button
                                 onClick={() => setShowError(false)}
-                                className="w-full px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm shadow-md"
+                                className="w-full px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium text-sm shadow-md"
                             >
                                 Intentar de nuevo
                             </button>
@@ -169,8 +193,8 @@ function FormLogin() {
 
             {/* Alerta de Campos Vacíos */}
             {showEmptyFields && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 animate-shake pointer-events-auto">
                         <div className="text-center">
                             {/* Icono de advertencia */}
                             <div className="mb-4 flex justify-center">
@@ -217,9 +241,7 @@ function FormLogin() {
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
                     placeholder="Nombre de usuario"
                     value={formData.username}
-                    onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, username: e.target.value }))
-                    }
+                    onChange={(e) => handleInputChange('username', e.target.value)}
                     disabled={loading}
                 />
 
@@ -230,9 +252,7 @@ function FormLogin() {
                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 transition duration-150"
                     placeholder="Contraseña"
                     value={formData.password}
-                    onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, password: e.target.value }))
-                    }
+                    onChange={(e) => handleInputChange('password', e.target.value)}
                     disabled={loading}
                 />
 
