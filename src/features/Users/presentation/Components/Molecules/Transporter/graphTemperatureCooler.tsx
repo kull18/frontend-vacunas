@@ -1,3 +1,4 @@
+// GraphTemperatureCooler.tsx
 import {
   Chart as ChartJS,
   LineElement,

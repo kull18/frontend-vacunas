@@ -1,3 +1,4 @@
+//VaccineTrasnporter.tsx
 import { useHumidity } from "../../../../../../shared/HumidityProvider";
 import { useTemperature } from "../../../../../../shared/TemperatureProvider";
 import NormalDistributionChart from "../../Molecules/GausGraph/GaussJordanMatrixChart";
@@ -9,7 +10,6 @@ import style from "../VaccineTrasnporterOrganism/transporter.module.css"
 import { HumidityProvider } from "../../../../../../shared/HumidityProvider";
 import { TemperatureProvider } from "../../../../../../shared/TemperatureProvider";
 import { useGetStatistics } from "../../../../User/Presentation/Hooks/useGetStatistics";
-
 function VaccineTrasnporter() {
   const temperatureData = useTemperature();
   const humidityData = useHumidity();
@@ -20,6 +20,26 @@ function VaccineTrasnporter() {
 
   const labelsH = humidityData?.intervalos || [];
   const valuesH = humidityData?.marcas || [];
+
+  //service worker
+  const registerServiceWorker = async () => {
+  if ("serviceWorker" in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register("./sw.js", {
+        scope: "/",
+      });
+      if (registration.installing) {
+        console.log("Service worker installing");
+      } else if (registration.waiting) {
+        console.log("Service worker installed");
+      } else if (registration.active) {
+        console.log("Service worker active");
+      }
+    } catch (error) {
+      console.error(`Registration failed with ${error}`);
+    }
+  }
+};
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
