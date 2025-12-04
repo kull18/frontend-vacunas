@@ -10,10 +10,16 @@ import style from "../VaccineTrasnporterOrganism/transporter.module.css"
 import { HumidityProvider } from "../../../../../../shared/HumidityProvider";
 import { TemperatureProvider } from "../../../../../../shared/TemperatureProvider";
 import { useGetStatistics } from "../../../../User/Presentation/Hooks/useGetStatistics";
+import { useEffect, useState } from "react";
 function VaccineTrasnporter() {
   const temperatureData = useTemperature();
   const humidityData = useHumidity();
   const { data: stats } = useGetStatistics();
+
+
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [swReady, setSwReady] = useState(false);
+
 
   const labels = temperatureData?.intervalos || [];
   const marcas = temperatureData?.marcas || [];
@@ -21,28 +27,112 @@ function VaccineTrasnporter() {
   const labelsH = humidityData?.intervalos || [];
   const valuesH = humidityData?.marcas || [];
 
+  useEffect(() => {
+    registerServiceWorker();
+    setupConnectionListeners();
+  }, []);
+
   //service worker
-  const registerServiceWorker = async () => {
-  if ("serviceWorker" in navigator) {
+ const registerServiceWorker = async () => {
+    if (!("serviceWorker" in navigator)) {
+      console.warn("⚠️ Service Workers no soportados");
+      return;
+    }
+
     try {
-      const registration = await navigator.serviceWorker.register("./sw.js", {
+      console.log("[App] 🚀 Registrando Service Worker...");
+      
+      // ✅ CORREGIDO: Path desde raíz
+      const registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
       });
+
       if (registration.installing) {
-        console.log("Service worker installing");
+        console.log("[SW] ⏳ Service worker instalando...");
       } else if (registration.waiting) {
-        console.log("Service worker installed");
+        console.log("[SW] ⏸️ Service worker esperando...");
       } else if (registration.active) {
-        console.log("Service worker active");
+        console.log("[SW] ✅ Service worker activo");
+        setSwReady(true);
       }
+
+      // Manejar actualizaciones
+      registration.addEventListener("updatefound", () => {
+        const newWorker = registration.installing;
+        console.log("[SW] 🔄 Nueva versión disponible");
+
+        newWorker?.addEventListener("statechange", () => {
+          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+            const shouldUpdate = confirm(
+              "🔄 Nueva versión disponible!\n\n¿Deseas actualizar ahora?"
+            );
+            if (shouldUpdate) {
+              newWorker.postMessage({ type: "SKIP_WAITING" });
+              window.location.reload();
+            }
+          }
+        });
+      });
+
+      console.log("[App] ✅ Service Worker registrado");
     } catch (error) {
-      console.error(`Registration failed with ${error}`);
+      console.error("[App] ❌ Error registrando Service Worker:", error);
     }
-  }
-};
+  };
+
+  const setupConnectionListeners = () => {
+    window.addEventListener("online", () => {
+      console.log("[App] 🌐 Conexión restaurada");
+      setIsOnline(true);
+    });
+
+    window.addEventListener("offline", () => {
+      console.log("[App] 📵 Sin conexión");
+      setIsOnline(false);
+    });
+
+    setIsOnline(navigator.onLine);
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+
+        {!isOnline && (
+        <div className="mb-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-pulse">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3" />
+          </svg>
+          <div>
+            <p className="font-bold text-lg">📵 Sin conexión a Internet</p>
+            <p className="text-sm opacity-90">
+              Mostrando datos guardados en caché. Se sincronizarán cuando vuelva la conexión.
+            </p>
+          </div>
+        </div>
+      )}
+
+
+      {swReady && isOnline && (
+        <div className="mb-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="flex-1">
+            <p className="font-bold">✅ Modo offline habilitado</p>
+            <p className="text-sm opacity-90">
+              La aplicación funcionará sin conexión a internet
+            </p>
+          </div>
+          <button
+            onClick={() => setSwReady(false)}
+            className="text-white hover:text-gray-200"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
