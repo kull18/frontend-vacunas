@@ -202,14 +202,14 @@ function TablePatientsRegister({
 
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                          v.alcoholBreat > 0.9 
+                          v.alcoholBreat > 0.5 
                             ? "bg-green-100 text-green-700 border border-green-200" 
                             : "bg-red-100 text-red-700 border border-red-200"
                         }`}>
                           <span className={`w-2 h-2 rounded-full ${
-                            v.alcoholBreat > 0.9 ? "bg-green-500" : "bg-red-500"
+                            v.alcoholBreat > 0.5 ? "bg-green-500" : "bg-red-500"
                           }`}></span>
-                          {v.alcoholBreat > 0.9 ? "POSITIVO" : "NEGATIVO"}
+                          {v.alcoholBreat > 0.5 ? "POSITIVO" : "NEGATIVO"}
                         </span>
                       </td>
 

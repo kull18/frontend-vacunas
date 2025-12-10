@@ -5,15 +5,12 @@ import username from "../../../../../../assets/usernameIcon.png";
 import password from "../../../../../../assets/passwordIcon.png";
 import rol from "../../../../../../assets/rolIcon.png";
 import groupIcon from "../../../../../../assets/groupIcon.png";
-import { useModalBrigades } from "./ModalBrigadesContext";
-import { useModalBrigadesVaccine } from "./ModalBrigadesVaccineContext";
 import type { User } from "../../../../User/Domain/User";
 import { useCreateUser } from "../../../../User/Presentation/Hooks/useCreateUsers";
 import { useGetGroup } from "../../../../Group/Presentation/Hooks/useGetGroups";
 import { useGetUserRole } from "../../../../User/Presentation/Hooks/useGetUserByRol";
 import Swal from "sweetalert2";
 import { useDeleteUser } from "../../../../User/Presentation/Hooks/useDeleteUser";
-import { useUpdateUserCivil } from "../../../../User/Presentation/Hooks/useUpdateUserCivil";
 import { useUpdateUser } from "../../../../User/Presentation/Hooks/useUpdateUser";
 
 // Loading Skeleton Component
@@ -345,8 +342,8 @@ function FormContent() {
                   <option value="" disabled>
                     Selecciona un rol
                   </option>
-                  <option value="Enfermero">Enfermero</option>
-                  <option value="Lider">Líder</option>
+                  <option value="enfermero">Enfermero</option>
+                  <option value="director">Líder</option>
                 </select>
               </div>
 

@@ -38,7 +38,7 @@ function App() {
       <TemperatureProvider>
         <UserCivilStatsProvider>
           <HumidityProvider>
-            <VaccinationProvider> {/* 👈 ENVUELVE AQUÍ */}
+            <VaccinationProvider> 
               <ModalVaccinePrincipalProvider>
                 <ModalBoxsProvider>
                   <ModalBrigadesVaccineContext>
@@ -58,6 +58,7 @@ function App() {
                               >
                                 <Route path="Historial-vacunacion/paciente" element={<MainHistorialVacunationPage />} />
                                 <Route path="estado-salud" element={<HeatlStatusPage />} />
+                                <Route path="gestion-cuentas/enfermero" element={<UserAccountsPage />} />
                                 <Route path="tabla-pacientes-registrados/enfermero" element={<PatientsRegistersPage />} />
                                 <Route path="tabla-vacunas-registradas/enfermero" element={<VaccinesRegisterPage />} />
                                 <Route path="analisis-vacunas-transportacion/enfermero" element={<VaccineTrasnporterPage />} />

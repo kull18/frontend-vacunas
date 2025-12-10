@@ -1,4 +1,4 @@
-import { useState, useTransition, useMemo, Suspense, useEffect } from "react";
+import { useState, useTransition, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import toast, { Toaster } from "react-hot-toast";
 import style from "../../Molecules/BoxVaccines/box.module.css";
@@ -34,20 +34,17 @@ function DeleteBoxConfirmationModal({ isOpen, onConfirm, onCancel, amountVaccine
 
   return createPortal(
     <>
-      {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         onClick={onCancel}
       ></div>
 
-      {/* Modal centrado */}
       <div 
         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-lg px-4"
         style={{ position: 'fixed' }}
       >
         <div className="bg-white rounded-2xl shadow-2xl animate-in zoom-in fade-in duration-200">
-          {/* Header rojo */}
           <div className="bg-red-600 px-6 py-4 flex justify-between items-center rounded-t-2xl">
             <div>
               <h2 className="text-xl font-bold text-white">Eliminar Caja de Vacunas</h2>
@@ -63,9 +60,7 @@ function DeleteBoxConfirmationModal({ isOpen, onConfirm, onCancel, amountVaccine
             </button>
           </div>
 
-          {/* Contenido */}
           <div className="p-6">
-            {/* Icono de advertencia */}
             <div className="flex items-center justify-center mb-6">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +69,6 @@ function DeleteBoxConfirmationModal({ isOpen, onConfirm, onCancel, amountVaccine
               </div>
             </div>
 
-            {/* Información de la caja */}
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <div className="flex items-center gap-2 justify-center">
                 <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +85,6 @@ function DeleteBoxConfirmationModal({ isOpen, onConfirm, onCancel, amountVaccine
               Toda la información de esta caja será eliminada permanentemente del sistema.
             </p>
 
-            {/* Botones */}
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
@@ -142,8 +135,8 @@ function BoxesLoadingSkeleton() {
   );
 }
 
-// Main Content Component
-function BoxesContent() {
+// ✅ Main Component - SIN Suspense
+function CardsBoxVaccines() {
   const { abrirModalVaccine } = useModalBrigadesVaccine();
   const { abrirModal } = useModalVaccinesPrincipal();
   const { box, loadingBox, errorBox, refetch } = useGetBox();
@@ -153,32 +146,26 @@ function BoxesContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBox, setSelectedBox] = useState<{id: number, amount: number} | null>(null);
   
-  // ✅ Estados para el modal de confirmación de eliminación
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [boxToDelete, setBoxToDelete] = useState<{id: number, amount: number} | null>(null);
 
-  // Memoizar las cajas para evitar re-renders innecesarios
   const memoizedBoxes = useMemo(() => box || [], [box]);
 
-  // ✅ Función para mostrar modal de confirmación
   const handleDeleteClick = (idBox: number, amountVaccines: number) => {
     setBoxToDelete({ id: idBox, amount: amountVaccines });
     setShowDeleteConfirm(true);
   };
 
-  // ✅ Función para cancelar eliminación
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
     setBoxToDelete(null);
   };
 
-  // ✅ Función para confirmar eliminación
   const handleConfirmDelete = async () => {
     if (!boxToDelete) return;
 
     setShowDeleteConfirm(false);
 
-    // Toast de carga
     const loadingToast = toast.loading('Eliminando caja de vacunas...', {
       style: {
         borderRadius: '12px',
@@ -192,7 +179,6 @@ function BoxesContent() {
       const success = await deleteBox(boxToDelete.id);
       
       if (success) {
-        // Toast de éxito
         toast.success(
           <div>
             <strong className="block mb-1">¡Caja eliminada!</strong>
@@ -213,7 +199,6 @@ function BoxesContent() {
           }
         );
         
-        // Usar transición para el refetch
         startTransition(() => {
           refetch();
         });
@@ -221,7 +206,6 @@ function BoxesContent() {
         throw new Error('No se pudo eliminar la caja');
       }
     } catch (err) {
-      // Toast de error
       toast.error(
         <div>
           <strong className="block mb-1">Error al eliminar</strong>
@@ -261,10 +245,12 @@ function BoxesContent() {
     });
   };
 
+  // ✅ Mostrar skeleton mientras carga
   if (loadingBox) {
     return <BoxesLoadingSkeleton />;
   }
 
+  // ✅ Mostrar error si existe
   if (errorBox) {
     return (
       <div className="mt-10 mx-5 text-center">
@@ -286,7 +272,6 @@ function BoxesContent() {
 
   return (
     <>
-      {/* ✅ TOASTER */}
       <Toaster 
         position="top-right"
         reverseOrder={false}
@@ -347,17 +332,14 @@ function BoxesContent() {
         ) : (
           memoizedBoxes.map((boxs, index) => (
             <div key={boxs.idVaccineBox || index} id={style.card}>
-              {/* Banda superior tipo caja médica */}
               <div id={style.medicalStrip}></div>
               
-              {/* Icono médico decorativo */}
               <div id={style.medicalIcon}>
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 7V12M12 12V17M12 12H7M12 12H17M5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20Z" stroke="currentColor" strokeWidth="1.5"/>
                 </svg>
               </div>
 
-              {/* Contenido principal */}
               <div className="space-y-2 text-sm text-gray-800 mt-3 relative z-10">
                 <div className="flex items-center gap-2 bg-blue-50 p-2 rounded-lg">
                   <img src={vaccine} alt="vacunas" className="w-5 h-5" />
@@ -368,7 +350,6 @@ function BoxesContent() {
                 </div>
               </div>
 
-              {/* Botones */}
               <div className="mt-5 flex flex-col sm:flex-row justify-between gap-3">
                 <button 
                   onClick={() => handleEdit(boxs.idVaccineBox, boxs.amountVaccines)}
@@ -402,14 +383,12 @@ function BoxesContent() {
                 </button>
               </div>
               
-              {/* Patrón de fondo médico sutil */}
               <div id={style.medicalPattern}></div>
             </div>
           ))
         )}
       </main>
 
-      {/* ✅ MODAL DE CONFIRMACIÓN DE ELIMINACIÓN CON PORTAL */}
       {boxToDelete && (
         <DeleteBoxConfirmationModal
           isOpen={showDeleteConfirm}
@@ -419,7 +398,6 @@ function BoxesContent() {
         />
       )}
 
-      {/* Modal de edición */}
       {selectedBox && (
         <ModalEditVaccines
           isOpen={isEditModalOpen}
@@ -430,15 +408,6 @@ function BoxesContent() {
         />
       )}
     </>
-  );
-}
-
-// Main Component with Suspense
-function CardsBoxVaccines() {
-  return (
-    <Suspense fallback={<BoxesLoadingSkeleton />}>
-      <BoxesContent />
-    </Suspense>
   );
 }
 

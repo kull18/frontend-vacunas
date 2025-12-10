@@ -1,8 +1,6 @@
 import gota from "../../../../../../assets/gotaBlueIcon.png"
 import vacuna from "../../../../../../assets/vacunaBlueIcon.png"
 import alerta from "../../../../../../assets/alertaIcon.png"
-import file from "../../../../../../assets/file.png"
-import print from "../../../../../../assets/print.png"
 import ActionsFast from "./ActionsFast"
 import styled from "../../Molecules/HealtStatus/Healt.module.css"
 function HealtTips() {

@@ -30,10 +30,9 @@ export default function GaussianChart() {
   const [isPending, startTransition] = useTransition();
 
   const { token } = useAuth();
-  const { data } = useGetGaussCurve();
+  const { data, loading, error } = useGetGaussCurve();
   const { createPoint } = useCreatePointGauss();
 
-  // Usar useDeferredValue para el valor del input
   const deferredValue = useDeferredValue(valueToHighlight);
 
   useEffect(() => {
@@ -57,7 +56,6 @@ export default function GaussianChart() {
     }
   };
 
-  // Memoizar los datos del gráfico
   const chartData = useMemo(() => ({
     labels: graphData?.points.map((p) => p.x.toFixed(2)) ?? [],
     datasets: [
@@ -94,7 +92,6 @@ export default function GaussianChart() {
     ],
   }), [graphData]);
 
-  // Memoizar las opciones del gráfico
   const options: ChartOptions<'line'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: true,
@@ -205,8 +202,52 @@ export default function GaussianChart() {
     },
   }), []);
 
-  // Detectar si el valor está "stale"
   const isValueStale = valueToHighlight !== deferredValue;
+
+  // ✅ Mostrar estado de carga
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-gray-50 rounded-xl p-12 border border-gray-200 text-center">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600 font-medium">Cargando datos de la curva...</p>
+            <p className="text-gray-400 text-sm mt-2">Por favor espera un momento</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Mostrar error si existe
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-red-50 rounded-xl p-12 border border-red-200 text-center">
+          <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p className="text-red-600 font-semibold">Error al cargar los datos</p>
+          <p className="text-red-500 text-sm mt-2">Intenta recargar la página</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Mostrar mensaje cuando no hay datos
+  if (!graphData || graphData.points.length === 0) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-yellow-50 rounded-xl p-12 border border-yellow-200 text-center">
+          <svg className="w-16 h-16 text-yellow-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-yellow-700 font-semibold text-lg">No hay datos suficientes</p>
+          <p className="text-yellow-600 text-sm mt-2">Se necesitan registros de temperatura para generar la curva de Gauss</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -224,36 +265,34 @@ export default function GaussianChart() {
           Análisis estadístico de temperatura
         </p>
         
-        {graphData && (
-          <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 transition-opacity duration-200 ${
-            isPending ? 'opacity-60' : 'opacity-100'
-          }`}>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-              <p className="text-xs font-medium text-blue-600 mb-1">Media (μ)</p>
-              <p className="text-lg font-bold text-blue-900">{graphData.mean.toFixed(2)}°C</p>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-              <p className="text-xs font-medium text-purple-600 mb-1">Desv. Est. (σ)</p>
-              <p className="text-lg font-bold text-purple-900">{graphData.standarDeviation.toFixed(2)}</p>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-              <p className="text-xs font-medium text-green-600 mb-1">Mediana</p>
-              <p className="text-lg font-bold text-green-900">{graphData.median.toFixed(2)}°C</p>
-            </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 border border-yellow-200">
-              <p className="text-xs font-medium text-yellow-600 mb-1">Moda</p>
-              <p className="text-lg font-bold text-yellow-900">{graphData.mode.toFixed(2)}°C</p>
-            </div>
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
-              <p className="text-xs font-medium text-red-600 mb-1">Rango</p>
-              <p className="text-lg font-bold text-red-900">{graphData.range.toFixed(2)}°C</p>
-            </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 border border-indigo-200">
-              <p className="text-xs font-medium text-indigo-600 mb-1">Varianza</p>
-              <p className="text-lg font-bold text-indigo-900">{graphData.variance.toFixed(2)}</p>
-            </div>
+        <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 transition-opacity duration-200 ${
+          isPending ? 'opacity-60' : 'opacity-100'
+        }`}>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+            <p className="text-xs font-medium text-blue-600 mb-1">Media (μ)</p>
+            <p className="text-lg font-bold text-blue-900">{graphData.mean.toFixed(2)}°C</p>
           </div>
-        )}
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+            <p className="text-xs font-medium text-purple-600 mb-1">Desv. Est. (σ)</p>
+            <p className="text-lg font-bold text-purple-900">{graphData.standarDeviation.toFixed(2)}</p>
+          </div>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+            <p className="text-xs font-medium text-green-600 mb-1">Mediana</p>
+            <p className="text-lg font-bold text-green-900">{graphData.median.toFixed(2)}°C</p>
+          </div>
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 border border-yellow-200">
+            <p className="text-xs font-medium text-yellow-600 mb-1">Moda</p>
+            <p className="text-lg font-bold text-yellow-900">{graphData.mode.toFixed(2)}°C</p>
+          </div>
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
+            <p className="text-xs font-medium text-red-600 mb-1">Rango</p>
+            <p className="text-lg font-bold text-red-900">{graphData.range.toFixed(2)}°C</p>
+          </div>
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 border border-indigo-200">
+            <p className="text-xs font-medium text-indigo-600 mb-1">Varianza</p>
+            <p className="text-lg font-bold text-indigo-900">{graphData.variance.toFixed(2)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Controles */}
@@ -301,28 +340,18 @@ export default function GaussianChart() {
                 Procesando...
               </span>
             ) : (
-              deferredValue === null || !token ? "Sombrear" : "Sombrear Área"
+              "Sombrear Área"
             )}
           </button>
         </div>
       </div>
 
       {/* Gráfica */}
-      {graphData ? (
-        <div className={`bg-white rounded-xl p-6 border border-gray-200 shadow-lg transition-opacity duration-200 ${
-          isPending ? 'opacity-60' : 'opacity-100'
-        }`}>
-          <Line data={chartData} options={options} />
-        </div>
-      ) : (
-        <div className="bg-gray-50 rounded-xl p-12 border border-gray-200 text-center">
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600 font-medium">Cargando datos de la curva...</p>
-            <p className="text-gray-400 text-sm mt-2">Por favor espera un momento</p>
-          </div>
-        </div>
-      )}
+      <div className={`bg-white rounded-xl p-6 border border-gray-200 shadow-lg transition-opacity duration-200 ${
+        isPending ? 'opacity-60' : 'opacity-100'
+      }`}>
+        <Line data={chartData} options={options} />
+      </div>
     </div>
   );
 }

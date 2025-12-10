@@ -1,8 +1,7 @@
-import { useState, useTransition, useMemo, Suspense, useEffect } from "react";
+import { useState, useTransition, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import style from "../../Molecules/RegistroBrigadasVacunacion/brigades.module.css";
 import { useGetGroup } from "../../../../Group/Presentation/Hooks/useGetGroups";
 import { GroupRepository } from "../../../../Group/Domain/GroupRepository";
 import { useDeleteGroup } from "../../../../Group/Presentation/Hooks/useDeleteGroup";
@@ -138,8 +137,8 @@ function GroupsLoadingSkeleton() {
     );
 }
 
-// Main Content Component
-function GroupsContent() {
+// Main Component
+function CardGroups() {
     const navigate = useNavigate();
     const { group, loadingGroup, errorGroup, refetch } = useGetGroup();
     const repository = new GroupRepository();
@@ -261,10 +260,12 @@ function GroupsContent() {
         });
     };
 
+    // ✅ Mostrar skeleton mientras carga
     if (loadingGroup) {
         return <GroupsLoadingSkeleton />;
     }
 
+    // ✅ Mostrar error si hay problema
     if (errorGroup) {
         return (
             <div className="mt-10 mx-5 text-center">
@@ -460,15 +461,6 @@ function GroupsContent() {
                 />
             )}
         </>
-    );
-}
-
-// Main Component with Suspense
-function CardGroups() {
-    return (
-        <Suspense fallback={<GroupsLoadingSkeleton />}>
-            <GroupsContent />
-        </Suspense>
     );
 }
 

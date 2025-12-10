@@ -107,7 +107,6 @@ function TablePatients() {
                   <td className="px-6 py-3 text-sm text-gray-700">
                     <div>
                       <p className="font-medium">{vaccination.vaccine.name}</p>
-                      <p className="text-xs text-gray-500">ID: {vaccination.vaccine.id}</p>
                     </div>
                   </td>
                   <td className="px-6 py-3 text-center">

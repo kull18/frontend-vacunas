@@ -82,23 +82,6 @@ function VaccinationHistoryCards() {
                         </div>
                     </div>
                 </div>
-
-                {/* Card 3 - Próxima dosis (Bonus) */}
-                <div className="min-w-[240px] flex-1 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-5 border border-gray-100 opacity-50">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-2xl font-bold text-gray-800 mb-1">
-                                Próximamente
-                            </p>
-                            <p className="text-xs text-gray-600 font-medium">
-                                Próxima dosis
-                            </p>
-                        </div>
-                        <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                            <img src={calender} alt="Próxima dosis" className="w-8 h-8"/>
-                        </div>
-                    </div>
-                </div>
             </section>
         </>
     );
