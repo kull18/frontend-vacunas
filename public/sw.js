@@ -5,7 +5,6 @@ const STATIC_CACHE = `vacunas-static-${CACHE_VERSION}`;
 const API_CACHE = `vacunas-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `vacunas-images-${CACHE_VERSION}`;
 
-// Recursos estáticos para cachear en instalación
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -13,30 +12,27 @@ const STATIC_ASSETS = [
   '/favicon.ico'
 ];
 
-// Rutas de API que queremos cachear
 const API_ROUTES = [
   '/api/temperature',
   '/api/humidity',
   '/api/statistics',
-  '/statistics'  // Tu endpoint actual
+  '/statistics'  
 ];
 
-// ================ INSTALACIÓN ================
 self.addEventListener('install', (event) => {
-  console.log('[SW] 📦 Instalando Service Worker...');
+  console.log('[SW] Instalando Service Worker...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] ✅ Cacheando recursos estáticos');
+        console.log('[SW] Cacheando recursos estáticos');
         return cache.addAll(STATIC_ASSETS);
       })
       .catch((error) => {
-        console.error('[SW] ❌ Error en instalación:', error);
+        console.error('[SW] Error en instalación:', error);
       })
   );
   
-  // Activar inmediatamente
   self.skipWaiting();
 });
 
@@ -65,17 +61,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ================ FETCH - ESTRATEGIAS DE CACHÉ ================
+// ================ FETCH ================
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignorar requests de otros orígenes (excepto APIs conocidas)
   if (url.origin !== self.location.origin && !url.pathname.includes('/api/')) {
     return;
   }
 
-  // Ignorar requests de Chrome extensions
   if (url.protocol === 'chrome-extension:') {
     return;
   }
@@ -112,10 +106,6 @@ self.addEventListener('fetch', (event) => {
 
 // ================ ESTRATEGIAS DE CACHÉ ================
 
-/**
- * Network First para API - Ideal para datos dinámicos
- * Intenta red primero, si falla usa caché
- */
 async function networkFirstAPI(request) {
   const cache = await caches.open(API_CACHE);
 
@@ -131,7 +121,6 @@ async function networkFirstAPI(request) {
     const response = await Promise.race([fetchPromise, timeoutPromise]);
 
     if (response.ok) {
-      // Solo cachear respuestas exitosas
       console.log('[SW] ✅ API response OK, cacheando');
       cache.put(request, response.clone());
       return response;
@@ -147,7 +136,6 @@ async function networkFirstAPI(request) {
     if (cached) {
       console.log('[SW] ✅ Sirviendo datos de caché (offline)');
       
-      // Agregar header para indicar que es caché
       const cachedResponse = cached.clone();
       const headers = new Headers(cachedResponse.headers);
       headers.append('X-From-Cache', 'true');
@@ -161,7 +149,6 @@ async function networkFirstAPI(request) {
 
     console.error('[SW] ❌ No hay datos en caché para:', request.url);
     
-    // Retornar respuesta de error amigable
     return new Response(
       JSON.stringify({
         error: 'No hay conexión y no hay datos en caché',
@@ -177,9 +164,9 @@ async function networkFirstAPI(request) {
   }
 }
 
-/**
- * Cache First para imágenes
- */
+
+  //imágenes
+ 
 async function cacheFirstImages(request) {
   const cache = await caches.open(IMAGE_CACHE);
   const cached = await cache.match(request);
@@ -197,20 +184,15 @@ async function cacheFirstImages(request) {
     return response;
   } catch (error) {
     console.error('[SW] ❌ Error cargando imagen:', error);
-    // Podrías retornar una imagen placeholder aquí
     return new Response('', { status: 404 });
   }
 }
 
-/**
- * Stale While Revalidate
- * Devuelve caché inmediatamente, actualiza en background
- */
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(STATIC_CACHE);
   const cached = await cache.match(request);
 
-  // Actualizar en background
   const fetchPromise = fetch(request).then((response) => {
     if (response.ok) {
       cache.put(request, response.clone());
@@ -220,13 +202,10 @@ async function staleWhileRevalidate(request) {
     console.log('[SW] ⚠️ Error en fetch background:', error);
   });
 
-  // Devolver caché inmediatamente si existe
   return cached || fetchPromise;
 }
 
-/**
- * Network First genérico
- */
+
 async function networkFirst(request) {
   const cache = await caches.open(STATIC_CACHE);
 
@@ -247,9 +226,7 @@ async function networkFirst(request) {
 
 // ================ HELPERS ================
 
-/**
- * Verifica si una URL es una petición de API
- */
+
 function isAPIRequest(pathname) {
   return API_ROUTES.some(route => pathname.includes(route)) ||
          pathname.includes('/api/') ||
@@ -290,9 +267,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-/**
- * Obtiene información sobre el caché
- */
+//informacion del cache
 async function getCacheInfo() {
   const cacheNames = await caches.keys();
   const info = {
@@ -324,7 +299,6 @@ self.addEventListener('sync', (event) => {
 
 async function syncPendingData() {
   console.log('[SW] 📤 Sincronizando datos pendientes...');
-  // Implementar lógica de sincronización aquí si es necesario
 }
 
 console.log('[SW] 🚀 Service Worker cargado (Versión:', CACHE_VERSION, ')');
